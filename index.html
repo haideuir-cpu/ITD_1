@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>ITD SPORTS PRO</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { 
+            --bg: #0b1116; --card: #162029; --accent: #1e90ff; 
+            --gold: #f1c40f; --grass: #236326; --line: rgba(255,255,255,0.7);
+            --nav-inactive: #8e99a2; --text: white; --border: #24313d;
+        }
+
+        /* تنسيقات الوضع الفاتح */
+        body.light-mode {
+            --bg: #f0f2f5; --card: #ffffff; --text: #1c1e21; --border: #ddd;
+            --nav-inactive: #65676b;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: sans-serif; }
+        body { background: var(--bg); margin: 0; color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: background 0.3s; }
+
+        /* --- شاشة الترحيب --- */
+        #splash-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease-in-out, visibility 0.8s;
+        }
+        .splash-logo {
+            font-size: 100px; font-weight: 900; color: white; margin: 0;
+            font-family: 'Arial Black', sans-serif; letter-spacing: -5px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        .splash-text {
+            margin-top: 10px; font-size: 18px; font-weight: bold; color: white;
+            border-top: 2px solid rgba(255,255,255,0.3); padding-top: 8px;
+            letter-spacing: 1px;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+
+        header { height: 55px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--accent); }
+        main { flex: 1; overflow-y: auto; padding-bottom: 90px; }
+        .section { display: none; padding: 12px; }
+        .section.active { display: block; }
+
+        .nav { position: fixed; bottom: 0; width: 100%; height: 80px; background: var(--bg); display: flex; border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--nav-inactive); transition: 0.3s; cursor: pointer; position: relative; }
+        .nav-item svg { width: 28px; height: 28px; margin-bottom: 4px; fill: currentColor; }
+        .nav-item.active { color: var(--accent); }
+        .nav-item div { font-size: 0.75rem; font-weight: bold; }
+
+        /* --- تحديث الإشعارات الجديد --- */
+        .notif-badge {
+            position: absolute; top: 12px; left: 25%;
+            background: #ff4d4d; color: white; font-size: 10px;
+            width: 8px; height: 8px; border-radius: 50%;
+            display: none; border: 1.5px solid var(--bg);
+        }
+        .notif-badge-active { display: block; }
+
+        .notif-card {
+            background: var(--card); border: 1px solid var(--border);
+            padding: 12px; border-radius: 10px; margin-bottom: 10px;
+            border-right: 4px solid var(--accent); animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .notif-card b { display: block; margin-bottom: 4px; color: var(--accent); font-size: 0.9rem; }
+        .notif-card span { font-size: 0.85rem; line-height: 1.4; }
+        .notif-card small { color: var(--nav-inactive); font-size: 10px; display: block; margin-top: 8px; }
+
+        .match-card { background: var(--card); margin-bottom: 12px; padding: 15px; border-radius: 12px; display: flex; align-items: center; border: 1px solid var(--border); }
+        .team-clickable { width: 30%; text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .team-clickable:active { transform: scale(0.95); }
+        .score-clickable { flex: 1; text-align: center; cursor: pointer; }
+        .score-val { font-size: 1.8rem; font-weight: bold; letter-spacing: 2px; }
+        .time-badge { background: rgba(30,144,255,0.1); color: var(--accent); padding: 5px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; }
+        
+        .pen-text { color: var(--gold); font-size: 0.85rem; display: block; margin-top: 5px; font-weight: bold; }
+
+        .team-toggle { display: flex; justify-content: center; gap: 10px; padding: 10px; background: var(--card); border-bottom: 1px solid var(--border); }
+        .t-btn { padding: 6px 15px; border-radius: 20px; border: 1px solid var(--border); font-size: 12px; cursor: pointer; color: var(--nav-inactive); transition: 0.3s; }
+        .t-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .pitch-container { perspective: 1200px; width: 100%; height: 500px; display: flex; justify-content: center; padding-top: 15px; position: relative; }
+        #formation-badge { position: absolute; top: 25px; right: 25px; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 20px; border: 1px solid var(--accent); font-size: 12px; font-weight: bold; color: var(--accent); z-index: 100; }
+
+        .pitch-3d { width: 92%; height: 100%; background: var(--grass); position: relative; transform: rotateX(15deg); border: 2px solid white; border-radius: 4px; background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.05), rgba(0,0,0,0.05) 40px, transparent 40px, transparent 80px); overflow: hidden; }
+        .pitch-3d::before { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 2px; background: white; transform: translateY(-50%); }
+        .pitch-3d::after { content: ''; position: absolute; top: 50%; left: 50%; width: 80px; height: 80px; border: 2px solid white; border-radius: 50%; transform: translate(-50%, -50%); }
+
+        .box-top { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 65%; height: 90px; border: 2px solid white; border-top: none; }
+        .goal-top { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 35%; height: 35px; border: 2px solid white; border-top: none; }
+        .arc-top { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); width: 60px; height: 25px; border: 2px solid white; border-top: none; border-radius: 0 0 50px 50px; }
+        .spot-top { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: white; border-radius: 50%; }
+        .box-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 65%; height: 90px; border: 2px solid white; border-bottom: none; }
+        .goal-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 35%; height: 35px; border: 2px solid white; border-bottom: none; }
+        .arc-bottom { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: 60px; height: 25px; border: 2px solid white; border-bottom: none; border-radius: 50px 50px 0 0; }
+        .spot-bottom { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: white; border-radius: 50%; }
+
+        .modal { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 2000; flex-direction: column; }
+        .m-tab { flex: 1; padding: 15px; text-align: center; color: var(--nav-inactive); cursor: pointer; font-weight: bold; }
+        .m-tab.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+        .pl-pin { position: absolute; width: 70px; text-align: center; transform: translate(-50%, -50%) rotateX(-15deg); z-index: 10; cursor: pointer; }
+        .pl-img-w { position: relative; display: inline-block; width: 50px; height: 50px; }
+        .pl-img-w img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid white; object-fit: cover; background: #222; }
+        .pl-name { font-size: 10px; font-weight: bold; display: block; margin-top: 5px; color: white; text-shadow: 1px 1px 2px #000; }
+        .pl-number { position: absolute; top: -5px; left: -5px; background: #202030; color: white; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 5; }
+        .pl-rate { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 10px; border: 1px solid white; }
+        
+        .pl-captain { position: absolute; top: -5px; right: -5px; background: var(--gold); color: black; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 6; font-weight: 900; }
+
+        .pl-motm { 
+            position: absolute; top: -8px; right: 20px; 
+            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); 
+            color: #000; width: 20px; height: 20px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            border: 1.5px solid white; z-index: 7; 
+            box-shadow: 0 0 8px rgba(241, 196, 15, 0.6); 
+        }
+        .pl-motm svg { width: 12px; height: 12px; fill: #000; }
+
+        .squad-list { display: flex; flex-direction: column; gap: 10px; padding: 15px; }
+        .squad-item { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-right: 5px solid #ccc;
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            cursor: pointer; 
+        }
+        .squad-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); }
+        .squad-info { flex: 1; display: flex; flex-direction: column; }
+        .squad-info b { font-size: 0.95rem; color: var(--text); }
+        .squad-info small { color: var(--nav-inactive); font-size: 0.8rem; margin-top: 2px; }
+        .squad-rating-circ { 
+            background: var(--gold); 
+            color: black; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 900; 
+            font-size: 0.75rem; 
+        }
+
+        .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .info-card span:first-child { color: var(--text); font-weight: bold; font-size: 0.95rem; }
+        .info-card span:last-child { color: var(--nav-inactive); font-size: 0.85rem; }
+        .back-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+
+        /* --- تنسيقات خانة المزيد --- */
+        .more-item {
+            background: var(--card);
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        .more-item div { display: flex; align-items: center; gap: 12px; font-weight: bold; }
+        .more-item svg { width: 22px; height: 22px; fill: var(--accent); }
+        
+        .switch {
+            width: 44px; height: 24px; background: #3c4b58; border-radius: 20px; position: relative; transition: 0.3s;
+        }
+        .switch::after {
+            content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s;
+        }
+        .switch.active { background: var(--accent); }
+        .switch.active::after { left: 23px; }
+
+        body.light-mode .switch:not(.active) { background: #ccc; }
+
+        /* --- تنسيقات مقاعد البدلاء والغيابات الجديدة --- */
+        .bench-out-section {
+            padding: 15px;
+            border-top: 1px dashed var(--border);
+            margin-top: 20px;
+        }
+        .bench-out-section h4 {
+            color: var(--nav-inactive);
+            border-right: 3px solid var(--nav-inactive);
+            padding-right: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* أيقونات الغيابات */
+        .pl-absent-icon {
+            position: absolute; top: -5px; right: -5px; 
+            width: 18px; height: 18px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: bold; border: 1px solid white; z-index: 10;
+        }
+        .icon-ev { background: #ff4d4d; color: white; } /* طرد */
+        .icon-inf { background: white; color: #ff4d4d; font-size: 14px; } /* إصابة */
+
+        /* --- التحديث العصري للأيقونات (أهداف، أسيست، كروت) --- */
+        .pl-badge {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            width: 20px; height: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: bold; color: black;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            border: 1.5px solid #fff;
+            z-index: 12;
+            transition: 0.2s;
+        }
+        .badge-goal { top: -2px; right: -10px; background: #fff; }
+        .badge-goal.gold { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; }
+        
+        .badge-assist { 
+            bottom: -5px; right: -10px; 
+            background: #fff; 
+            color: #1e90ff; 
+            font-size: 9px;
+            border-color: #1e90ff;
+        }
+        
+        .badge-card { top: -2px; left: -10px; width: 14px; height: 19px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.5); }
+        .badge-yellow { background: #ffcc00; box-shadow: 0 0 8px rgba(255, 204, 0, 0.4); }
+        .badge-red { background: #ff3b30; box-shadow: 0 0 8px rgba(255, 59, 48, 0.4); }
+        
+        .badge-double-card { 
+            top: -2px; left: -10px; width: 22px; height: 20px; background: none; border: none; box-shadow: none;
+            display: flex; gap: 2px;
+        }
+        .badge-double-card .c-y, .badge-double-card .c-r { width: 10px; height: 16px; border-radius: 2px; }
+        .badge-double-card .c-y { background: #ffcc00; transform: rotate(-5deg); }
+        .badge-double-card .c-r { background: #ff3b30; transform: rotate(5deg); margin-left: -5px; border: 1px solid white; }
+
+        .badge-injury { 
+            bottom: -5px; left: -10px; 
+            background: #fff; 
+            color: #ff3b30; 
+            font-size: 12px; 
+            font-weight: 900;
+            border: 1.5px solid #ff3b30;
+        }
+
+        /* --- تنسيقات زر اللايك الجديد --- */
+        .news-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 8px 12px;
+            border-top: 1px solid var(--border);
+            gap: 8px;
+        }
+        .like-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.05);
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+        .like-btn:active { transform: scale(0.9); background: rgba(255, 77, 77, 0.1); }
+        .like-btn svg { width: 18px; height: 18px; fill: #8e99a2; transition: 0.3s; }
+        .like-btn.liked svg { fill: #ff4d4d; animation: heartBeat 0.3s ease-in-out; }
+        .like-btn.liked span { color: #ff4d4d; }
+        .like-btn span { font-size: 13px; font-weight: bold; color: #8e99a2; }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* --- ميزة !BOOM الجديدة --- */
+        .boom-container {
+            position: relative;
+            height: calc(100vh - 80px); /* تعويض شريط التنقل السفلي */
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            background: #000;
+        }
+        .boom-item {
+            height: 100%;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000;
+        }
+        .boom-video-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .boom-item iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none;
+            position: absolute;
+            top: 0; left: 0;
+        }
+        /* الطبقة الشفافة العلوية !BOOM */
+        .boom-header {
+            position: absolute;
+            top: 0; left: 0; width: 100%;
+            z-index: 100;
+            display: flex;
+            padding: 15px 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            gap: 20px;
+        }
+        .boom-tab {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: rgba(255,255,255,0.6);
+            cursor: pointer;
+            position: relative;
+        }
+        .boom-tab.active { color: #fff; }
+        .boom-tab.active::after {
+            content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 3px; background: var(--accent); border-radius: 2px;
+        }
+        .boom-info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            left: 20px;
+            z-index: 100;
+            pointer-events: none;
+            text-shadow: 1px 1px 5px rgba(0,0,0,1);
+        }
+        .boom-info h3 { margin: 0; font-size: 1rem; color: #fff; }
+        .boom-info p { margin: 5px 0 0; font-size: 0.85rem; color: #ddd; }
+    </style>
+</head>
+<body>
+
+<div id="splash-screen">
+    <h1 class="splash-logo">ITD</h1>
+    <div class="splash-text">المكتب الإعلامي لفريق الاتحاد</div>
+</div>
+
+<header id="main-header">ITD SPORTS</header>
+
+<main>
+    <div id="sec-m" class="section active"></div>
+    <div id="sec-n" class="section"></div>
+    
+    <div id="sec-boom" class="section" style="padding:0; height: 100%;">
+        <div class="boom-header">
+            <div class="boom-tab active">!BOOM</div>
+        </div>
+        <div id="boom-list" class="boom-container">
+            </div>
+    </div>
+
+    <div id="sec-more" class="section">
+        <h3 style="margin-bottom: 20px;">الإعدادات العامة</h3>
+        
+        <div class="more-item" onclick="toggleTheme()">
+            <div>
+                <svg viewBox="0 0 24 24"><path d="M12,18C9.79,18 8,16.21 8,14C8,11.79 9.79,10 12,10C14.21,10 16,11.79 16,14C16,16.21 14.21,18 12,18M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/></svg>
+                الوضع الليلي / العادي
+            </div>
+            <div id="theme-switch" class="switch"></div>
+        </div>
+
+        <h3 style="margin-top: 30px; margin-bottom: 20px;">الدعم والتواصل</h3>
+        <div class="more-item" onclick="alert('سيتم فتح نموذج الدعم الفني قريباً')">
+            <div>
+                <svg viewBox="0 0 24 24"><path d="M20,2H4C2.9,2,2,2.9,2,4v12c0,1.1,0.9,2,2,2h14l4,4V4C22,2.9,21.1,2,20,2z"/></svg>
+                الإبلاغ عن مشكلة
+            </div>
+        </div>
+    </div>
+</main>
+
+<nav class="nav">
+    <div id="nav-m" class="nav-item active" onclick="showTab('m')">
+        <svg viewBox="0 0 24 24"><path d="M7 5h2v2H7V5m4 0h2v2h-2V5m4 0h2v2-2V5M7 9h2v2H7V9m4 0h2v2h-2V9m4 0h2v2h-2V9m-8 4h2v2H7v-2m4 0h2v2h-2v-2m4 0h2v2h-2v-2m-8 4h2v2H7v-2m4 0h2v2h-2v-2m4 0h2v2h-2v-2M3 3h18v18H3V3m2 2v14h14V5H5z"/></svg>
+        <div>نتائج</div>
+    </div>
+    <div id="nav-n" class="nav-item" onclick="showTab('n')">
+        <svg viewBox="0 0 24 24"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H5V5h14v14zM11 7h6v2h-6V7zm0 4h6v2h-6v-2zm-4-4h2v6H7V7zm0 8h10v2H7v-2z"/></svg>
+        <div>أخبار</div>
+    </div>
+    <div id="nav-boom" class="nav-item" onclick="showTab('boom')">
+        <svg viewBox="0 0 24 24"><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z"/></svg>
+        <div>!BOOM</div>
+    </div>
+    <div id="nav-more" class="nav-item" onclick="showTab('more')">
+        <div class="notif-badge" id="more-badge"></div>
+        <svg viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/></svg>
+        <div>المزيد</div>
+    </div>
+</nav>
+
+<div id="m-modal" class="modal">
+    <div style="padding:15px; background:var(--card); display:flex; align-items:center; justify-content:space-between; border-bottom: 1px solid var(--border);">
+        <div class="back-btn" onclick="closeModal('m-modal')">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18l6-6-6-6"/>
+            </svg>
+        </div>
+        <b id="m-title">التفاصيل</b>
+        <div style="width:40px;"></div>
+    </div>
+    <div style="display: flex; background: var(--card); border-bottom: 1px solid var(--border);">
+        <div id="tab-lineup" class="m-tab active" onclick="switchMatchTab('lineup')">التشكيلة</div>
+        <div id="tab-squad" class="m-tab" onclick="switchMatchTab('squad')">القائمة</div>
+        <div id="tab-events" class="m-tab" onclick="switchMatchTab('events')">الأحداث</div>
+        <div id="tab-details" class="m-tab" onclick="switchMatchTab('details')">التفاصيل</div>
+    </div>
+    <div id="match-content" style="flex:1; overflow-y:auto;">
+        <div id="lineup-view">
+            <div class="team-toggle" id="team-selector"></div>
+            <div class="pitch-container">
+                <div id="formation-badge">-- : -- : --</div>
+                <div class="pitch-3d" id="pitch-field">
+                    <div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div>
+                    <div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>
+                </div>
+            </div>
+            <div id="coach-area" style="margin:20px; background:var(--card); border:1px solid var(--gold); border-radius:15px; padding:15px; display:flex; align-items:center; gap:15px;"></div>
+            
+            <div style="padding:15px;">
+                <h4>دكة البدلاء</h4>
+                <div id="subs-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center;"></div>
+            </div>
+
+            <div class="bench-out-section" id="bench-out-area" style="display:none;">
+                <h4>مقاعد البدلاء</h4>
+                <div id="out-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center;"></div>
+            </div>
+
+            <div class="bench-out-section" id="bench-absent-area" style="display:none;">
+                <h4>اللاعبون الغائبون</h4>
+                <div id="absent-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center;"></div>
+            </div>
+
+        </div>
+        <div id="squad-view" style="display:none;">
+            <div class="team-toggle" id="squad-team-selector"></div>
+            <div id="squad-list" class="squad-list"></div>
+        </div>
+        <div id="events-view" style="display:none; padding-bottom: 30px;"><div id="events-list"></div></div>
+        <div id="details-view" style="display:none; padding: 15px;"><div id="details-list"></div></div>
+    </div>
+</div>
+
+<div id="p-modal" class="modal" style="background: rgba(11,17,22,0.98); justify-content: center; align-items: center; padding:20px; z-index: 3000;">
+    <div id="p-modal-content" style="background: var(--card); width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--accent);">
+        <img id="p-img" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 15px; object-fit: cover;">
+        <h2 id="p-name-d" style="margin:0;"></h2>
+        <div style="margin: 10px 0; color: #8e99a2; font-size: 0.9rem;"><span id="p-pos-d"></span> | <span id="p-height-d"></span> سم</div>
+        <div id="p-rate-d" style="background: var(--gold); color: black; padding: 5px 15px; border-radius: 10px; font-weight: bold; margin: 10px 0; display: inline-block;"></div>
+        
+        <div id="p-stats-area" style="display: flex; justify-content: space-around; border-top: 1px solid var(--border); padding-top: 20px;">
+            <div><b style="color:var(--accent); font-size:1.5rem;" id="p-g">0</b><br><small>أهداف</small></div>
+            <div><b style="color:var(--accent); font-size:1.5rem;" id="p-a">0</b><br><small>صناعة</small></div>
+        </div>
+        
+        <button onclick="closeModal('p-modal')" style="margin-top:25px; width:100%; padding:15px; background:var(--accent); border:none; color:white; border-radius:10px; font-weight:bold;">رجوع</button>
+    </div>
+</div>
+
+<script>
+    const supabaseUrl = 'https://tdheaqtddxxsenmmlrkp.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkaGVhcXRkZHh4c2VubW1scmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjcxNjEsImV4cCI6MjA4OTAwMzE2MX0.nFfL7_e43xY_Avm36dpS7o30OD8V8GWg8L-tLaIoaPM';
+    const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    let homeTeam = ""; let awayTeam = ""; let activeMatchId = null; let isMatchStarted = false; 
+    let selectedSquadTeam = "";
+
+    const POSITIONS = {
+        'GK': {t:90, l:50, zone:'D'},
+        'LB': {t:72, l:15, zone:'D'}, 'CB1': {t:78, l:35, zone:'D'}, 'CB2': {t:78, l:65, zone:'D'}, 'RB': {t:72, l:85, zone:'D'},
+        'CB3': {t:82, l:50, zone:'D'}, 'LWB': {t:65, l:10, zone:'D'}, 'RWB': {t:65, l:90, zone:'D'},
+        'LM': {t:50, l:15, zone:'M'}, 'CM1': {t:55, l:35, zone:'M'}, 'CM2': {t:55, l:65, zone:'M'}, 'RM': {t:50, l:85, zone:'M'},
+        'CM3': {t:60, l:50, zone:'M'}, 'AM': {t:40, l:50, zone:'M'}, 'AM1': {t:40, l:30, zone:'M'}, 'AM2': {t:40, l:70, zone:'M'},
+        'LW': {t:22, l:20, zone:'F'}, 'RW': {t:22, l:80, zone:'F'}, 'ST': {t:12, l:50, zone:'F'},
+        'ST1': {t:15, l:35, zone:'F'}, 'ST2': {t:15, l:65, zone:'F'}
+    };
+
+    function sendSystemNotification(title, body) {
+        if (Notification.permission === "granted") {
+            new Notification(title, {
+                body: body,
+                icon: 'https://via.placeholder.com/128'
+            });
+        }
+    }
+
+    function requestNotifPermission() {
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const sw = document.getElementById('theme-switch');
+        body.classList.toggle('light-mode');
+        const isLight = body.classList.contains('light-mode');
+        if(isLight) {
+            sw.classList.add('active');
+        } else {
+            sw.classList.remove('active');
+        }
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+
+    window.addEventListener('load', () => {
+        requestNotifPermission(); 
+
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.getElementById('theme-switch').classList.add('active');
+        }
+
+        _supabase
+          .channel('public:news')
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'news' }, payload => {
+            const updatedNews = payload.new;
+            const countElement = document.getElementById(`like-count-${updatedNews.id}`);
+            if (countElement) {
+                countElement.innerText = updatedNews.likes_count || 0;
+            }
+          })
+          .subscribe();
+
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            if(splash) { splash.style.opacity = '0'; setTimeout(() => { splash.style.visibility = 'hidden'; }, 800); }
+        }, 3000);
+    });
+
+    function showTab(t) {
+        document.querySelectorAll('.section, .nav-item').forEach(el => el.classList.remove('active'));
+        const header = document.getElementById('main-header');
+        header.style.display = (t === 'boom') ? 'none' : 'flex';
+
+        if(t==='m') { document.getElementById('sec-m').classList.add('active'); document.getElementById('nav-m').classList.add('active'); loadMatches(); }
+        else if(t==='n') { document.getElementById('sec-n').classList.add('active'); document.getElementById('nav-n').classList.add('active'); loadNews(); }
+        else if(t==='boom') { document.getElementById('sec-boom').classList.add('active'); document.getElementById('nav-boom').classList.add('active'); loadBoomVideos(); }
+        else if(t==='more') { 
+            document.getElementById('sec-more').classList.add('active'); 
+            document.getElementById('nav-more').classList.add('active'); 
+            const badge = document.getElementById('more-badge');
+            if(badge) badge.style.display = 'none';
+        }
+    }
+
+    async function loadBoomVideos() {
+        const boomList = document.getElementById('boom-list');
+        const { data, error } = await _supabase.from('boom_videos').select('*').order('created_at', {ascending: false});
+        
+        if(error || !data) {
+            boomList.innerHTML = '<div style="color:white; text-align:center; padding:50px;">لا توجد فيديوهات حالياً.</div>';
+            return;
+        }
+
+        boomList.innerHTML = data.map(v => {
+            let embedHtml = "";
+            const url = v.video_url || "";
+
+            if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                let vid = "";
+                if (url.includes('v=')) vid = url.split('v=')[1].split('&')[0];
+                else vid = url.split('/').pop();
+                embedHtml = `<iframe src="https://www.youtube.com/embed/${vid}?playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            } 
+            else if (url.includes('instagram.com')) {
+                let igPath = url.split('?')[0];
+                if (!igPath.endsWith('/')) igPath += '/';
+                embedHtml = `<iframe src="${igPath}embed" scrolling="no" allowtransparency="true"></iframe>`;
+            }
+            else if (url.includes('tiktok.com')) {
+                let tiktokId = "";
+                if (url.includes('/video/')) {
+                    tiktokId = url.split('/video/')[1].split('?')[0];
+                } else {
+                    tiktokId = url.split('/').pop();
+                }
+                embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${tiktokId}" allow="fullscreen"></iframe>`;
+            }
+            else if (url.includes('twitter.com') || url.includes('x.com')) {
+                const tweetId = url.split('/').pop().split('?')[0];
+                embedHtml = `<iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tweetId}&theme=dark" scrolling="no"></iframe>`;
+            }
+            else {
+                embedHtml = `<div style="color:gray; padding:20px;">الرابط غير مدعوم</div>`;
+            }
+            
+            return `
+                <div class="boom-item">
+                    <div class="boom-video-wrapper">${embedHtml}</div>
+                    <div class="boom-info">
+                        <h3>${v.title || 'فيديو جديد'}</h3>
+                        <p>${v.description || '#ITD_SPORTS'}</p>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    async function loadMatches() {
+        const { data } = await _supabase.from('matches').select('*').order('created_at', {ascending: false});
+        document.getElementById('sec-m').innerHTML = data?.map(m => {
+            const hasScore = m.home_score !== null;
+            return `
+                <div class="match-card">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}')">
+                        <img src="${m.home_team_logo}" width="40"><br><small>${m.home_team_name}</small>
+                    </div>
+                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore})">
+                        ${hasScore ? `<div class="score-val">${m.home_score} - ${m.away_score}</div>` : `<div class="time-badge">${m.match_time || 'قريباً'}</div>`}
+                        ${(hasScore && m.home_penalty !== null) ? `<span class="pen-text">ركلات: (${m.home_penalty}) - (${m.away_penalty})</span>` : ''}
+                    </div>
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}')">
+                        <img src="${m.away_team_logo}" width="40"><br><small>${m.away_team_name}</small>
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function openMatch(id, hTeam, aTeam, started) { 
+        activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; 
+        document.getElementById('m-modal').style.display = 'flex'; 
+        document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
+        const selectors = `<div class="t-btn active" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
+        document.getElementById('team-selector').innerHTML = selectors;
+        document.getElementById('squad-team-selector').innerHTML = selectors;
+        switchMatchTab('lineup'); 
+    }
+
+    function openMatchToSquad(id, hTeam, aTeam, started, teamName) {
+        activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; 
+        selectedSquadTeam = teamName;
+        document.getElementById('m-modal').style.display = 'flex'; 
+        document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
+        const selectors = `<div class="t-btn ${teamName === hTeam ? 'active' : ''}" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn ${teamName === aTeam ? 'active' : ''}" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
+        document.getElementById('team-selector').innerHTML = selectors;
+        document.getElementById('squad-team-selector').innerHTML = selectors;
+        switchMatchTab('squad');
+    }
+
+    function loadDataForTeam(team) {
+        document.querySelectorAll('.team-toggle .t-btn').forEach(b => { b.classList.toggle('active', b.innerText === team); });
+        selectedSquadTeam = team;
+        if (document.getElementById('lineup-view').style.display === 'block') loadLineup(team);
+        if (document.getElementById('squad-view').style.display === 'block') loadFullSquad(team);
+    }
+
+    function switchMatchTab(tab) {
+        document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('lineup-view').style.display = 'none'; 
+        document.getElementById('squad-view').style.display = 'none';
+        document.getElementById('events-view').style.display = 'none';
+        document.getElementById('details-view').style.display = 'none';
+        if(tab === 'lineup') { document.getElementById('tab-lineup').classList.add('active'); document.getElementById('lineup-view').style.display = 'block'; loadLineup(homeTeam); } 
+        else if(tab === 'squad') { document.getElementById('tab-squad').classList.add('active'); document.getElementById('squad-view').style.display = 'block'; loadFullSquad(selectedSquadTeam || homeTeam); }
+        else if(tab === 'events') { document.getElementById('tab-events').classList.add('active'); document.getElementById('events-view').style.display = 'block'; loadEvents(); } 
+        else { document.getElementById('tab-details').classList.add('active'); document.getElementById('details-view').style.display = 'block'; loadMatchDetails(); }
+    }
+
+    async function loadFullSquad(teamName) {
+        const { data } = await _supabase.from('players').select('*').eq('team_name', teamName);
+        const list = document.getElementById('squad-list');
+        if (!data) { list.innerHTML = '<div style="text-align:center; padding:20px;">لا يوجد لاعبين.</div>'; return; }
+        const getWeight = (pos) => {
+            const p = (pos || "").toUpperCase();
+            if(["LW", "RW", "ST", "CF"].some(f => p.includes(f))) return 10;
+            if(["LM", "CM", "RM", "AM"].some(m => p.includes(m))) return 20;
+            if(["LB", "CB", "RB", "LWB", "RWB"].some(d => p.includes(d))) return 30;
+            if(p.includes("GK")) return 35;
+            if(p.includes("CO") || p.includes("مدرب")) return 40;
+            return 50; 
+        };
+        const sortedData = data.sort((a, b) => getWeight(a.position) - getWeight(b.position));
+        list.innerHTML = sortedData.map(p => {
+            let sideColor = "#8e99a2"; 
+            const weight = getWeight(p.position);
+            if(weight === 40) sideColor = "#666"; 
+            else if(weight === 10) sideColor = "#e74c3c"; 
+            else if(weight === 20) sideColor = "#2ecc71"; 
+            else if(weight === 30) sideColor = "#1e90ff";
+            else if(weight === 35) sideColor = "#f1c40f";
+            return `
+            <div class="squad-item" style="border-right-color: ${sideColor}" onclick='openPlayerDirect(${JSON.stringify(p)})'>
+                <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50'">
+                <div class="squad-info">
+                    <b>${p.player_name}</b>
+                    <small>#${p.player_number || '--'} | ${p.position || '--'}</small>
+                </div>
+                <div class="squad-rating-circ">${p.rating || '6.0'}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function openPlayerDirect(p) {
+        const isCoach = (p.position && (p.position.toLowerCase().includes('co') || p.position.includes('مدرب')));
+        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'flex';
+        document.getElementById('p-img').src = p.player_image;
+        document.getElementById('p-name-d').innerText = p.player_name;
+        document.getElementById('p-rate-d').innerText = 'التقييم: ' + (p.rating || '6.0');
+        document.getElementById('p-pos-d').innerText = p.position || 'غير محدد';
+        document.getElementById('p-height-d').innerText = p.height || '---';
+        document.getElementById('p-g').innerText = p.goals || 0;
+        document.getElementById('p-a').innerText = p.assists || 0;
+        document.getElementById('p-modal').style.display = 'flex';
+    }
+
+    async function loadLineup(teamFilter) {
+        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( id, player_name, player_image, player_number, height )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
+        const field = document.getElementById('pitch-field'), subs = document.getElementById('subs-grid'), coach = document.getElementById('coach-area'), out = document.getElementById('out-grid'), absentGrid = document.getElementById('absent-grid');
+        field.innerHTML = `<div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div><div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>`;
+        subs.innerHTML = ''; out.innerHTML = ''; coach.innerHTML = ''; absentGrid.innerHTML = '';
+        document.getElementById('bench-out-area').style.display = 'none';
+        document.getElementById('bench-absent-area').style.display = 'none';
+
+        let d=0, m=0, f=0;
+        data?.forEach(item => {
+            const p = item.players; if(!p) return;
+            const rolesArray = (item.role || '').toLowerCase().split(' ');
+            const isCaptain = rolesArray.includes('captain');
+            const captainTag = isCaptain ? `<div class="pl-captain">C</div>` : '';
+            const isMOTM = rolesArray.includes('motm') || rolesArray.includes('star');
+            const motmTag = isMOTM ? `<div class="pl-motm"><svg viewBox="0 0 24 24"><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/></svg></div>` : '';
+            
+            let statsIcons = '';
+            if (item.goals === 1) statsIcons += `<div class="pl-badge badge-goal">⚽</div>`;
+            else if (item.goals >= 2) statsIcons += `<div class="pl-badge badge-goal ${item.goals >= 3 ? 'gold' : ''}">⚽${item.goals}</div>`;
+            if (item.assists > 0) statsIcons += `<div class="pl-badge badge-assist">👟${item.assists > 1 ? item.assists : ''}</div>`;
+            if (item.yellow_cards === 1 && !item.red_card) statsIcons += `<div class="pl-badge badge-card badge-yellow"></div>`;
+            else if (item.yellow_cards === 2) statsIcons += `<div class="pl-badge badge-double-card"><div class="c-y"></div><div class="c-r"></div></div>`;
+            else if (item.red_card) statsIcons += `<div class="pl-badge badge-card badge-red"></div>`;
+            if (item.is_injured) statsIcons += `<div class="pl-badge badge-injury">✚</div>`;
+
+            const getPlayerHtml = (showRate) => `
+                <div onclick='openDetails(${JSON.stringify(item)})'>
+                    <div class="pl-img-w">
+                        <div class="pl-number">${p.player_number || ''}</div>
+                        ${captainTag}${motmTag}${statsIcons}
+                        <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50'">
+                        ${showRate ? `<div class="pl-rate">${item.rating || '6.0'}</div>` : ''}
+                    </div>
+                    <span class="pl-name">${p.player_name}</span>
+                </div>`;
+            
+            if(rolesArray.includes('co')) {
+                coach.innerHTML = `<div onclick='openDetails(${JSON.stringify(item)})' style="display:flex; align-items:center; gap:15px; width:100%; cursor:pointer;"><img src="${p.player_image}" width="50" style="border-radius:50%; object-fit:cover;"><div><small>المدرب</small><br><b>${p.player_name}</b></div></div>`;
+            } else if (rolesArray.includes('ev') || rolesArray.includes('inf')) {
+                document.getElementById('bench-absent-area').style.display = 'block';
+                absentGrid.innerHTML += `<div>${getPlayerHtml(false)}</div>`;
+            } else if (rolesArray.includes('out')) {
+                document.getElementById('bench-out-area').style.display = 'block';
+                out.innerHTML += `<div>${getPlayerHtml(false)}</div>`;
+            } else if(rolesArray.includes('starter')) {
+                const pos = POSITIONS[item.position] || {t:50, l:50, zone:'M'};
+                if(item.position !== 'GK') { if(pos.zone==='D') d++; else if(pos.zone==='M') m++; else f++; }
+                const div = document.createElement('div'); div.className = 'pl-pin'; 
+                div.style.top = pos.t+'%'; div.style.left = pos.l+'%'; 
+                div.innerHTML = getPlayerHtml(true); field.appendChild(div);
+            } else {
+                subs.innerHTML += `<div>${getPlayerHtml(true)}</div>`; 
+            }
+        });
+        document.getElementById('formation-badge').innerText = d+m+f > 0 ? `${d}-${m}-${f}` : "-- : -- : --";
+    }
+
+    function openDetails(item) {
+        const p = item.players;
+        const isCoach = (item.role && item.role.toLowerCase().includes('co'));
+        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'flex';
+        document.getElementById('p-img').src = p.player_image;
+        document.getElementById('p-name-d').innerText = p.player_name;
+        document.getElementById('p-rate-d').innerText = 'التقييم: ' + (item.rating || '6.0');
+        document.getElementById('p-pos-d').innerText = item.position || 'غير محدد';
+        document.getElementById('p-height-d').innerText = p.height || '---';
+        document.getElementById('p-g').innerText = item.goals || 0;
+        document.getElementById('p-a').innerText = item.assists || 0;
+        document.getElementById('p-modal').style.display = 'flex';
+    }
+
+    async function loadEvents() {
+        const list = document.getElementById('events-list'); 
+        if (!isMatchStarted) { list.innerHTML = `<div style="text-align:center; padding:60px; color:#8e99a2;">المباراة لم تبدأ بعد.</div>`; return; }
+        const { data } = await _supabase.from('events').select('*').eq('match_id', activeMatchId).order('minute', {ascending: false});
+        list.innerHTML = data?.map(ev => {
+            let content = ""; let icon = ""; const status = (ev.status || "").toLowerCase();
+            if (status === 'switch' || status === 'تبديل') {
+                icon = `<div style="display:flex; flex-direction:column; align-items:center; line-height:1;"><span style="color:#2ecc71; font-size:14px;">▲</span><span style="color:#e74c3c; font-size:14px;">▼</span></div>`;
+                content = `<div style="display:flex; flex-direction:column;"><div style="font-size:0.9rem;"><span style="color:#2ecc71; margin-left:4px;">دخول:</span><b>${ev.player_in || '---'}</b></div><div style="font-size:0.85rem; opacity:0.8;"><span style="color:#e74c3c; margin-left:4px;">خروج:</span><b>${ev.player_name}</b></div></div>`;
+            } else {
+                if (status === 'goal' || status === 'هدف') icon = "⚽"; else if (status === 'eviction' || status === 'طرد') icon = "🟥"; else if (status === 'yellow' || status === 'اصفر') icon = "🟨"; else icon = "•";
+                content = `<b>${ev.player_name}</b><br><small style="color:#8e99a2">${ev.description || ''}</small>`;
+            }
+            return `<div style="display:flex; align-items:center; padding:15px; border-bottom:1px solid var(--border); gap:15px;"><div style="background:var(--border); padding:4px 10px; border-radius:6px; font-size:0.85rem; font-weight:bold; min-width:45px; text-align:center;">${ev.minute}'</div><div style="width:25px; text-align:center;">${icon}</div><div style="flex:1;">${content}</div></div>`;
+        }).join('') || '<div style="text-align:center; padding:50px; color:#8e99a2;">لا توجد أحداث.</div>';
+    }
+
+    async function loadMatchDetails() {
+        const { data } = await _supabase.from('matches').select('*').eq('id', activeMatchId).single();
+        if(data) document.getElementById('details-list').innerHTML = `<div class="info-card"><span>${data.league_name || '---'}</span><span>البطولة</span></div><div class="info-card"><span>${data.stadium_name || '---'}</span><span>ملعب المباراة</span></div><div class="info-card"><span>${data.match_date || '---'}</span><span>تاريخ المباراة</span></div>`;
+    }
+
+    async function loadNews() {
+        const { data } = await _supabase.from('news').select('*').order('created_at', {ascending: false});
+        document.getElementById('sec-n').innerHTML = data?.map(n => {
+            const isLiked = localStorage.getItem(`liked_news_${n.id}`) === 'true';
+            return `
+            <div style="background:var(--card); margin-bottom:15px; border-radius:12px; overflow:hidden; border: 1px solid var(--border);">
+                <img src="${n.image_url}" style="width:100%; height:200px; object-fit:cover;">
+                <div style="padding:15px;"><b>${n.title}</b></div>
+                <div class="news-footer">
+                    <div id="like-btn-${n.id}" class="like-btn ${isLiked ? 'liked' : ''}" onclick="updateLike(${n.id})">
+                        <span id="like-count-${n.id}">${n.likes_count || 0}</span>
+                        <svg viewBox="0 0 24 24"><path d="M12.1,18.55L12,18.65L11.89,18.55C7.14,14.24 4,11.39 4,8.5C4,6.5 5.5,5 7.5,5C8.64,5 9.74,5.54 10.43,6.38L12,8.28L13.57,6.38C14.26,5.54 15.36,5 16.5,5C18.5,5 20,6.5 20,8.5C20,11.39 16.86,14.24 12.1,18.55M16.5,3C14.76,3 13.09,3.81 12,5.08C10.91,3.81 9.24,3 7.5,3C4.42,3 2,5.41 2,8.5C2,12.27 5.4,15.36 10.55,20.03L12,21.35L13.45,20.03C18.6,15.36 22,12.27 22,8.5C22,5.41 19.58,3 16.5,3Z"/></svg>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    async function updateLike(newsId) {
+        const btn = document.getElementById(`like-btn-${newsId}`);
+        const countSpan = document.getElementById(`like-count-${newsId}`);
+        const storageKey = `liked_news_${newsId}`;
+        const alreadyLiked = localStorage.getItem(storageKey) === 'true';
+        let currentVal = parseInt(countSpan.innerText);
+        if (!alreadyLiked) {
+            btn.classList.add('liked'); countSpan.innerText = currentVal + 1; localStorage.setItem(storageKey, 'true');
+            const { error } = await _supabase.rpc('increment_likes', { row_id: newsId });
+            if (error) { btn.classList.remove('liked'); countSpan.innerText = currentVal; localStorage.removeItem(storageKey); }
+        } else {
+            btn.classList.remove('liked'); countSpan.innerText = Math.max(0, currentVal - 1); localStorage.setItem(storageKey, 'false');
+            const { error } = await _supabase.rpc('decrement_likes', { row_id: newsId });
+            if (error) { btn.classList.add('liked'); countSpan.innerText = currentVal; localStorage.setItem(storageKey, 'true'); }
+        }
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    loadMatches();
+</script>
+</body>
+</html>
