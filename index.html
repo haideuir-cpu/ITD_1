@@ -566,6 +566,20 @@
         'ST1': {t:15, l:35, zone:'F'}, 'ST2': {t:15, l:65, zone:'F'}
     };
 
+    // --- دالة تحديد لون التقييم بناءً على الدرجة ---
+    function getRatingStyle(rating) {
+        const r = parseFloat(rating);
+        if (isNaN(r)) return 'background: var(--gold); color: black;';
+        if (r >= 1.0 && r <= 4.9) return 'background: #e74c3c; color: white; border-color: #c0392b;'; // احمر
+        if (r >= 5.0 && r <= 5.9) return 'background: #d35400; color: white; border-color: #a04000;'; // برتقالي داكن
+        if (r >= 6.0 && r <= 6.9) return 'background: #f39c12; color: black; border-color: #e67e22;'; // اصفر داكن
+        if (r >= 7.0 && r <= 7.9) return 'background: #1abc9c; color: white; border-color: #16a085;'; // اخضر فيروزي
+        if (r >= 8.0 && r <= 8.9) return 'background: #85c1e9; color: black; border-color: #5dade2;'; // ازرق باهت
+        if (r >= 9.0 && r <= 9.9) return 'background: #2980b9; color: white; border-color: #1f618d;'; // ازرق متوسط
+        if (r >= 10.0) return 'background: linear-gradient(135deg, #f1c40f, #f39c12); color: black; border-color: white;'; // ذهبي
+        return 'background: var(--gold); color: black;';
+    }
+
     function sendSystemNotification(title, body) {
         if (Notification.permission === "granted") {
             new Notification(title, {
@@ -779,7 +793,7 @@
                     <b>${p.player_name}</b>
                     <small>#${p.player_number || '--'} | ${p.position || '--'}</small>
                 </div>
-                <div class="squad-rating-circ">${p.rating || '6.0'}</div>
+                <div class="squad-rating-circ" style="${getRatingStyle(p.rating || '6.0')}">${p.rating || '6.0'}</div>
             </div>`;
         }).join('');
     }
@@ -807,9 +821,9 @@
         document.getElementById('p-team-name').innerText = p.team_name || '--';
         
         document.getElementById('p-pos-d').innerText = p.position || '--';
-        document.getElementById('p-weight-d').innerText = p.weight ? (p.weight.toString().includes('كجم') ? p.weight : p.weight + ' كجم') : '--';
+        document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
         document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
-        document.getElementById('p-foot-d').innerText = p.foot || p.preferred_foot || '--';
+        document.getElementById('p-foot-d').innerText = p.preferred_foot || '--';
         
         document.getElementById('p-apps').innerText = p.appearances || 0;
         document.getElementById('p-g').innerText = p.goals || 0;
@@ -825,7 +839,7 @@
     }
 
     async function loadLineup(teamFilter) {
-        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( * )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
+        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( id, player_name, player_image, player_number, height )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
         const field = document.getElementById('pitch-field'), subs = document.getElementById('subs-grid'), coach = document.getElementById('coach-area'), out = document.getElementById('out-grid'), absentGrid = document.getElementById('absent-grid');
         field.innerHTML = `<div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div><div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>`;
         subs.innerHTML = ''; out.innerHTML = ''; coach.innerHTML = ''; absentGrid.innerHTML = '';
@@ -856,7 +870,7 @@
                         <div class="pl-number">${p.player_number || ''}</div>
                         ${captainTag}${motmTag}${statsIcons}
                         <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50'">
-                        ${showRate ? `<div class="pl-rate">${item.rating || '6.0'}</div>` : ''}
+                        ${showRate ? `<div class="pl-rate" style="${getRatingStyle(item.rating || '6.0')}">${item.rating || '6.0'}</div>` : ''}
                     </div>
                     <span class="pl-name">${p.player_name}</span>
                 </div>`;
@@ -904,20 +918,16 @@
         document.getElementById('p-team-name').innerText = selectedSquadTeam || '--';
         
         document.getElementById('p-pos-d').innerText = item.position || p.position || '--';
-        document.getElementById('p-weight-d').innerText = p.weight ? (p.weight.toString().includes('كجم') ? p.weight : p.weight + ' كجم') : '--';
+        document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
         document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
-        document.getElementById('p-foot-d').innerText = p.foot || p.preferred_foot || '--';
+        document.getElementById('p-foot-d').innerText = p.preferred_foot || '--';
         
         document.getElementById('p-apps').innerText = p.appearances || 0;
         document.getElementById('p-g').innerText = item.goals || p.goals || 0;
         document.getElementById('p-a').innerText = item.assists || p.assists || 0;
         document.getElementById('p-yellows').innerText = item.yellow_cards || p.yellow_cards || 0;
         document.getElementById('p-reds').innerText = item.red_card ? 1 : (p.red_cards || 0);
-
-        // التعديل الجديد لرجل المباراة
-        const rolesArr = (item.role || '').toLowerCase().split(' ');
-        const isMOTM = rolesArr.includes('motm') || rolesArr.includes('star');
-        document.getElementById('p-motm').innerText = (p.motm_count || 0) + (isMOTM ? 1 : 0);
+        document.getElementById('p-motm').innerText = (item.role && (item.role.includes('motm') || item.role.includes('star'))) ? 1 : (p.motm_count || 0);
         
         document.getElementById('p-pen-scored').innerText = p.penalties_scored || 0;
         document.getElementById('p-pen-missed').innerText = p.penalties_missed || 0;
