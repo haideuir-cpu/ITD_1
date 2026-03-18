@@ -807,9 +807,9 @@
         document.getElementById('p-team-name').innerText = p.team_name || '--';
         
         document.getElementById('p-pos-d').innerText = p.position || '--';
-        document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
+        document.getElementById('p-weight-d').innerText = p.weight ? (p.weight.toString().includes('كجم') ? p.weight : p.weight + ' كجم') : '--';
         document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
-        document.getElementById('p-foot-d').innerText = p.preferred_foot || '--';
+        document.getElementById('p-foot-d').innerText = p.foot || p.preferred_foot || '--';
         
         document.getElementById('p-apps').innerText = p.appearances || 0;
         document.getElementById('p-g').innerText = p.goals || 0;
@@ -825,8 +825,7 @@
     }
 
     async function loadLineup(teamFilter) {
-        // تم التعديل هنا لإضافة cover_image في الاستعلام
-        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( id, player_name, player_image, player_number, height, cover_image )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
+        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( * )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
         const field = document.getElementById('pitch-field'), subs = document.getElementById('subs-grid'), coach = document.getElementById('coach-area'), out = document.getElementById('out-grid'), absentGrid = document.getElementById('absent-grid');
         field.innerHTML = `<div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div><div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>`;
         subs.innerHTML = ''; out.innerHTML = ''; coach.innerHTML = ''; absentGrid.innerHTML = '';
@@ -905,16 +904,20 @@
         document.getElementById('p-team-name').innerText = selectedSquadTeam || '--';
         
         document.getElementById('p-pos-d').innerText = item.position || p.position || '--';
-        document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
+        document.getElementById('p-weight-d').innerText = p.weight ? (p.weight.toString().includes('كجم') ? p.weight : p.weight + ' كجم') : '--';
         document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
-        document.getElementById('p-foot-d').innerText = p.preferred_foot || '--';
+        document.getElementById('p-foot-d').innerText = p.foot || p.preferred_foot || '--';
         
         document.getElementById('p-apps').innerText = p.appearances || 0;
         document.getElementById('p-g').innerText = item.goals || p.goals || 0;
         document.getElementById('p-a').innerText = item.assists || p.assists || 0;
         document.getElementById('p-yellows').innerText = item.yellow_cards || p.yellow_cards || 0;
         document.getElementById('p-reds').innerText = item.red_card ? 1 : (p.red_cards || 0);
-        document.getElementById('p-motm').innerText = (item.role && (item.role.includes('motm') || item.role.includes('star'))) ? 1 : (p.motm_count || 0);
+
+        // التعديل الجديد لرجل المباراة
+        const rolesArr = (item.role || '').toLowerCase().split(' ');
+        const isMOTM = rolesArr.includes('motm') || rolesArr.includes('star');
+        document.getElementById('p-motm').innerText = (p.motm_count || 0) + (isMOTM ? 1 : 0);
         
         document.getElementById('p-pen-scored').innerText = p.penalties_scored || 0;
         document.getElementById('p-pen-missed').innerText = p.penalties_missed || 0;
