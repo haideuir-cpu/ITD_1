@@ -367,251 +367,28 @@
         .p-main-info { position: relative; padding: 0 20px; margin-top: -55px; display: flex; flex-direction: column; align-items: center; }
         .p-avatar-wrap { position: relative; width: 110px; height: 110px; }
         .p-avatar { width: 100%; height: 100%; border-radius: 20px; border: 4px solid var(--card); object-fit: cover; background: #222; }
-        .p-team-badge { position: absolute; top: 0; right: -5px; width: 35px; height: 35px; background: white; border-radius: 50%; padding: 4px; border: 2px solid var(--c        .m-tab { flex: 1; padding: 15px; text-align: center; color: var(--nav-inactive); cursor: pointer; font-weight: bold; }
-        .m-tab.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
-        .pl-pin { position: absolute; width: 70px; text-align: center; transform: translate(-50%, -50%) rotateX(-15deg); z-index: 10; cursor: pointer; }
-        .pl-img-w { position: relative; display: inline-block; width: 50px; height: 50px; }
-        .pl-img-w img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid white; object-fit: cover; background: #222; }
-        .pl-name { font-size: 10px; font-weight: bold; display: block; margin-top: 5px; color: white; text-shadow: 1px 1px 2px #000; }
-        .pl-number { position: absolute; top: -5px; left: -5px; background: #202030; color: white; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 5; }
-        .pl-rate { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 10px; border: 1px solid white; }
+        .p-team-badge { position: absolute; top: 0; right: -5px; width: 35px; height: 35px; background: white; border-radius: 50%; padding: 4px; border: 2px solid var(--card); object-fit: contain; z-index: 2; }
+        .p-num-circle { position: absolute; bottom: 5px; right: -5px; background: var(--accent); color: white; width: 28px; height: 28px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); z-index: 2; }
         
-        .pl-captain { position: absolute; top: -5px; right: -5px; background: var(--gold); color: black; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 6; font-weight: 900; }
-
-        .pl-motm { 
-            position: absolute; top: -8px; right: 20px; 
-            background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); 
-            color: #000; width: 20px; height: 20px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            border: 1.5px solid white; z-index: 7; 
-            box-shadow: 0 0 8px rgba(241, 196, 15, 0.6); 
-        }
-        .pl-motm svg { width: 12px; height: 12px; fill: #000; }
-
-        .squad-list { display: flex; flex-direction: column; gap: 10px; padding: 15px; }
-        .squad-item { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            border-right: 5px solid #ccc;
-            padding: 12px 15px; 
-            border-radius: 8px; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            cursor: pointer; 
-        }
-        .squad-item img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); }
-        .squad-info { flex: 1; display: flex; flex-direction: column; }
-        .squad-info b { font-size: 0.95rem; color: var(--text); }
-        .squad-info small { color: var(--nav-inactive); font-size: 0.8rem; margin-top: 2px; }
-        .squad-rating-circ { 
-            background: var(--gold); 
-            color: black; 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 900; 
-            font-size: 0.75rem; 
-        }
-
-        .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .info-card span:first-child { color: var(--text); font-weight: bold; font-size: 0.95rem; }
-        .info-card span:last-child { color: var(--nav-inactive); font-size: 0.85rem; }
-        .back-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
-
-        /* --- تنسيقات خانة المزيد --- */
-        .more-item {
-            background: var(--card);
-            padding: 18px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-        }
-        .more-item div { display: flex; align-items: center; gap: 12px; font-weight: bold; }
-        .more-item svg { width: 22px; height: 22px; fill: var(--accent); }
+        .p-title-sec { text-align: center; padding-top: 10px; width: 100%; }
+        .p-name-big { font-size: 1.4rem; font-weight: 900; margin: 0; color: white; line-height: 1.2; }
+        .p-team-sub { color: var(--nav-inactive); font-size: 0.95rem; margin-top: 4px; }
         
-        .switch {
-            width: 44px; height: 24px; background: #3c4b58; border-radius: 20px; position: relative; transition: 0.3s;
-        }
-        .switch::after {
-            content: ''; position: absolute; width: 18px; height: 18px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s;
-        }
-        .switch.active { background: var(--accent); }
-        .switch.active::after { left: 23px; }
-
-        body.light-mode .switch:not(.active) { background: #ccc; }
-
-        /* --- تنسيقات مقاعد البدلاء والغيابات الجديدة --- */
-        .bench-out-section {
-            padding: 15px;
-            border-top: 1px dashed var(--border);
-            margin-top: 20px;
-        }
-        .bench-out-section h4 {
-            color: var(--nav-inactive);
-            border-right: 3px solid var(--nav-inactive);
-            padding-right: 10px;
-            margin-bottom: 15px;
-        }
+        .p-grid-info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 15px 20px; }
+        .p-box { background: rgba(255,255,255,0.03); padding: 10px 5px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
+        .p-box small { display: block; color: var(--nav-inactive); font-size: 10px; margin-bottom: 5px; }
+        .p-box b { font-size: 11px; color: var(--accent); }
         
-        /* أيقونات الغيابات */
-        .pl-absent-icon {
-            position: absolute; top: -5px; right: -5px; 
-            width: 18px; height: 18px; border-radius: 4px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: bold; border: 1px solid white; z-index: 10;
-        }
-        .icon-ev { background: #ff4d4d; color: white; } /* طرد */
-        .icon-inf { background: white; color: #ff4d4d; font-size: 14px; } /* إصابة */
-
-        /* --- التحديث العصري للأيقونات (أهداف، أسيست، كروت) --- */
-        .pl-badge {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            width: 20px; height: 20px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 10px; font-weight: bold; color: black;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
-            border: 1.5px solid #fff;
-            z-index: 12;
-            transition: 0.2s;
-        }
-        .badge-goal { top: -2px; right: -10px; background: #fff; }
-        .badge-goal.gold { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; }
+        .p-stats-grid { background: rgba(0,0,0,0.15); padding: 15px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-top: 1px solid var(--border); }
+        .stat-v { text-align: center; }
+        .stat-v b { display: block; font-size: 1.3rem; color: white; }
+        .stat-v small { color: var(--nav-inactive); font-size: 11px; margin-top: 4px; display: block; }
         
-        .badge-assist { 
-            bottom: -5px; right: -10px; 
-            background: #fff; 
-            color: #1e90ff; 
-            font-size: 9px;
-            border-color: #1e90ff;
-        }
+        .p-pen-sec { padding: 15px 20px; background: rgba(255,255,255,0.02); display: flex; justify-content: space-around; border-top: 1px solid var(--border); align-items: center; }
+        .pen-v { font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+        .p-suc { color: #2ecc71; } .p-mis { color: #e74c3c; }
         
-        .badge-card { top: -2px; left: -10px; width: 14px; height: 19px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.5); }
-        .badge-yellow { background: #ffcc00; box-shadow: 0 0 8px rgba(255, 204, 0, 0.4); }
-        .badge-red { background: #ff3b30; box-shadow: 0 0 8px rgba(255, 59, 48, 0.4); }
-        
-        .badge-double-card { 
-            top: -2px; left: -10px; width: 22px; height: 20px; background: none; border: none; box-shadow: none;
-            display: flex; gap: 2px;
-        }
-        .badge-double-card .c-y, .badge-double-card .c-r { width: 10px; height: 16px; border-radius: 2px; }
-        .badge-double-card .c-y { background: #ffcc00; transform: rotate(-5deg); }
-        .badge-double-card .c-r { background: #ff3b30; transform: rotate(5deg); margin-left: -5px; border: 1px solid white; }
-
-        .badge-injury { 
-            bottom: -5px; left: -10px; 
-            background: #fff; 
-            color: #ff3b30; 
-            font-size: 12px; 
-            font-weight: 900;
-            border: 1.5px solid #ff3b30;
-        }
-
-        /* --- تنسيقات زر اللايك الجديد --- */
-        .news-footer {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding: 8px 12px;
-            border-top: 1px solid var(--border);
-            gap: 8px;
-        }
-        .like-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(255,255,255,0.05);
-            padding: 5px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid transparent;
-        }
-        .like-btn:active { transform: scale(0.9); background: rgba(255, 77, 77, 0.1); }
-        .like-btn svg { width: 18px; height: 18px; fill: #8e99a2; transition: 0.3s; }
-        .like-btn.liked svg { fill: #ff4d4d; animation: heartBeat 0.3s ease-in-out; }
-        .like-btn.liked span { color: #ff4d4d; }
-        .like-btn span { font-size: 13px; font-weight: bold; color: #8e99a2; }
-        
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-
-        /* --- ميزة !BOOM الجديدة --- */
-        .boom-container {
-            position: relative;
-            height: calc(100vh - 80px); /* تعويض شريط التنقل السفلي */
-            overflow-y: scroll;
-            scroll-snap-type: y mandatory;
-            background: #000;
-        }
-        .boom-item {
-            height: 100%;
-            width: 100%;
-            scroll-snap-align: start;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #000;
-        }
-        .boom-video-wrapper {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .boom-item iframe {
-            width: 100% !important;
-            height: 100% !important;
-            border: none;
-            position: absolute;
-            top: 0; left: 0;
-        }
-        /* الطبقة الشفافة العلوية !BOOM */
-        .boom-header {
-            position: absolute;
-            top: 0; left: 0; width: 100%;
-            z-index: 100;
-            display: flex;
-            padding: 15px 20px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            gap: 20px;
-        }
-        .boom-tab {
-            font-size: 1.1rem;
-            font-weight: 900;
-            color: rgba(255,255,255,0.6);
-            cursor: pointer;
-            position: relative;
-        }
-        .boom-tab.active { color: #fff; }
-        .boom-tab.active::after {
-            content: ''; position: absolute; bottom: -5px; left: 0; width: 100%; height: 3px; background: var(--accent); border-radius: 2px;
-        }
-        .boom-info {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            left: 20px;
-            z-index: 100;
-            pointer-events: none;
-            text-shadow: 1px 1px 5px rgba(0,0,0,1);
-        }
-        .boom-info h3 { margin: 0; font-size: 1rem; color: #fff; }
-        .boom-info p { margin: 5px 0 0; font-size: 0.85rem; color: #ddd; }
+        .p-close { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 100; display:flex; align-items:center; justify-content:center; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -640,7 +417,7 @@
         
         <div class="more-item" onclick="toggleTheme()">
             <div>
-                <svg viewBox="0 0 24 24"><path d="M12,18C9.79,18 8,16.21 8,14C8,11.79 9.79,10 12,10C14.21,10 16,11.79 16,14C16,16.21 14.21,18 12,18M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/></svg>
+                <svg viewBox="0 0 24 24"><path d="M12,18C9.79,18 8,16.21 8,14C8,11.79 9.79,10 12,10C14.21,10 16,11.79 16,14C16,16.21 14.21,18 12,18M12,2A10,10 0 0,1 22,12A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/></svg>
                 الوضع الليلي / العادي
             </div>
             <div id="theme-switch" class="switch"></div>
@@ -729,19 +506,45 @@
     </div>
 </div>
 
-<div id="p-modal" class="modal" style="background: rgba(11,17,22,0.98); justify-content: center; align-items: center; padding:20px; z-index: 3000;">
-    <div id="p-modal-content" style="background: var(--card); width: 100%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--accent);">
-        <img id="p-img" style="width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 15px; object-fit: cover;">
-        <h2 id="p-name-d" style="margin:0;"></h2>
-        <div style="margin: 10px 0; color: #8e99a2; font-size: 0.9rem;"><span id="p-pos-d"></span> | <span id="p-height-d"></span> سم</div>
-        <div id="p-rate-d" style="background: var(--gold); color: black; padding: 5px 15px; border-radius: 10px; font-weight: bold; margin: 10px 0; display: inline-block;"></div>
+<div id="p-modal" class="modal" onclick="if(event.target == this) closeModal('p-modal')">
+    <div class="p-profile-card">
+        <button class="p-close" onclick="closeModal('p-modal')">✕</button>
         
-        <div id="p-stats-area" style="display: flex; justify-content: space-around; border-top: 1px solid var(--border); padding-top: 20px;">
-            <div><b style="color:var(--accent); font-size:1.5rem;" id="p-g">0</b><br><small>أهداف</small></div>
-            <div><b style="color:var(--accent); font-size:1.5rem;" id="p-a">0</b><br><small>صناعة</small></div>
+        <img id="p-cover" class="p-cover" src="https://via.placeholder.com/400x150/162029/1e90ff?text=SUPER+PES">
+        
+        <div class="p-main-info">
+            <div class="p-avatar-wrap">
+                <img id="p-img" class="p-avatar" src="">
+                <img id="p-team-logo" class="p-team-badge" src="">
+                <div id="p-num" class="p-num-circle"></div>
+            </div>
+            <div class="p-title-sec">
+                <h2 id="p-name-d" class="p-name-big"></h2>
+                <div id="p-team-name" class="p-team-sub"></div>
+            </div>
         </div>
         
-        <button onclick="closeModal('p-modal')" style="margin-top:25px; width:100%; padding:15px; background:var(--accent); border:none; color:white; border-radius:10px; font-weight:bold;">رجوع</button>
+        <div class="p-grid-info">
+            <div class="p-box"><small>المركز</small><b id="p-pos-d"></b></div>
+            <div class="p-box"><small>الوزن</small><b id="p-weight-d"></b></div>
+            <div class="p-box"><small>الطول</small><b id="p-height-d"></b></div>
+            <div class="p-box"><small>القدم</small><b id="p-foot-d"></b></div>
+        </div>
+        
+        <div id="p-stats-area" class="p-stats-grid">
+            <div class="stat-v"><b id="p-apps">0</b><small>مشاركات</small></div>
+            <div class="stat-v"><b id="p-g">0</b><small>أهداف</small></div>
+            <div class="stat-v"><b id="p-a">0</b><small>صناعة</small></div>
+            <div class="stat-v"><b id="p-reds">0</b><small>بطاقة حمراء</small></div>
+            <div class="stat-v"><b id="p-yellows">0</b><small>بطاقة صفراء</small></div>
+            <div class="stat-v"><b id="p-motm">0</b><small>رجل المباراة</small></div>
+        </div>
+        
+        <div class="p-pen-sec">
+            <div class="pen-v p-suc">✔️ <span id="p-pen-scored">0</span></div>
+            <div style="color:var(--nav-inactive); font-size:0.85rem; font-weight:bold;">ركلات الجزاء</div>
+            <div class="pen-v p-mis"><span id="p-pen-missed">0</span> ❌</div>
+        </div>
     </div>
 </div>
 
@@ -751,7 +554,7 @@
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     let homeTeam = ""; let awayTeam = ""; let activeMatchId = null; let isMatchStarted = false; 
-    let selectedSquadTeam = "";
+    let selectedSquadTeam = ""; let hLogoUrl = ""; let aLogoUrl = "";
 
     const POSITIONS = {
         'GK': {t:90, l:50, zone:'D'},
@@ -891,22 +694,23 @@
             const hasScore = m.home_score !== null;
             return `
                 <div class="match-card">
-                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}')">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}', '${m.home_team_logo}', '${m.away_team_logo}')">
                         <img src="${m.home_team_logo}" width="40"><br><small>${m.home_team_name}</small>
                     </div>
-                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore})">
+                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_logo}', '${m.away_team_logo}')">
                         ${hasScore ? `<div class="score-val">${m.home_score} - ${m.away_score}</div>` : `<div class="time-badge">${m.match_time || 'قريباً'}</div>`}
                         ${(hasScore && m.home_penalty !== null) ? `<span class="pen-text">ركلات: (${m.home_penalty}) - (${m.away_penalty})</span>` : ''}
                     </div>
-                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}')">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}', '${m.home_team_logo}', '${m.away_team_logo}')">
                         <img src="${m.away_team_logo}" width="40"><br><small>${m.away_team_name}</small>
                     </div>
                 </div>`;
         }).join('');
     }
 
-    function openMatch(id, hTeam, aTeam, started) { 
+    function openMatch(id, hTeam, aTeam, started, hLogo, aLogo) { 
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; 
+        hLogoUrl = hLogo; aLogoUrl = aLogo;
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn active" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -915,9 +719,10 @@
         switchMatchTab('lineup'); 
     }
 
-    function openMatchToSquad(id, hTeam, aTeam, started, teamName) {
+    function openMatchToSquad(id, hTeam, aTeam, started, teamName, hLogo, aLogo) {
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; 
         selectedSquadTeam = teamName;
+        hLogoUrl = hLogo; aLogoUrl = aLogo;
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn ${teamName === hTeam ? 'active' : ''}" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn ${teamName === aTeam ? 'active' : ''}" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -979,16 +784,43 @@
         }).join('');
     }
 
+    // عرض بيانات اللاعب من القائمة الشاملة
     function openPlayerDirect(p) {
         const isCoach = (p.position && (p.position.toLowerCase().includes('co') || p.position.includes('مدرب')));
-        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'flex';
-        document.getElementById('p-img').src = p.player_image;
-        document.getElementById('p-name-d').innerText = p.player_name;
-        document.getElementById('p-rate-d').innerText = 'التقييم: ' + (p.rating || '6.0');
-        document.getElementById('p-pos-d').innerText = p.position || 'غير محدد';
-        document.getElementById('p-height-d').innerText = p.height || '---';
+        
+        // إخفاء الإحصائيات وركلات الجزاء إذا كان مدرباً
+        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'grid';
+        document.querySelector('.p-pen-sec').style.display = isCoach ? 'none' : 'flex';
+        document.querySelector('.p-grid-info').style.display = isCoach ? 'none' : 'grid';
+
+        document.getElementById('p-cover').src = p.cover_image || 'https://via.placeholder.com/400x150/162029/1e90ff?text=SUPER+PES';
+        document.getElementById('p-img').src = p.player_image || 'https://via.placeholder.com/100';
+        
+        // تحديد شعار الفريق المناسب
+        let tLogo = 'https://via.placeholder.com/40';
+        if(p.team_name === homeTeam && hLogoUrl) tLogo = hLogoUrl;
+        else if(p.team_name === awayTeam && aLogoUrl) tLogo = aLogoUrl;
+
+        document.getElementById('p-team-logo').src = tLogo;
+        document.getElementById('p-num').innerText = p.player_number || '-';
+        document.getElementById('p-name-d').innerText = p.player_name || 'غير معروف';
+        document.getElementById('p-team-name').innerText = p.team_name || '--';
+        
+        document.getElementById('p-pos-d').innerText = p.position || '--';
+        document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
+        document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
+        document.getElementById('p-foot-d').innerText = p.preferred_foot || '--';
+        
+        document.getElementById('p-apps').innerText = p.appearances || 0;
         document.getElementById('p-g').innerText = p.goals || 0;
         document.getElementById('p-a').innerText = p.assists || 0;
+        document.getElementById('p-yellows').innerText = p.yellow_cards || 0;
+        document.getElementById('p-reds').innerText = p.red_cards || 0;
+        document.getElementById('p-motm').innerText = p.motm_count || 0;
+        
+        document.getElementById('p-pen-scored').innerText = p.penalties_scored || 0;
+        document.getElementById('p-pen-missed').innerText = p.penalties_missed || 0;
+
         document.getElementById('p-modal').style.display = 'flex';
     }
 
@@ -1050,17 +882,42 @@
         document.getElementById('formation-badge').innerText = d+m+f > 0 ? `${d}-${m}-${f}` : "-- : -- : --";
     }
 
+    // عرض بيانات اللاعب من التشكيلة (الخطط)
     function openDetails(item) {
-        const p = item.players;
+        const p = item.players || {};
         const isCoach = (item.role && item.role.toLowerCase().includes('co'));
-        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'flex';
-        document.getElementById('p-img').src = p.player_image;
-        document.getElementById('p-name-d').innerText = p.player_name;
-        document.getElementById('p-rate-d').innerText = 'التقييم: ' + (item.rating || '6.0');
-        document.getElementById('p-pos-d').innerText = item.position || 'غير محدد';
-        document.getElementById('p-height-d').innerText = p.height || '---';
-        document.getElementById('p-g').innerText = item.goals || 0;
-        document.getElementById('p-a').innerText = item.assists || 0;
+        
+        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'grid';
+        document.querySelector('.p-pen-sec').style.display = isCoach ? 'none' : 'flex';
+        document.querySelector('.p-grid-info').style.display = isCoach ? 'none' : 'grid';
+        
+        document.getElementById('p-cover').src = p.cover_image || 'https://via.placeholder.com/400x150/162029/1e90ff?text=SUPER+PES';
+        document.getElementById('p-img').src = p.player_image || 'https://via.placeholder.com/100';
+        
+        let tLogo = 'https://via.placeholder.com/40';
+        if (selectedSquadTeam === homeTeam && hLogoUrl) tLogo = hLogoUrl;
+        else if (selectedSquadTeam === awayTeam && aLogoUrl) tLogo = aLogoUrl;
+
+        document.getElementById('p-team-logo').src = tLogo;
+        document.getElementById('p-num').innerText = p.player_number || '-';
+        document.getElementById('p-name-d').innerText = p.player_name || 'غير معروف';
+        document.getElementById('p-team-name').innerText = selectedSquadTeam || '--';
+        
+        document.getElementById('p-pos-d').innerText = item.position || p.position || '--';
+        document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
+        document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
+        document.getElementById('p-foot-d').innerText = p.preferred_foot || '--';
+        
+        document.getElementById('p-apps').innerText = p.appearances || 0;
+        document.getElementById('p-g').innerText = item.goals || p.goals || 0;
+        document.getElementById('p-a').innerText = item.assists || p.assists || 0;
+        document.getElementById('p-yellows').innerText = item.yellow_cards || p.yellow_cards || 0;
+        document.getElementById('p-reds').innerText = item.red_card ? 1 : (p.red_cards || 0);
+        document.getElementById('p-motm').innerText = (item.role && (item.role.includes('motm') || item.role.includes('star'))) ? 1 : (p.motm_count || 0);
+        
+        document.getElementById('p-pen-scored').innerText = p.penalties_scored || 0;
+        document.getElementById('p-pen-missed').innerText = p.penalties_missed || 0;
+
         document.getElementById('p-modal').style.display = 'flex';
     }
 
