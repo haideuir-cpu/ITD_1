@@ -825,7 +825,8 @@
     }
 
     async function loadLineup(teamFilter) {
-        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( id, player_name, player_image, player_number, height )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
+        // تم التعديل هنا لإضافة cover_image في الاستعلام
+        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( id, player_name, player_image, player_number, height, cover_image )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
         const field = document.getElementById('pitch-field'), subs = document.getElementById('subs-grid'), coach = document.getElementById('coach-area'), out = document.getElementById('out-grid'), absentGrid = document.getElementById('absent-grid');
         field.innerHTML = `<div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div><div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>`;
         subs.innerHTML = ''; out.innerHTML = ''; coach.innerHTML = ''; absentGrid.innerHTML = '';
