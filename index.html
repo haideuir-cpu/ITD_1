@@ -153,7 +153,8 @@
             font-size: 0.75rem; 
         }
 
-        .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .info-card.clickable:active { transform: scale(0.98); background: var(--border); }
         .info-card span:first-child { color: var(--text); font-weight: bold; font-size: 0.95rem; }
         .info-card span:last-child { color: var(--nav-inactive); font-size: 0.85rem; }
         .back-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
@@ -349,12 +350,12 @@
         .boom-info p { margin: 5px 0 0; font-size: 0.85rem; color: #ddd; }
 
         /* --- تصميم نافذة اللاعب الجديدة --- */
-        #p-modal { 
+        #p-modal, #s-modal { 
             display: none; position: fixed; inset: 0; 
             background: rgba(0,0,0,0.96); z-index: 5000; 
             justify-content: center; align-items: center; 
         }
-        .p-profile-card { 
+        .p-profile-card, .s-stadium-card { 
             background: var(--card); width: 92%; max-width: 380px; 
             border-radius: 25px; overflow: hidden; position: relative; 
             border: 1px solid var(--border); animation: zoomIn 0.3s ease-out;
@@ -362,7 +363,8 @@
         }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         
-        .p-cover { width: 100%; height: 130px; object-fit: cover; background: #1e90ff; display: block; }
+        .p-cover, .s-image { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .s-image { height: 220px; border-bottom: 2px solid var(--accent); }
         
         .p-main-info { position: relative; padding: 0 20px; margin-top: -55px; display: flex; flex-direction: column; align-items: center; }
         .p-avatar-wrap { position: relative; width: 110px; height: 110px; }
@@ -389,6 +391,13 @@
         .p-suc { color: #2ecc71; } .p-mis { color: #e74c3c; }
         
         .p-close { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 100; display:flex; align-items:center; justify-content:center; font-size: 14px; }
+
+        /* --- تنسيقات الملعب الجديدة --- */
+        .s-content { padding: 20px; text-align: center; }
+        .s-title { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 15px; }
+        .s-row { display: flex; justify-content: space-between; padding: 12px 15px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .s-row span:first-child { color: var(--nav-inactive); font-size: 0.85rem; }
+        .s-row span:last-child { color: white; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -509,9 +518,7 @@
 <div id="p-modal" class="modal" onclick="if(event.target == this) closeModal('p-modal')">
     <div class="p-profile-card">
         <button class="p-close" onclick="closeModal('p-modal')">✕</button>
-        
-        <img id="p-cover" class="p-cover" src="https://via.placeholder.com/400x150/162029/1e90ff?text=SUPER+PES">
-        
+        <img id="p-cover" class="p-cover" src="">
         <div class="p-main-info">
             <div class="p-avatar-wrap">
                 <img id="p-img" class="p-avatar" src="">
@@ -523,14 +530,12 @@
                 <div id="p-team-name" class="p-team-sub"></div>
             </div>
         </div>
-        
         <div class="p-grid-info">
             <div class="p-box"><small>المركز</small><b id="p-pos-d"></b></div>
             <div class="p-box"><small>الوزن</small><b id="p-weight-d"></b></div>
             <div class="p-box"><small>الطول</small><b id="p-height-d"></b></div>
             <div class="p-box"><small>القدم</small><b id="p-foot-d"></b></div>
         </div>
-        
         <div id="p-stats-area" class="p-stats-grid">
             <div class="stat-v"><b id="p-apps">0</b><small>مشاركات</small></div>
             <div class="stat-v"><b id="p-g">0</b><small>أهداف</small></div>
@@ -539,11 +544,28 @@
             <div class="stat-v"><b id="p-yellows">0</b><small>بطاقة صفراء</small></div>
             <div class="stat-v"><b id="p-motm">0</b><small>رجل المباراة</small></div>
         </div>
-        
         <div class="p-pen-sec">
             <div class="pen-v p-suc">✔️ <span id="p-pen-scored">0</span></div>
             <div style="color:var(--nav-inactive); font-size:0.85rem; font-weight:bold;">ركلات الجزاء</div>
             <div class="pen-v p-mis"><span id="p-pen-missed">0</span> ❌</div>
+        </div>
+    </div>
+</div>
+
+<div id="s-modal" class="modal" onclick="if(event.target == this) closeModal('s-modal')">
+    <div class="s-stadium-card">
+        <button class="p-close" onclick="closeModal('s-modal')">✕</button>
+        <img id="s-img" class="s-image" src="">
+        <div class="s-content">
+            <div id="s-name" class="s-title">---</div>
+            <div class="s-row">
+                <span>نوع الملعب</span>
+                <span id="s-type">---</span>
+            </div>
+            <div class="s-row">
+                <span>الموقع</span>
+                <span id="s-loc">---</span>
+            </div>
         </div>
     </div>
 </div>
@@ -566,33 +588,17 @@
         'ST1': {t:15, l:35, zone:'F'}, 'ST2': {t:15, l:65, zone:'F'}
     };
 
-    // --- دالة تحديد لون التقييم بناءً على الدرجة ---
     function getRatingStyle(rating) {
         const r = parseFloat(rating);
         if (isNaN(r)) return 'background: var(--gold); color: black;';
-        if (r >= 1.0 && r <= 4.9) return 'background: #e74c3c; color: white; border-color: #c0392b;'; // احمر
-        if (r >= 5.0 && r <= 5.9) return 'background: #d35400; color: white; border-color: #a04000;'; // برتقالي داكن
-        if (r >= 6.0 && r <= 6.9) return 'background: #f39c12; color: black; border-color: #e67e22;'; // اصفر داكن
-        if (r >= 7.0 && r <= 7.9) return 'background: #1abc9c; color: white; border-color: #16a085;'; // اخضر فيروزي
-        if (r >= 8.0 && r <= 8.9) return 'background: #85c1e9; color: black; border-color: #5dade2;'; // ازرق باهت
-        if (r >= 9.0 && r <= 9.9) return 'background: #2980b9; color: white; border-color: #1f618d;'; // ازرق متوسط
-        if (r >= 10.0) return 'background: linear-gradient(135deg, #f1c40f, #f39c12); color: black; border-color: white;'; // ذهبي
+        if (r >= 1.0 && r <= 4.9) return 'background: #e74c3c; color: white; border-color: #c0392b;'; 
+        if (r >= 5.0 && r <= 5.9) return 'background: #d35400; color: white; border-color: #a04000;'; 
+        if (r >= 6.0 && r <= 6.9) return 'background: #f39c12; color: black; border-color: #e67e22;'; 
+        if (r >= 7.0 && r <= 7.9) return 'background: #1abc9c; color: white; border-color: #16a085;'; 
+        if (r >= 8.0 && r <= 8.9) return 'background: #85c1e9; color: black; border-color: #5dade2;'; 
+        if (r >= 9.0 && r <= 9.9) return 'background: #2980b9; color: white; border-color: #1f618d;'; 
+        if (r >= 10.0) return 'background: linear-gradient(135deg, #f1c40f, #f39c12); color: black; border-color: white;'; 
         return 'background: var(--gold); color: black;';
-    }
-
-    function sendSystemNotification(title, body) {
-        if (Notification.permission === "granted") {
-            new Notification(title, {
-                body: body,
-                icon: 'https://via.placeholder.com/128'
-            });
-        }
-    }
-
-    function requestNotifPermission() {
-        if ("Notification" in window && Notification.permission !== "granted") {
-            Notification.requestPermission();
-        }
     }
 
     function toggleTheme() {
@@ -600,106 +606,27 @@
         const sw = document.getElementById('theme-switch');
         body.classList.toggle('light-mode');
         const isLight = body.classList.contains('light-mode');
-        if(isLight) {
-            sw.classList.add('active');
-        } else {
-            sw.classList.remove('active');
-        }
+        sw.classList.toggle('active', isLight);
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
     }
 
     window.addEventListener('load', () => {
-        requestNotifPermission(); 
-
         if (localStorage.getItem('theme') === 'light') {
             document.body.classList.add('light-mode');
             document.getElementById('theme-switch').classList.add('active');
         }
-
-        _supabase
-          .channel('public:news')
-          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'news' }, payload => {
-            const updatedNews = payload.new;
-            const countElement = document.getElementById(`like-count-${updatedNews.id}`);
-            if (countElement) {
-                countElement.innerText = updatedNews.likes_count || 0;
-            }
-          })
-          .subscribe();
-
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
-            if(splash) { splash.style.opacity = '0'; setTimeout(() => { splash.style.visibility = 'hidden'; }, 800); }
+            if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.style.visibility = 'hidden', 800); }
         }, 3000);
     });
 
     function showTab(t) {
         document.querySelectorAll('.section, .nav-item').forEach(el => el.classList.remove('active'));
-        const header = document.getElementById('main-header');
-        header.style.display = (t === 'boom') ? 'none' : 'flex';
-
-        if(t==='m') { document.getElementById('sec-m').classList.add('active'); document.getElementById('nav-m').classList.add('active'); loadMatches(); }
-        else if(t==='n') { document.getElementById('sec-n').classList.add('active'); document.getElementById('nav-n').classList.add('active'); loadNews(); }
-        else if(t==='boom') { document.getElementById('sec-boom').classList.add('active'); document.getElementById('nav-boom').classList.add('active'); loadBoomVideos(); }
-        else if(t==='more') { 
-            document.getElementById('sec-more').classList.add('active'); 
-            document.getElementById('nav-more').classList.add('active'); 
-            const badge = document.getElementById('more-badge');
-            if(badge) badge.style.display = 'none';
-        }
-    }
-
-    async function loadBoomVideos() {
-        const boomList = document.getElementById('boom-list');
-        const { data, error } = await _supabase.from('boom_videos').select('*').order('created_at', {ascending: false});
-        
-        if(error || !data) {
-            boomList.innerHTML = '<div style="color:white; text-align:center; padding:50px;">لا توجد فيديوهات حالياً.</div>';
-            return;
-        }
-
-        boomList.innerHTML = data.map(v => {
-            let embedHtml = "";
-            const url = v.video_url || "";
-
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                let vid = "";
-                if (url.includes('v=')) vid = url.split('v=')[1].split('&')[0];
-                else vid = url.split('/').pop();
-                embedHtml = `<iframe src="https://www.youtube.com/embed/${vid}?playsinline=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-            } 
-            else if (url.includes('instagram.com')) {
-                let igPath = url.split('?')[0];
-                if (!igPath.endsWith('/')) igPath += '/';
-                embedHtml = `<iframe src="${igPath}embed" scrolling="no" allowtransparency="true"></iframe>`;
-            }
-            else if (url.includes('tiktok.com')) {
-                let tiktokId = "";
-                if (url.includes('/video/')) {
-                    tiktokId = url.split('/video/')[1].split('?')[0];
-                } else {
-                    tiktokId = url.split('/').pop();
-                }
-                embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${tiktokId}" allow="fullscreen"></iframe>`;
-            }
-            else if (url.includes('twitter.com') || url.includes('x.com')) {
-                const tweetId = url.split('/').pop().split('?')[0];
-                embedHtml = `<iframe src="https://platform.twitter.com/embed/Tweet.html?id=${tweetId}&theme=dark" scrolling="no"></iframe>`;
-            }
-            else {
-                embedHtml = `<div style="color:gray; padding:20px;">الرابط غير مدعوم</div>`;
-            }
-            
-            return `
-                <div class="boom-item">
-                    <div class="boom-video-wrapper">${embedHtml}</div>
-                    <div class="boom-info">
-                        <h3>${v.title || 'فيديو جديد'}</h3>
-                        <p>${v.description || '#ITD_SPORTS'}</p>
-                    </div>
-                </div>
-            `;
-        }).join('');
+        document.getElementById('main-header').style.display = (t === 'boom') ? 'none' : 'flex';
+        document.getElementById('sec-' + t).classList.add('active');
+        document.getElementById('nav-' + t).classList.add('active');
+        if(t==='m') loadMatches(); else if(t==='n') loadNews(); else if(t==='boom') loadBoomVideos();
     }
 
     async function loadMatches() {
@@ -723,8 +650,7 @@
     }
 
     function openMatch(id, hTeam, aTeam, started, hLogo, aLogo) { 
-        activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; 
-        hLogoUrl = hLogo; aLogoUrl = aLogo;
+        activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; hLogoUrl = hLogo; aLogoUrl = aLogo;
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn active" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -734,9 +660,7 @@
     }
 
     function openMatchToSquad(id, hTeam, aTeam, started, teamName, hLogo, aLogo) {
-        activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; 
-        selectedSquadTeam = teamName;
-        hLogoUrl = hLogo; aLogoUrl = aLogo;
+        activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; selectedSquadTeam = teamName; hLogoUrl = hLogo; aLogoUrl = aLogo;
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn ${teamName === hTeam ? 'active' : ''}" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn ${teamName === aTeam ? 'active' : ''}" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -746,7 +670,7 @@
     }
 
     function loadDataForTeam(team) {
-        document.querySelectorAll('.team-toggle .t-btn').forEach(b => { b.classList.toggle('active', b.innerText === team); });
+        document.querySelectorAll('.team-toggle .t-btn').forEach(b => b.classList.toggle('active', b.innerText === team));
         selectedSquadTeam = team;
         if (document.getElementById('lineup-view').style.display === 'block') loadLineup(team);
         if (document.getElementById('squad-view').style.display === 'block') loadFullSquad(team);
@@ -754,87 +678,54 @@
 
     function switchMatchTab(tab) {
         document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('lineup-view').style.display = 'none'; 
-        document.getElementById('squad-view').style.display = 'none';
-        document.getElementById('events-view').style.display = 'none';
-        document.getElementById('details-view').style.display = 'none';
-        if(tab === 'lineup') { document.getElementById('tab-lineup').classList.add('active'); document.getElementById('lineup-view').style.display = 'block'; loadLineup(homeTeam); } 
-        else if(tab === 'squad') { document.getElementById('tab-squad').classList.add('active'); document.getElementById('squad-view').style.display = 'block'; loadFullSquad(selectedSquadTeam || homeTeam); }
-        else if(tab === 'events') { document.getElementById('tab-events').classList.add('active'); document.getElementById('events-view').style.display = 'block'; loadEvents(); } 
-        else { document.getElementById('tab-details').classList.add('active'); document.getElementById('details-view').style.display = 'block'; loadMatchDetails(); }
+        ['lineup-view', 'squad-view', 'events-view', 'details-view'].forEach(v => document.getElementById(v).style.display = 'none');
+        document.getElementById('tab-' + tab).classList.add('active');
+        document.getElementById(tab + '-view').style.display = 'block';
+        if(tab === 'lineup') loadLineup(homeTeam); 
+        else if(tab === 'squad') loadFullSquad(selectedSquadTeam || homeTeam);
+        else if(tab === 'events') loadEvents(); 
+        else loadMatchDetails();
     }
 
     async function loadFullSquad(teamName) {
         const { data } = await _supabase.from('players').select('*').eq('team_name', teamName);
         const list = document.getElementById('squad-list');
-        if (!data) { list.innerHTML = '<div style="text-align:center; padding:20px;">لا يوجد لاعبين.</div>'; return; }
+        if (!data) { list.innerHTML = 'لا يوجد لاعبين'; return; }
         const getWeight = (pos) => {
             const p = (pos || "").toUpperCase();
             if(["LW", "RW", "ST", "CF"].some(f => p.includes(f))) return 10;
             if(["LM", "CM", "RM", "AM"].some(m => p.includes(m))) return 20;
             if(["LB", "CB", "RB", "LWB", "RWB"].some(d => p.includes(d))) return 30;
             if(p.includes("GK")) return 35;
-            if(p.includes("CO") || p.includes("مدرب")) return 40;
-            return 50; 
+            return 40;
         };
-        const sortedData = data.sort((a, b) => getWeight(a.position) - getWeight(b.position));
-        list.innerHTML = sortedData.map(p => {
-            let sideColor = "#8e99a2"; 
-            const weight = getWeight(p.position);
-            if(weight === 40) sideColor = "#666"; 
-            else if(weight === 10) sideColor = "#e74c3c"; 
-            else if(weight === 20) sideColor = "#2ecc71"; 
-            else if(weight === 30) sideColor = "#1e90ff";
-            else if(weight === 35) sideColor = "#f1c40f";
-            return `
-            <div class="squad-item" style="border-right-color: ${sideColor}" onclick='openPlayerDirect(${JSON.stringify(p)})'>
+        list.innerHTML = data.sort((a,b)=>getWeight(a.position)-getWeight(b.position)).map(p => `
+            <div class="squad-item" onclick='openPlayerDirect(${JSON.stringify(p)})'>
                 <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50'">
-                <div class="squad-info">
-                    <b>${p.player_name}</b>
-                    <small>#${p.player_number || '--'} | ${p.position || '--'}</small>
-                </div>
+                <div class="squad-info"><b>${p.player_name}</b><small>#${p.player_number || '--'} | ${p.position || '--'}</small></div>
                 <div class="squad-rating-circ" style="${getRatingStyle(p.rating || '6.0')}">${p.rating || '6.0'}</div>
-            </div>`;
-        }).join('');
+            </div>`).join('');
     }
 
-    // عرض بيانات اللاعب من القائمة الشاملة
     function openPlayerDirect(p) {
-        const isCoach = (p.position && (p.position.toLowerCase().includes('co') || p.position.includes('مدرب')));
-        
-        // إخفاء الإحصائيات وركلات الجزاء إذا كان مدرباً
-        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'grid';
-        document.querySelector('.p-pen-sec').style.display = isCoach ? 'none' : 'flex';
-        document.querySelector('.p-grid-info').style.display = isCoach ? 'none' : 'grid';
-
         document.getElementById('p-cover').src = p.cover_image || 'https://via.placeholder.com/400x150/162029/1e90ff?text=SUPER+PES';
-        document.getElementById('p-img').src = p.player_image || 'https://via.placeholder.com/100';
-        
-        // تحديد شعار الفريق المناسب
-        let tLogo = 'https://via.placeholder.com/40';
-        if(p.team_name === homeTeam && hLogoUrl) tLogo = hLogoUrl;
-        else if(p.team_name === awayTeam && aLogoUrl) tLogo = aLogoUrl;
-
-        document.getElementById('p-team-logo').src = tLogo;
+        document.getElementById('p-img').src = p.player_image;
+        document.getElementById('p-team-logo').src = (p.team_name === homeTeam) ? hLogoUrl : aLogoUrl;
         document.getElementById('p-num').innerText = p.player_number || '-';
-        document.getElementById('p-name-d').innerText = p.player_name || 'غير معروف';
-        document.getElementById('p-team-name').innerText = p.team_name || '--';
-        
-        document.getElementById('p-pos-d').innerText = p.position || '--';
+        document.getElementById('p-name-d').innerText = p.player_name;
+        document.getElementById('p-team-name').innerText = p.team_name;
+        document.getElementById('p-pos-d').innerText = p.position;
         document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
         document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
         document.getElementById('p-foot-d').innerText = p.foot || '--';
-        
         document.getElementById('p-apps').innerText = p.appearances || 0;
         document.getElementById('p-g').innerText = p.goals || 0;
         document.getElementById('p-a').innerText = p.assists || 0;
         document.getElementById('p-yellows').innerText = p.yellow_cards || 0;
         document.getElementById('p-reds').innerText = p.red_cards || 0;
         document.getElementById('p-motm').innerText = p.motm_count || 0;
-        
         document.getElementById('p-pen-scored').innerText = p.penalties_scored || 0;
         document.getElementById('p-pen-missed').innerText = p.penalties_missed || 0;
-
         document.getElementById('p-modal').style.display = 'flex';
     }
 
@@ -849,149 +740,82 @@
         let d=0, m=0, f=0;
         data?.forEach(item => {
             const p = item.players; if(!p) return;
-            const rolesArray = (item.role || '').toLowerCase().split(' ');
-            const isCaptain = rolesArray.includes('captain');
-            const captainTag = isCaptain ? `<div class="pl-captain">C</div>` : '';
-            const isMOTM = rolesArray.includes('motm') || rolesArray.includes('star');
-            const motmTag = isMOTM ? `<div class="pl-motm"><svg viewBox="0 0 24 24"><path d="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.62L12,2L9.19,8.62L2,9.24L7.45,13.97L5.82,21L12,17.27Z"/></svg></div>` : '';
-            
+            const roles = (item.role || '').toLowerCase();
             let statsIcons = '';
-            if (item.goals === 1) statsIcons += `<div class="pl-badge badge-goal">⚽</div>`;
-            else if (item.goals >= 2) statsIcons += `<div class="pl-badge badge-goal ${item.goals >= 3 ? 'gold' : ''}">⚽${item.goals}</div>`;
-            if (item.assists > 0) statsIcons += `<div class="pl-badge badge-assist">👟${item.assists > 1 ? item.assists : ''}</div>`;
-            if (item.yellow_cards === 1 && !item.red_card) statsIcons += `<div class="pl-badge badge-card badge-yellow"></div>`;
-            else if (item.yellow_cards === 2) statsIcons += `<div class="pl-badge badge-double-card"><div class="c-y"></div><div class="c-r"></div></div>`;
-            else if (item.red_card) statsIcons += `<div class="pl-badge badge-card badge-red"></div>`;
-            if (item.is_injured) statsIcons += `<div class="pl-badge badge-injury">✚</div>`;
+            if (item.goals > 0) statsIcons += `<div class="pl-badge badge-goal">⚽${item.goals>1?item.goals:''}</div>`;
+            if (item.assists > 0) statsIcons += `<div class="pl-badge badge-assist">👟${item.assists>1?item.assists:''}</div>`;
+            if (item.yellow_cards > 0) statsIcons += `<div class="pl-badge badge-card badge-yellow"></div>`;
+            if (item.red_card) statsIcons += `<div class="pl-badge badge-card badge-red"></div>`;
 
-            const getPlayerHtml = (showRate) => `
+            const getHtml = (showRate) => `
                 <div onclick='openDetails(${JSON.stringify(item)})'>
                     <div class="pl-img-w">
                         <div class="pl-number">${p.player_number || ''}</div>
-                        ${captainTag}${motmTag}${statsIcons}
-                        <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50'">
+                        ${statsIcons}
+                        <img src="${p.player_image}">
                         ${showRate ? `<div class="pl-rate" style="${getRatingStyle(item.rating || '6.0')}">${item.rating || '6.0'}</div>` : ''}
                     </div>
                     <span class="pl-name">${p.player_name}</span>
                 </div>`;
             
-            if(rolesArray.includes('co')) {
-                coach.innerHTML = `<div onclick='openDetails(${JSON.stringify(item)})' style="display:flex; align-items:center; gap:15px; width:100%; cursor:pointer;"><img src="${p.player_image}" width="50" style="border-radius:50%; object-fit:cover;"><div><small>المدرب</small><br><b>${p.player_name}</b></div></div>`;
-            } else if (rolesArray.includes('ev') || rolesArray.includes('inf')) {
-                document.getElementById('bench-absent-area').style.display = 'block';
-                absentGrid.innerHTML += `<div>${getPlayerHtml(false)}</div>`;
-            } else if (rolesArray.includes('out')) {
-                document.getElementById('bench-out-area').style.display = 'block';
-                out.innerHTML += `<div>${getPlayerHtml(false)}</div>`;
-            } else if(rolesArray.includes('starter')) {
+            if(roles.includes('co')) coach.innerHTML = `<div onclick='openDetails(${JSON.stringify(item)})' style="display:flex; align-items:center; gap:15px; width:100%; cursor:pointer;"><img src="${p.player_image}" width="50" style="border-radius:50%;"><div><small>المدرب</small><br><b>${p.player_name}</b></div></div>`;
+            else if (roles.includes('ev') || roles.includes('inf')) { document.getElementById('bench-absent-area').style.display='block'; absentGrid.innerHTML += getHtml(false); }
+            else if (roles.includes('out')) { document.getElementById('bench-out-area').style.display='block'; out.innerHTML += getHtml(false); }
+            else if(roles.includes('starter')) {
                 const pos = POSITIONS[item.position] || {t:50, l:50, zone:'M'};
                 if(item.position !== 'GK') { if(pos.zone==='D') d++; else if(pos.zone==='M') m++; else f++; }
-                const div = document.createElement('div'); div.className = 'pl-pin'; 
-                div.style.top = pos.t+'%'; div.style.left = pos.l+'%'; 
-                div.innerHTML = getPlayerHtml(true); field.appendChild(div);
-            } else {
-                subs.innerHTML += `<div>${getPlayerHtml(true)}</div>`; 
-            }
+                const div = document.createElement('div'); div.className = 'pl-pin'; div.style.top = pos.t+'%'; div.style.left = pos.l+'%'; div.innerHTML = getHtml(true); field.appendChild(div);
+            } else subs.innerHTML += getHtml(true);
         });
         document.getElementById('formation-badge').innerText = d+m+f > 0 ? `${d}-${m}-${f}` : "-- : -- : --";
     }
 
-    // عرض بيانات اللاعب من التشكيلة (الخطط)
-    function openDetails(item) {
-        const p = item.players || {};
-        const isCoach = (item.role && item.role.toLowerCase().includes('co'));
-        
-        document.getElementById('p-stats-area').style.display = isCoach ? 'none' : 'grid';
-        document.querySelector('.p-pen-sec').style.display = isCoach ? 'none' : 'flex';
-        document.querySelector('.p-grid-info').style.display = isCoach ? 'none' : 'grid';
-        
-        document.getElementById('p-cover').src = p.cover_image || 'https://via.placeholder.com/400x150/162029/1e90ff?text=SUPER+PES';
-        document.getElementById('p-img').src = p.player_image || 'https://via.placeholder.com/100';
-        
-        let tLogo = 'https://via.placeholder.com/40';
-        if (selectedSquadTeam === homeTeam && hLogoUrl) tLogo = hLogoUrl;
-        else if (selectedSquadTeam === awayTeam && aLogoUrl) tLogo = aLogoUrl;
-
-        document.getElementById('p-team-logo').src = tLogo;
-        document.getElementById('p-num').innerText = p.player_number || '-';
-        document.getElementById('p-name-d').innerText = p.player_name || 'غير معروف';
-        document.getElementById('p-team-name').innerText = selectedSquadTeam || '--';
-        
-        document.getElementById('p-pos-d').innerText = item.position || p.position || '--';
-        document.getElementById('p-weight-d').innerText = (p.weight || '--') + ' كجم';
-        document.getElementById('p-height-d').innerText = (p.height || '--') + ' سم';
-        document.getElementById('p-foot-d').innerText = p.foot || '--';
-        
-        // جلب الإحصائيات من جدول المباراة الحالية فقط (item)
-        document.getElementById('p-apps').innerText = p.appearances || 0;
-        document.getElementById('p-g').innerText = item.goals || 0;
-        document.getElementById('p-a').innerText = item.assists || 0;
-        document.getElementById('p-yellows').innerText = item.yellow_cards || 0;
-        document.getElementById('p-reds').innerText = item.red_card ? 1 : 0;
-        
-        document.getElementById('p-motm').innerText = (item.role && (item.role.toLowerCase().split(' ').includes('motm') || item.role.toLowerCase().split(' ').includes('star'))) ? 1 : (p.motm_count || 0);
-        
-        document.getElementById('p-pen-scored').innerText = p.penalties_scored || 0;
-        document.getElementById('p-pen-missed').innerText = p.penalties_missed || 0;
-
-        document.getElementById('p-modal').style.display = 'flex';
-    }
+    function openDetails(item) { openPlayerDirect({...item.players, ...item}); }
 
     async function loadEvents() {
         const list = document.getElementById('events-list'); 
         if (!isMatchStarted) { list.innerHTML = `<div style="text-align:center; padding:60px; color:#8e99a2;">المباراة لم تبدأ بعد.</div>`; return; }
         const { data } = await _supabase.from('events').select('*').eq('match_id', activeMatchId).order('minute', {ascending: false});
         list.innerHTML = data?.map(ev => {
-            let content = ""; let icon = ""; const status = (ev.status || "").toLowerCase();
-            if (status === 'switch' || status === 'تبديل') {
-                icon = `<div style="display:flex; flex-direction:column; align-items:center; line-height:1;"><span style="color:#2ecc71; font-size:14px;">▲</span><span style="color:#e74c3c; font-size:14px;">▼</span></div>`;
-                content = `<div style="display:flex; flex-direction:column;"><div style="font-size:0.9rem;"><span style="color:#2ecc71; margin-left:4px;">دخول:</span><b>${ev.player_in || '---'}</b></div><div style="font-size:0.85rem; opacity:0.8;"><span style="color:#e74c3c; margin-left:4px;">خروج:</span><b>${ev.player_name}</b></div></div>`;
-            } else {
-                if (status === 'goal' || status === 'هدف') icon = "⚽"; else if (status === 'eviction' || status === 'طرد') icon = "🟥"; else if (status === 'yellow' || status === 'اصفر') icon = "🟨"; else icon = "•";
-                content = `<b>${ev.player_name}</b><br><small style="color:#8e99a2">${ev.description || ''}</small>`;
-            }
-            return `<div style="display:flex; align-items:center; padding:15px; border-bottom:1px solid var(--border); gap:15px;"><div style="background:var(--border); padding:4px 10px; border-radius:6px; font-size:0.85rem; font-weight:bold; min-width:45px; text-align:center;">${ev.minute}'</div><div style="width:25px; text-align:center;">${icon}</div><div style="flex:1;">${content}</div></div>`;
-        }).join('') || '<div style="text-align:center; padding:50px; color:#8e99a2;">لا توجد أحداث.</div>';
+            const status = (ev.status || "").toLowerCase();
+            let icon = (status === 'goal') ? "⚽" : (status === 'eviction') ? "🟥" : (status === 'yellow') ? "🟨" : "•";
+            return `<div style="display:flex; align-items:center; padding:15px; border-bottom:1px solid var(--border); gap:15px;"><div style="background:var(--border); padding:4px 10px; border-radius:6px; font-size:0.85rem; min-width:45px; text-align:center;">${ev.minute}'</div><div style="width:25px; text-align:center;">${icon}</div><div style="flex:1;"><b>${ev.player_name}</b><br><small style="color:#8e99a2">${ev.description || ''}</small></div></div>`;
+        }).join('') || 'لا توجد أحداث';
     }
 
+    // تحديث دالة تفاصيل المباراة لجعل الملعب قابلاً للنقر
     async function loadMatchDetails() {
         const { data } = await _supabase.from('matches').select('*').eq('id', activeMatchId).single();
-        if(data) document.getElementById('details-list').innerHTML = `<div class="info-card"><span>${data.league_name || '---'}</span><span>البطولة</span></div><div class="info-card"><span>${data.stadium_name || '---'}</span><span>ملعب المباراة</span></div><div class="info-card"><span>${data.match_date || '---'}</span><span>تاريخ المباراة</span></div>`;
+        if(data) {
+            document.getElementById('details-list').innerHTML = `
+                <div class="info-card"><span>${data.league_name || '---'}</span><span>البطولة</span></div>
+                <div class="info-card clickable" onclick="openStadiumDetails(${activeMatchId})">
+                    <span>${data.stadium_name || '---'}</span>
+                    <span>ملعب المباراة</span>
+                </div>
+                <div class="info-card"><span>${data.match_date || '---'}</span><span>تاريخ المباراة</span></div>`;
+        }
+    }
+
+    // دالة فتح تفاصيل الملعب الجديدة
+    async function openStadiumDetails(matchId) {
+        const { data, error } = await _supabase.from('matches').select('stadium_name, stadium_image, stadium_type, stadium_location').eq('id', matchId).single();
+        if(data) {
+            document.getElementById('s-img').src = data.stadium_image || 'https://via.placeholder.com/400x220/162029/1e90ff?text=STADIUM';
+            document.getElementById('s-name').innerText = data.stadium_name || 'غير معروف';
+            document.getElementById('s-type').innerText = data.stadium_type || 'طبيعي';
+            document.getElementById('s-loc').innerText = data.stadium_location || '---';
+            document.getElementById('s-modal').style.display = 'flex';
+        }
     }
 
     async function loadNews() {
         const { data } = await _supabase.from('news').select('*').order('created_at', {ascending: false});
-        document.getElementById('sec-n').innerHTML = data?.map(n => {
-            const isLiked = localStorage.getItem(`liked_news_${n.id}`) === 'true';
-            return `
+        document.getElementById('sec-n').innerHTML = data?.map(n => `
             <div style="background:var(--card); margin-bottom:15px; border-radius:12px; overflow:hidden; border: 1px solid var(--border);">
                 <img src="${n.image_url}" style="width:100%; height:200px; object-fit:cover;">
                 <div style="padding:15px;"><b>${n.title}</b></div>
-                <div class="news-footer">
-                    <div id="like-btn-${n.id}" class="like-btn ${isLiked ? 'liked' : ''}" onclick="updateLike(${n.id})">
-                        <span id="like-count-${n.id}">${n.likes_count || 0}</span>
-                        <svg viewBox="0 0 24 24"><path d="M12.1,18.55L12,18.65L11.89,18.55C7.14,14.24 4,11.39 4,8.5C4,6.5 5.5,5 7.5,5C8.64,5 9.74,5.54 10.43,6.38L12,8.28L13.57,6.38C14.26,5.54 15.36,5 16.5,5C18.5,5 20,6.5 20,8.5C20,11.39 16.86,14.24 12.1,18.55M16.5,3C14.76,3 13.09,3.81 12,5.08C10.91,3.81 9.24,3 7.5,3C4.42,3 2,5.41 2,8.5C2,12.27 5.4,15.36 10.55,20.03L12,21.35L13.45,20.03C18.6,15.36 22,12.27 22,8.5C22,5.41 19.58,3 16.5,3Z"/></svg>
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
-    }
-
-    async function updateLike(newsId) {
-        const btn = document.getElementById(`like-btn-${newsId}`);
-        const countSpan = document.getElementById(`like-count-${newsId}`);
-        const storageKey = `liked_news_${newsId}`;
-        const alreadyLiked = localStorage.getItem(storageKey) === 'true';
-        let currentVal = parseInt(countSpan.innerText);
-        if (!alreadyLiked) {
-            btn.classList.add('liked'); countSpan.innerText = currentVal + 1; localStorage.setItem(storageKey, 'true');
-            const { error } = await _supabase.rpc('increment_likes', { row_id: newsId });
-            if (error) { btn.classList.remove('liked'); countSpan.innerText = currentVal; localStorage.removeItem(storageKey); }
-        } else {
-            btn.classList.remove('liked'); countSpan.innerText = Math.max(0, currentVal - 1); localStorage.setItem(storageKey, 'false');
-            const { error } = await _supabase.rpc('decrement_likes', { row_id: newsId });
-            if (error) { btn.classList.add('liked'); countSpan.innerText = currentVal; localStorage.setItem(storageKey, 'true'); }
-        }
+            </div>`).join('');
     }
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
