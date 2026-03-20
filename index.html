@@ -114,15 +114,16 @@
         
         .pl-captain { position: absolute; top: -5px; right: -5px; background: var(--gold); color: black; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 6; font-weight: 900; }
 
-        .pl-motm { 
-            position: absolute; top: -8px; right: 20px; 
+        /* --- تصميم نجمة أفضل لاعب المعدل --- */
+        .pl-motm-star { 
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); 
-            color: #000; width: 20px; height: 20px; border-radius: 50%; 
+            color: #000; width: 22px; height: 22px; border-radius: 50%; 
             display: flex; align-items: center; justify-content: center; 
-            border: 1.5px solid white; z-index: 7; 
-            box-shadow: 0 0 8px rgba(241, 196, 15, 0.6); 
+            border: 2px solid white; z-index: 15; 
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.8); 
+            font-size: 12px;
         }
-        .pl-motm svg { width: 12px; height: 12px; fill: #000; }
 
         .squad-list { display: flex; flex-direction: column; gap: 10px; padding: 15px; }
         .squad-item { 
@@ -394,7 +395,7 @@
 
         /* --- تنسيقات الملعب الجديدة --- */
         .s-content { padding: 20px; text-align: center; }
-        .s-title { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 15px; }
+        .s-name { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 15px; }
         .s-row { display: flex; justify-content: space-between; padding: 12px 15px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
         .s-row span:first-child { color: var(--nav-inactive); font-size: 0.85rem; }
         .s-row span:last-child { color: white; font-weight: bold; }
@@ -729,8 +730,10 @@
         document.getElementById('p-modal').style.display = 'flex';
     }
 
+    // --- تعديل دالة تحميل التشكيلة لدعم MOTM ---
     async function loadLineup(teamFilter) {
-        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, players ( * )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
+        // قمنا بإضافة pl-motm في الاستعلام
+        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, "pl-motm", players ( * )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
         const field = document.getElementById('pitch-field'), subs = document.getElementById('subs-grid'), coach = document.getElementById('coach-area'), out = document.getElementById('out-grid'), absentGrid = document.getElementById('absent-grid');
         field.innerHTML = `<div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div><div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>`;
         subs.innerHTML = ''; out.innerHTML = ''; coach.innerHTML = ''; absentGrid.innerHTML = '';
@@ -742,15 +745,24 @@
             const p = item.players; if(!p) return;
             const roles = (item.role || '').toLowerCase();
             let statsIcons = '';
+            
+            // أيقونات الأحداث
             if (item.goals > 0) statsIcons += `<div class="pl-badge badge-goal">⚽${item.goals>1?item.goals:''}</div>`;
             if (item.assists > 0) statsIcons += `<div class="pl-badge badge-assist">👟${item.assists>1?item.assists:''}</div>`;
             if (item.yellow_cards > 0) statsIcons += `<div class="pl-badge badge-card badge-yellow"></div>`;
             if (item.red_card) statsIcons += `<div class="pl-badge badge-card badge-red"></div>`;
 
+            // إضافة نجمة MOTM إذا كان العمود true
+            let motmStar = '';
+            if (item['pl-motm'] === true || item['pl-motm'] === 1) {
+                motmStar = `<div class="pl-motm-star">⭐</div>`;
+            }
+
             const getHtml = (showRate) => `
                 <div onclick='openDetails(${JSON.stringify(item)})'>
                     <div class="pl-img-w">
                         <div class="pl-number">${p.player_number || ''}</div>
+                        ${motmStar}
                         ${statsIcons}
                         <img src="${p.player_image}">
                         ${showRate ? `<div class="pl-rate" style="${getRatingStyle(item.rating || '6.0')}">${item.rating || '6.0'}</div>` : ''}
@@ -779,8 +791,6 @@
         list.innerHTML = data?.map(ev => {
             const status = (ev.status || "").toLowerCase().trim();
             let icon = "•";
-            
-            // تحديد الأيقونة بناءً على نوع الحدث (يدعم الكلمات المفتاحية الأكثر شيوعاً بالعربية والإنجليزية)
             if (status.includes('goal') || status.includes('هدف')) icon = "⚽";
             else if (status.includes('assist') || status.includes('صناعة')) icon = "👟";
             else if (status.includes('yellow') || status.includes('أصفر') || status.includes('صفراء')) icon = "🟨";
@@ -788,12 +798,10 @@
             else if (status.includes('sub') || status.includes('تبديل')) icon = "🔄";
             else if (status.includes('var')) icon = "🖥️";
             else if (status.includes('pen')) icon = "🥅";
-
             return `<div style="display:flex; align-items:center; padding:15px; border-bottom:1px solid var(--border); gap:15px;"><div style="background:var(--border); padding:4px 10px; border-radius:6px; font-size:0.85rem; min-width:45px; text-align:center;">${ev.minute}'</div><div style="width:25px; text-align:center;">${icon}</div><div style="flex:1;"><b>${ev.player_name}</b><br><small style="color:#8e99a2">${ev.description || ''}</small></div></div>`;
         }).join('') || 'لا توجد أحداث';
     }
 
-    // دالة تفاصيل المباراة 
     async function loadMatchDetails() {
         const { data } = await _supabase.from('matches').select('*').eq('id', activeMatchId).single();
         if(data) {
@@ -807,7 +815,6 @@
         }
     }
 
-    // دالة فتح تفاصيل الملعب 
     async function openStadiumDetails(matchId) {
         const { data, error } = await _supabase.from('matches').select('stadium_name, stadium_image, stadium_type, stadium_location').eq('id', matchId).single();
         if(data) {
@@ -819,37 +826,27 @@
         }
     }
 
-    // === دوال الأخبار وزر اللايك === //
-
     async function toggleLike(newsId, btn) {
         const span = btn.querySelector('span');
         let currentLikes = parseInt(span.innerText) || 0;
         const storageKey = 'liked_news_' + newsId;
         const isLiked = localStorage.getItem(storageKey);
-
         if (isLiked) {
-            // إلغاء الإعجاب
             currentLikes = Math.max(0, currentLikes - 1);
             btn.classList.remove('liked');
             localStorage.removeItem(storageKey);
         } else {
-            // إضافة الإعجاب
             currentLikes++;
             btn.classList.add('liked');
             localStorage.setItem(storageKey, 'true');
         }
-
-        // تحديث الرقم في الواجهة
         span.innerText = currentLikes;
-
-        // إرسال التحديث إلى قاعدة بيانات Supabase
         await _supabase.from('news').update({ likes_count: currentLikes }).eq('id', newsId);
     }
 
     async function loadNews() {
         const { data } = await _supabase.from('news').select('*').order('created_at', {ascending: false});
         document.getElementById('sec-n').innerHTML = data?.map(n => {
-            // التحقق مما إذا كان المستخدم قد أعجب بالخبر مسبقاً من خلال التخزين المحلي
             const isLiked = localStorage.getItem('liked_news_' + n.id) ? 'liked' : '';
             return `
             <div style="background:var(--card); margin-bottom:15px; border-radius:12px; overflow:hidden; border: 1px solid var(--border);">
@@ -865,78 +862,36 @@
         }).join('');
     }
 
-    // --- دالة ميزة !BOOM المصححة لتدعم منصات إضافية ---
     async function loadBoomVideos() {
         const { data, error } = await _supabase.from('boom_videos').select('*').order('created_at', {ascending: false});
         const list = document.getElementById('boom-list');
-        
         if (error || !data || data.length === 0) {
             list.innerHTML = '<div style="color: white; display: flex; align-items: center; justify-content: center; height: 100%;">لا توجد فيديوهات حالياً</div>';
             return;
         }
-
         list.innerHTML = data.map(v => {
             let rawUrl = v.video_url || "";
             let embedHtml = "";
-
-            // فحص نوع الرابط وتوليد Iframe المناسب
             if (rawUrl.includes("youtube.com") || rawUrl.includes("youtu.be")) {
                 let embedUrl = rawUrl;
-                if (rawUrl.includes("youtube.com/watch?v=")) {
-                    embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("watch?v=")[1].split("&")[0];
-                } else if (rawUrl.includes("youtu.be/")) {
-                    embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("youtu.be/")[1].split("?")[0];
-                } else if (rawUrl.includes("youtube.com/shorts/")) {
-                    embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("shorts/")[1].split("?")[0];
-                }
+                if (rawUrl.includes("watch?v=")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("watch?v=")[1].split("&")[0];
+                else if (rawUrl.includes("youtu.be/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("youtu.be/")[1].split("?")[0];
+                else if (rawUrl.includes("shorts/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("shorts/")[1].split("?")[0];
                 embedHtml = `<iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             } 
             else if (rawUrl.includes("tiktok.com")) {
                 let videoIdMatch = rawUrl.match(/video\/(\d+)/);
-                if (videoIdMatch && videoIdMatch[1]) {
-                    embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${videoIdMatch[1]}" allowfullscreen scrolling="no" allow="encrypted-media;"></iframe>`;
-                } else {
-                    embedHtml = `<iframe src="${rawUrl}" allowfullscreen></iframe>`;
-                }
+                if (videoIdMatch) embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${videoIdMatch[1]}" allowfullscreen scrolling="no"></iframe>`;
             } 
             else if (rawUrl.includes("instagram.com")) {
-                let embedUrl = rawUrl.split("?")[0];
-                if (!embedUrl.endsWith("/")) embedUrl += "/";
-                embedUrl += "embed/";
-                embedHtml = `<iframe src="${embedUrl}" allowtransparency="true" frameborder="0" scrolling="no" allowfullscreen></iframe>`;
+                embedHtml = `<iframe src="${rawUrl.split("?")[0]}embed/" allowtransparency="true" scrolling="no"></iframe>`;
             } 
-            else if (rawUrl.includes("facebook.com") || rawUrl.includes("fb.watch")) {
-                let encodedUrl = encodeURIComponent(rawUrl);
-                let embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodedUrl}&show_text=false&width=auto`;
-                embedHtml = `<iframe src="${embedUrl}" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowfullscreen="true" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>`;
-            } 
-            else if (rawUrl.includes("twitter.com") || rawUrl.includes("x.com")) {
-                let twitUrl = rawUrl.replace("x.com", "twitter.com");
-                let encodedUrl = encodeURIComponent(twitUrl);
-                // استخدام خدمة خارجية مجانية لتضمين تويتر كـ Iframe
-                embedHtml = `<iframe src="https://twitframe.com/show?url=${encodedUrl}" scrolling="yes" allowfullscreen></iframe>`;
-            } 
-            else {
-                // الوضع الافتراضي للروابط الأخرى
-                embedHtml = `<iframe src="${rawUrl}" allowfullscreen></iframe>`;
-            }
-
-            return `
-                <div class="boom-item">
-                    <div class="boom-video-wrapper">
-                        ${embedHtml}
-                    </div>
-                    <div class="boom-info">
-                        <h3>${v.title || ''}</h3>
-                        <p>${v.description || ''}</p>
-                    </div>
-                </div>
-            `;
+            else embedHtml = `<iframe src="${rawUrl}" allowfullscreen></iframe>`;
+            return `<div class="boom-item"><div class="boom-video-wrapper">${embedHtml}</div><div class="boom-info"><h3>${v.title || ''}</h3><p>${v.description || ''}</p></div></div>`;
         }).join('');
     }
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    
     loadMatches();
 </script>
 </body>
