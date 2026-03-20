@@ -388,8 +388,7 @@
         .stat-v small { color: var(--nav-inactive); font-size: 11px; margin-top: 4px; display: block; }
         
         .p-pen-sec { padding: 15px 20px; background: rgba(255,255,255,0.02); display: flex; justify-content: space-around; border-top: 1px solid var(--border); align-items: center; }
-        .pen-v { font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
-        .p-suc { color: #2ecc71; } .p-mis { color: #e74c3c; }
+        .pen-v p-suc { color: #2ecc71; } .p-mis { color: #e74c3c; }
         
         .p-close { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 100; display:flex; align-items:center; justify-content:center; font-size: 14px; }
 
@@ -689,13 +688,13 @@
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center;">
                         <h4 style="margin: 0; color: var(--accent);">تعديل الملف الشخصي</h4>
                         
-                        <label for="profile-upload" style="cursor: pointer; position: relative; display: inline-block; margin-top: 10px;">
+                        <label for="profile-upload" onclick="document.getElementById('profile-upload').click()" style="cursor: pointer; position: relative; display: inline-block; margin-top: 10px;">
                             <img id="profile-pic-preview" src="${savedPic}" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); background: var(--bg);">
                             <div style="position: absolute; bottom: 0; right: 0; background: var(--accent); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
                                 <svg style="width:16px;height:16px;fill:white;" viewBox="0 0 24 24"><path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/></svg>
                             </div>
                         </label>
-                        <input type="file" id="profile-upload" accept="image/*" style="display: none;" onchange="previewProfilePic(event)">
+                        <input type="file" id="profile-upload" accept="image/*" style="position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;" onchange="previewProfilePic(event)">
                         
                         <input type="text" id="profile-name-input" placeholder="أدخل اسمك" class="auth-input" value="${savedName}" style="margin-top: 5px; text-align: center; font-weight: bold; border-color: var(--border);">
                         
