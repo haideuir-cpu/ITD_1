@@ -612,7 +612,7 @@
     // متغيرات الجلسة للمستخدم
     let currentUser = null;
     let isLoginMode = true;
-    let isProfileEditMode = false; // متغير للتحكم بحالة العرض
+    let isProfileEditMode = false; 
 
     const POSITIONS = {
         'GK': {t:90, l:50, zone:'D'},
@@ -646,7 +646,6 @@
         localStorage.setItem('theme', isLight ? 'light' : 'dark');
     }
 
-    // --- وظائف نظام تسجيل الدخول المعدلة للبروفايل المتقدم ---
     async function checkUserSession() {
         try {
             const { data, error } = await _supabase.auth.getSession();
@@ -678,23 +677,22 @@
         if(currentUser) {
             const defaultName = currentUser.email ? currentUser.email.split('@')[0] : 'حسابي';
             
-            // استرجاع البيانات المحفوظة محلياً للحساب الحالي
             const savedName = localStorage.getItem('profile_name_' + currentUser.id) || defaultName;
             const savedPic = localStorage.getItem('profile_pic_' + currentUser.id) || `https://ui-avatars.com/api/?name=${defaultName}&background=1e90ff&color=fff&size=80`;
             
             if (isProfileEditMode) {
-                // تم التعديل هنا لضمان عمل زر اختيار الصورة في تطبيقات الهواتف و Webview بشكل مثالي
+                // تعديل هيكل زر رفع الصورة وجعله كطبقة شفافة فوقية
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center;">
                         <h4 style="margin: 0; color: var(--accent);">تعديل الملف الشخصي</h4>
                         
-                        <div onclick="document.getElementById('profile-upload').click()" style="cursor: pointer; position: relative; display: inline-block; margin-top: 10px;">
+                        <div style="position: relative; display: inline-block; margin-top: 10px; width: 90px; height: 90px;">
                             <img id="profile-pic-preview" src="${savedPic}" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); background: var(--bg);">
-                            <div style="position: absolute; bottom: 0; right: 0; background: var(--accent); color: white; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); box-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                                <svg style="width:16px;height:16px;fill:white;" viewBox="0 0 24 24"><path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/></svg>
+                            <div style="position: absolute; bottom: -5px; right: -5px; background: var(--accent); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 5;">
+                                <svg style="width:18px;height:18px;fill:white;" viewBox="0 0 24 24"><path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"/></svg>
                             </div>
+                            <input type="file" id="profile-upload" accept="image/*" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10;" onchange="previewProfilePic(event)">
                         </div>
-                        <input type="file" id="profile-upload" accept="image/*" style="position: absolute; top: -9999px; left: -9999px; opacity: 0;" onchange="previewProfilePic(event)">
                         
                         <input type="text" id="profile-name-input" placeholder="أدخل اسمك" class="auth-input" value="${savedName}" style="margin-top: 5px; text-align: center; font-weight: bold; border-color: var(--border);">
                         
@@ -705,7 +703,6 @@
                     </div>
                 `;
             } else {
-                // وضع العرض الأنيق بعد الحفظ (كما في الصورة اليسرى)
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                         <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
@@ -737,7 +734,6 @@
             }
 
         } else {
-            // حالة عدم تسجيل الدخول
             accountContainer.innerHTML = `
                 <div class="more-item" id="auth-menu-btn" onclick="openAuthModal()">
                     <div>
@@ -749,7 +745,6 @@
         }
     }
 
-    // دالة تقوم بضغط الصورة قبل حفظها لتفادي مشاكل الحجم في المتصفح
     function previewProfilePic(event) {
         const file = event.target.files[0];
         if (file) {
@@ -758,7 +753,7 @@
                 const img = new Image();
                 img.onload = function() {
                     const canvas = document.createElement('canvas');
-                    const MAX_SIZE = 200; // تصغير حجم الصورة لحفظها بسلاسة
+                    const MAX_SIZE = 200; 
                     let width = img.width;
                     let height = img.height;
 
@@ -802,7 +797,6 @@
             }
         }
         
-        // العودة إلى وضع العرض الأنيق بعد الحفظ
         isProfileEditMode = false;
         updateAuthUI();
     }
@@ -867,7 +861,6 @@
         isProfileEditMode = false;
         updateAuthUI();
     }
-    // ---------------------------------
 
     window.addEventListener('load', () => {
         if (localStorage.getItem('theme') === 'light') {
