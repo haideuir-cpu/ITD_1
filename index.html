@@ -677,7 +677,7 @@
         if(currentUser) {
             const defaultName = currentUser.email ? currentUser.email.split('@')[0] : 'حسابي';
             
-            // --- ميزة Cache Busting لحل مشكلة الـ WebView ---
+            // --- ميزة Cache Busting لحل مشكلة الـ WebView وتحديث الصورة فوراً ---
             let savedPic = localStorage.getItem('profile_pic_' + currentUser.id) || `https://ui-avatars.com/api/?name=${defaultName}&background=1e90ff&color=fff&size=80`;
             if (savedPic && !savedPic.startsWith('data:')) {
                 savedPic += (savedPic.includes('?') ? '&' : '?') + 't=' + Date.now();
@@ -787,11 +787,10 @@
         }
     }
 
-    // ---- هنا تم تطبيق دالة الحفظ الجديدة (خارطة الطريق) بالكامل ----
+    // ---- دالة حفظ الملف الشخصي وتحديث الصورة فوراً ----
     async function saveProfile(event) {
         if(!currentUser) return;
         
-        // جلب زر الحفظ وتغيير حالته
         const btn = event.target;
         const originalText = btn.innerText;
         btn.innerText = "جاري الحفظ...";
@@ -806,26 +805,24 @@
         
         if (file) {
             try {
-                // 1. رفع الصورة إلى Storage
-                // ملاحظة: تأكد من أن لديك Bucket باسم avatars
-                const fileName = currentUser.id + "-" + Date.now() + "-" + file.name;
+                // 1. رفع الصورة إلى Storage (تأكد من وجود باكت avatars)
+                const fileName = currentUser.id + "-" + Date.now() + ".jpg";
                 const filePath = `public/${fileName}`;
 
                 const { error: uploadError } = await _supabase.storage
                     .from('avatars') 
-                    .upload(filePath, file);
+                    .upload(filePath, file, { cacheControl: '0', upsert: true });
 
                 if (uploadError) throw uploadError;
 
-                // 2. جلب الرابط العام (Public URL)
+                // 2. جلب الرابط العام وإضافة التوقيت لمنع الكاش
                 const { data } = _supabase.storage
                     .from('avatars')
                     .getPublicUrl(filePath);
 
                 const publicUrl = data.publicUrl;
 
-                // 3. تخزين الرابط في قاعدة البيانات (جدول profiles)
-                // إذا لم يكن لديك جدول profiles يمكنك تجاهل الرسالة التحذيرية التي ستظهر في الكونسول
+                // 3. تحديث قاعدة البيانات
                 const { error: dbError } = await _supabase
                     .from('profiles')
                     .upsert({ 
@@ -834,30 +831,24 @@
                         full_name: nameInput
                     });
                 
-                if (dbError) {
-                    console.log("تنبيه حول الـ Database:", dbError.message);
-                }
+                if (dbError) console.log("DB Update Info:", dbError.message);
 
-                // 4. تحديث الصورة محلياً لتظهر فوراً بعد الحفظ بدون مشاكل المساحة
-                localStorage.setItem('profile_pic_' + currentUser.id, publicUrl);
+                // 4. حفظ الرابط محلياً مع التوقيت للتأكد من تحديث التطبيق
+                localStorage.setItem('profile_pic_' + currentUser.id, publicUrl + "?v=" + Date.now());
                 
             } catch (error) {
-                console.error("خطأ في الرفع:", error.message);
+                console.error("Upload Error:", error.message);
                 alert("حدث خطأ أثناء الرفع: " + error.message);
             }
         } else {
-            // حفظ الصورة الحالية كما هي (في حال تم تعديل الاسم فقط ولم يتم رفع صورة جديدة)
             const picSrc = document.getElementById('profile-pic-preview').src;
             if(picSrc.startsWith('data:image')) {
                 try {
                     localStorage.setItem('profile_pic_' + currentUser.id, picSrc);
-                } catch (e) {
-                    console.error("مساحة التخزين ممتلئة");
-                }
+                } catch (e) { console.error("Storage full"); }
             }
         }
         
-        // إرجاع الواجهة للوضع الطبيعي
         btn.innerText = originalText;
         btn.disabled = false;
         isProfileEditMode = false;
