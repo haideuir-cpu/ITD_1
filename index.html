@@ -787,22 +787,79 @@
         }
     }
 
-    function saveProfile(event) {
+    // ---- هنا تم تطبيق دالة الحفظ الجديدة (خارطة الطريق) بالكامل ----
+    async function saveProfile(event) {
         if(!currentUser) return;
-        const nameInput = document.getElementById('profile-name-input').value;
-        const picSrc = document.getElementById('profile-pic-preview').src;
         
+        // جلب زر الحفظ وتغيير حالته
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "جاري الحفظ...";
+        btn.disabled = true;
+
+        const nameInput = document.getElementById('profile-name-input').value;
+        const fileInput = document.getElementById('profile-upload');
+        const file = fileInput ? fileInput.files[0] : null;
+        
+        // حفظ الاسم محلياً
         localStorage.setItem('profile_name_' + currentUser.id, nameInput);
         
-        if(picSrc.startsWith('data:image')) {
+        if (file) {
             try {
-                localStorage.setItem('profile_pic_' + currentUser.id, picSrc);
-            } catch (e) {
-                alert('حدث خطأ أثناء الحفظ، مساحة التخزين قد تكون ممتلئة.');
-                return;
+                // 1. رفع الصورة إلى Storage
+                // ملاحظة: تأكد من أن لديك Bucket باسم avatars
+                const fileName = currentUser.id + "-" + Date.now() + "-" + file.name;
+                const filePath = `public/${fileName}`;
+
+                const { error: uploadError } = await _supabase.storage
+                    .from('avatars') 
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                // 2. جلب الرابط العام (Public URL)
+                const { data } = _supabase.storage
+                    .from('avatars')
+                    .getPublicUrl(filePath);
+
+                const publicUrl = data.publicUrl;
+
+                // 3. تخزين الرابط في قاعدة البيانات (جدول profiles)
+                // إذا لم يكن لديك جدول profiles يمكنك تجاهل الرسالة التحذيرية التي ستظهر في الكونسول
+                const { error: dbError } = await _supabase
+                    .from('profiles')
+                    .upsert({ 
+                        id: currentUser.id, 
+                        avatar_url: publicUrl,
+                        full_name: nameInput
+                    });
+                
+                if (dbError) {
+                    console.log("تنبيه حول الـ Database:", dbError.message);
+                }
+
+                // 4. تحديث الصورة محلياً لتظهر فوراً بعد الحفظ بدون مشاكل المساحة
+                localStorage.setItem('profile_pic_' + currentUser.id, publicUrl);
+                
+            } catch (error) {
+                console.error("خطأ في الرفع:", error.message);
+                alert("حدث خطأ أثناء الرفع: " + error.message);
+            }
+        } else {
+            // حفظ الصورة الحالية كما هي (في حال تم تعديل الاسم فقط ولم يتم رفع صورة جديدة)
+            const picSrc = document.getElementById('profile-pic-preview').src;
+            if(picSrc.startsWith('data:image')) {
+                try {
+                    localStorage.setItem('profile_pic_' + currentUser.id, picSrc);
+                } catch (e) {
+                    console.error("مساحة التخزين ممتلئة");
+                }
             }
         }
         
+        // إرجاع الواجهة للوضع الطبيعي
+        btn.innerText = originalText;
+        btn.disabled = false;
         isProfileEditMode = false;
         updateAuthUI();
     }
