@@ -114,7 +114,6 @@
         
         .pl-captain { position: absolute; top: -5px; right: -5px; background: var(--gold); color: black; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 6; font-weight: 900; }
 
-        /* --- تصميم نجمة أفضل لاعب المعدل --- */
         .pl-motm-star { 
             position: absolute; top: -20px; left: 50%; transform: translateX(-50%);
             background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%); 
@@ -160,7 +159,6 @@
         .info-card span:last-child { color: var(--nav-inactive); font-size: 0.85rem; }
         .back-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
 
-        /* --- تنسيقات خانة المزيد --- */
         .more-item {
             background: var(--card);
             padding: 18px;
@@ -186,7 +184,6 @@
 
         body.light-mode .switch:not(.active) { background: #ccc; }
 
-        /* --- تنسيقات مقاعد البدلاء والغيابات الجديدة --- */
         .bench-out-section {
             padding: 15px;
             border-top: 1px dashed var(--border);
@@ -199,17 +196,15 @@
             margin-bottom: 15px;
         }
         
-        /* أيقونات الغيابات */
         .pl-absent-icon {
             position: absolute; top: -5px; right: -5px; 
             width: 18px; height: 18px; border-radius: 4px;
             display: flex; align-items: center; justify-content: center;
             font-size: 10px; font-weight: bold; border: 1px solid white; z-index: 10;
         }
-        .icon-ev { background: #ff4d4d; color: white; } /* طرد */
-        .icon-inf { background: white; color: #ff4d4d; font-size: 14px; } /* إصابة */
+        .icon-ev { background: #ff4d4d; color: white; } 
+        .icon-inf { background: white; color: #ff4d4d; font-size: 14px; } 
 
-        /* --- التحديث العصري للأيقونات (أهداف، أسيست، كروت) --- */
         .pl-badge {
             position: absolute;
             background: white;
@@ -254,7 +249,6 @@
             border: 1.5px solid #ff3b30;
         }
 
-        /* --- تنسيقات زر اللايك الجديد --- */
         .news-footer {
             display: flex;
             align-items: center;
@@ -286,10 +280,9 @@
             100% { transform: scale(1); }
         }
 
-        /* --- ميزة !BOOM الجديدة --- */
         .boom-container {
             position: relative;
-            height: calc(100vh - 80px); /* تعويض شريط التنقل السفلي */
+            height: calc(100vh - 80px); 
             overflow-y: scroll;
             scroll-snap-type: y mandatory;
             background: #000;
@@ -350,7 +343,6 @@
         .boom-info h3 { margin: 0; font-size: 1rem; color: #fff; }
         .boom-info p { margin: 5px 0 0; font-size: 0.85rem; color: #ddd; }
 
-        /* --- تصميم نافذة اللاعب الجديدة --- */
         #p-modal, #s-modal { 
             display: none; position: fixed; inset: 0; 
             background: rgba(0,0,0,0.96); z-index: 5000; 
@@ -392,16 +384,118 @@
         
         .p-close { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 100; display:flex; align-items:center; justify-content:center; font-size: 14px; }
 
-        /* --- تنسيقات الملعب الجديدة --- */
         .s-content { padding: 20px; text-align: center; }
         .s-name { font-size: 1.5rem; font-weight: 900; color: var(--accent); margin-bottom: 15px; }
         .s-row { display: flex; justify-content: space-between; padding: 12px 15px; background: rgba(255,255,255,0.03); border-radius: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
         .s-row span:first-child { color: var(--nav-inactive); font-size: 0.85rem; }
         .s-row span:last-child { color: white; font-weight: bold; }
 
-        /* --- تنسيقات حقول إدخال تسجيل الدخول --- */
         .auth-input { width: 100%; padding: 12px; margin-top: 15px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 1rem; }
         .auth-input:focus { outline: none; border-color: var(--accent); }
+
+        /* --- تنسيقات خانة التصويت الجديدة --- */
+        .vote-section {
+            background: #191c35; /* لون متطابق مع خلفية الصورة */
+            min-height: 100vh;
+        }
+        .vote-timer-container {
+            text-align: center;
+            padding: 15px 0;
+        }
+        .vote-timer-nums {
+            font-size: 3.2rem;
+            font-weight: 900;
+            color: #ffcc00;
+            font-family: 'Arial Black', Impact, sans-serif;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        .vote-timer-labels {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            color: #ffcc00;
+            font-weight: bold;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        .vote-header h2 {
+            color: white;
+            font-size: 1.25rem;
+            margin: 0 0 5px 0;
+            font-weight: 900;
+        }
+        .vote-header p {
+            color: #8e99a2;
+            font-size: 0.9rem;
+            margin: 0;
+            font-weight: bold;
+        }
+        .vote-options {
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .vote-bar {
+            position: relative;
+            background: #2b254d;
+            border-radius: 12px;
+            height: 65px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+        .vote-bar:active { transform: scale(0.98); }
+        .vote-bar.leading { border-color: #ffcc00; } /* إطار أصفر للمتصدر كما في الصورة */
+        
+        .vote-fill {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: #9d5bff;
+            z-index: 1;
+            transition: width 0.5s ease-out;
+            border-radius: 10px;
+        }
+        .vote-content-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+        }
+        .vote-pct {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: white;
+            font-family: 'Arial Black', sans-serif;
+        }
+        .vote-candidate {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .vote-candidate-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: white;
+        }
+        .vote-candidate-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid transparent;
+            background: white;
+        }
     </style>
 </head>
 <body>
@@ -417,6 +511,25 @@
     <div id="sec-m" class="section active"></div>
     <div id="sec-n" class="section"></div>
     
+    <div id="sec-vote" class="section vote-section" style="padding:0;">
+        <img id="vote-cover" src="" style="width: 100%; height: auto; display: block; object-fit: cover;">
+        
+        <div class="vote-timer-container">
+            <div id="vote-timer-nums" class="vote-timer-nums">00:00:00:00</div>
+            <div class="vote-timer-labels">
+                <span>ثانية</span> <span>:</span> <span>دقيقة</span> <span>:</span> <span>ساعة</span> <span>:</span> <span>يوم</span>
+            </div>
+            
+            <div class="vote-header">
+                <h2>التصويت على جائزة لاعب الشهر</h2>
+                <p>المقدمة من المكتب الأعلامي لفريق الأتحاد</p>
+            </div>
+        </div>
+        
+        <div id="voting-options" class="vote-options">
+            </div>
+    </div>
+
     <div id="sec-boom" class="section" style="padding:0; height: 100%;">
         <div class="boom-header">
             <div class="boom-tab active">!BOOM</div>
@@ -464,6 +577,10 @@
     <div id="nav-n" class="nav-item" onclick="showTab('n')">
         <svg viewBox="0 0 24 24"><path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 16H5V5h14v14zM11 7h6v2h-6V7zm0 4h6v2h-6v-2zm-4-4h2v6H7V7zm0 8h10v2H7v-2z"/></svg>
         <div>أخبار</div>
+    </div>
+    <div id="nav-vote" class="nav-item" onclick="showTab('vote')">
+        <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.62L12 2L9.19 8.62L2 9.24L7.45 13.97L5.82 21L12 17.27Z"/></svg>
+        <div>التصويت</div>
     </div>
     <div id="nav-boom" class="nav-item" onclick="showTab('boom')">
         <svg viewBox="0 0 24 24"><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z"/></svg>
@@ -613,6 +730,10 @@
     let currentUser = null;
     let isLoginMode = true;
     let isProfileEditMode = false; 
+    
+    // متغيرات التصويت
+    let voteEndTime = new Date().getTime();
+    let voteTimerInterval = null;
 
     const POSITIONS = {
         'GK': {t:90, l:50, zone:'D'},
@@ -682,9 +803,7 @@
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center;">
                         <h4 style="margin: 0; color: var(--accent);">تعديل الملف الشخصي</h4>
-                        
                         <input type="text" id="profile-name-input" placeholder="أدخل اسمك" class="auth-input" value="${savedName}" style="margin-top: 5px; text-align: center; font-weight: bold; border-color: var(--border);">
-                        
                         <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
                             <button onclick="saveProfile(event)" style="flex: 1; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 1rem;">حفظ</button>
                             <button onclick="toggleProfileEditMode()" style="flex: 1; background: transparent; color: var(--nav-inactive); border: 1px solid var(--border); padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 1rem;">إلغاء</button>
@@ -733,7 +852,6 @@
         }
     }
 
-    // ---- دالة حفظ الملف الشخصي (تم تعديلها للاسم فقط) ----
     async function saveProfile(event) {
         if(!currentUser) return;
         
@@ -743,24 +861,15 @@
         btn.disabled = true;
 
         const nameInput = document.getElementById('profile-name-input').value;
-        
-        // حفظ الاسم محلياً
         localStorage.setItem('profile_name_' + currentUser.id, nameInput);
         
         try {
-            // تحديث قاعدة البيانات (الاسم فقط)
             const { error: dbError } = await _supabase
                 .from('profiles')
-                .upsert({ 
-                    id: currentUser.id, 
-                    full_name: nameInput
-                });
-            
+                .upsert({ id: currentUser.id, full_name: nameInput });
             if (dbError) console.log("DB Update Info:", dbError.message);
-            
         } catch (error) {
             console.error("Update Error:", error.message);
-            alert("حدث خطأ أثناء التحديث: " + error.message);
         }
         
         btn.innerText = originalText;
@@ -816,7 +925,6 @@
         } else {
             currentUser = result.data.user || (result.data.session && result.data.session.user);
             updateAuthUI();
-            
             msg.innerText = isLoginMode ? 'تم تسجيل الدخول بنجاح!' : 'تم إنشاء الحساب بنجاح!';
             msg.style.color = '#2ecc71';
             setTimeout(() => closeModal('auth-modal'), 1000);
@@ -845,11 +953,125 @@
 
     function showTab(t) {
         document.querySelectorAll('.section, .nav-item').forEach(el => el.classList.remove('active'));
-        document.getElementById('main-header').style.display = (t === 'boom') ? 'none' : 'flex';
+        document.getElementById('main-header').style.display = (t === 'boom' || t === 'vote') ? 'none' : 'flex';
         document.getElementById('sec-' + t).classList.add('active');
         document.getElementById('nav-' + t).classList.add('active');
-        if(t==='m') loadMatches(); else if(t==='n') loadNews(); else if(t==='boom') loadBoomVideos();
+        
+        if(t==='m') loadMatches(); 
+        else if(t==='n') loadNews(); 
+        else if(t==='boom') loadBoomVideos();
+        else if(t==='vote') loadVoting(); 
     }
+
+    // --- المنطق الخاص بجدول التصويت ---
+    function startVoteTimer() {
+        if(voteTimerInterval) clearInterval(voteTimerInterval);
+        
+        voteTimerInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = voteEndTime - now;
+            
+            if (distance < 0) {
+                clearInterval(voteTimerInterval);
+                document.getElementById('vote-timer-nums').innerText = "00:00:00:00";
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            const pad = (n) => n < 10 ? '0' + n : n;
+            document.getElementById('vote-timer-nums').innerText = `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }, 1000);
+    }
+
+    async function loadVoting() {
+        // بيانات افتراضية مطابقة للصورة تماماً في حال لم يتم إعداد الجدول بعد
+        let cover = 'https://via.placeholder.com/800x400/162029/1e90ff?text=جاري+التحميل...';
+        let endD = new Date().getTime() + (2 * 24 * 60 * 60 * 1000) + (10 * 60 * 60 * 1000) + (16 * 60 * 1000) + (40 * 1000); 
+        let candidates = [
+            { id: 1, name: 'كرار', img: 'https://via.placeholder.com/45/222', votes: 11 },
+            { id: 2, name: 'علي فوعاني', img: 'https://via.placeholder.com/45/222', votes: 38 },
+            { id: 3, name: 'محمد', img: 'https://via.placeholder.com/45/222', votes: 40 },
+            { id: 4, name: 'اللاعب الرابع', img: 'https://via.placeholder.com/45/222', votes: 11 }
+        ];
+
+        try {
+            // الاستدعاء من قاعدة البيانات بجدول (monthly_voting)
+            const { data, error } = await _supabase.from('monthly_voting').select('*').limit(1).single();
+            if (data && !error) {
+                cover = data.cover_image || cover;
+                endD = new Date(data.end_date).getTime();
+                candidates = [
+                    { id: 1, name: data.p1_name || 'كرار', img: data.p1_img || '', votes: data.p1_votes || 0 },
+                    { id: 2, name: data.p2_name || 'علي فوعاني', img: data.p2_img || '', votes: data.p2_votes || 0 },
+                    { id: 3, name: data.p3_name || 'محمد', img: data.p3_img || '', votes: data.p3_votes || 0 },
+                    { id: 4, name: data.p4_name || 'اللاعب الرابع', img: data.p4_img || '', votes: data.p4_votes || 0 }
+                ];
+            }
+        } catch(e) { console.log('لا يوجد جدول monthly_voting في قاعدة البيانات، سيتم عرض التصميم الافتراضي للمعاينة.'); }
+
+        document.getElementById('vote-cover').src = cover;
+        voteEndTime = endD;
+        
+        const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
+        const getPct = (v) => totalVotes === 0 ? 0 : Math.round((v / totalVotes) * 100);
+        
+        candidates.forEach(c => c.pct = getPct(c.votes));
+        
+        // لوضع الإطار الأصفر للمرشح المتصدر (النسبة الأعلى) كما في الصورة
+        const maxPct = Math.max(...candidates.map(c => c.pct));
+        
+        const optionsHtml = candidates.map(c => `
+            <div class="vote-bar ${c.pct === maxPct && totalVotes > 0 ? 'leading' : ''}" onclick="submitVote(${c.id})">
+                <div class="vote-fill" style="width: ${c.pct}%"></div>
+                <div class="vote-content-wrapper">
+                    <div class="vote-pct">${c.pct}%</div>
+                    <div class="vote-candidate">
+                        <span class="vote-candidate-name">${c.name}</span>
+                        <img class="vote-candidate-img" src="${c.img}" onerror="this.src='https://via.placeholder.com/45'">
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        document.getElementById('voting-options').innerHTML = optionsHtml;
+        startVoteTimer();
+    }
+
+    async function submitVote(candidateId) {
+        if (!currentUser) {
+            openAuthModal();
+            return;
+        }
+        
+        if(localStorage.getItem('voted_month_' + currentUser.id)) {
+            alert('لقد قمت بالتصويت مسبقاً!');
+            return;
+        }
+        
+        try {
+            const { data } = await _supabase.from('monthly_voting').select('*').limit(1).single();
+            if(data) {
+                let updatePayload = {};
+                if(candidateId === 1) updatePayload.p1_votes = (data.p1_votes || 0) + 1;
+                if(candidateId === 2) updatePayload.p2_votes = (data.p2_votes || 0) + 1;
+                if(candidateId === 3) updatePayload.p3_votes = (data.p3_votes || 0) + 1;
+                if(candidateId === 4) updatePayload.p4_votes = (data.p4_votes || 0) + 1;
+                
+                await _supabase.from('monthly_voting').update(updatePayload).eq('id', data.id);
+                localStorage.setItem('voted_month_' + currentUser.id, 'true');
+                loadVoting(); 
+            } else {
+                alert("تم استلام التصويت كمثال للمعاينة (اربط الجدول في سوبر بيس للتفعيل الفعلي)");
+            }
+        } catch (e) {
+            alert("تم تسجيل النقر، يرجى إنشاء جدول monthly_voting في السوبر بيس للحفظ.");
+        }
+    }
+    // ------------------------------------
 
     async function loadMatches() {
         const { data } = await _supabase.from('matches').select('*').order('created_at', {ascending: false});
