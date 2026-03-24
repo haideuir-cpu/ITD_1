@@ -103,7 +103,7 @@
         .spot-bottom { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: white; border-radius: 50%; }
 
         .modal { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 2000; flex-direction: column; }
-        .m-tab { flex: 1; padding: 15px; text-align: center; color: var(--nav-inactive); cursor: pointer; font-weight: bold; }
+        .m-tab { flex: 0 0 auto; padding: 15px; text-align: center; color: var(--nav-inactive); cursor: pointer; font-weight: bold; }
         .m-tab.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
         .pl-pin { position: absolute; width: 70px; text-align: center; transform: translate(-50%, -50%) rotateX(-15deg); z-index: 10; cursor: pointer; }
         .pl-img-w { position: relative; display: inline-block; width: 50px; height: 50px; }
@@ -394,108 +394,82 @@
         .auth-input:focus { outline: none; border-color: var(--accent); }
 
         /* --- تنسيقات خانة التصويت الجديدة --- */
-        .vote-section {
-            background: #191c35; /* لون متطابق مع خلفية الصورة */
-            min-height: 100vh;
-        }
-        .vote-timer-container {
-            text-align: center;
-            padding: 15px 0;
-        }
-        .vote-timer-nums {
-            font-size: 3.2rem;
-            font-weight: 900;
-            color: #ffcc00;
-            font-family: 'Arial Black', Impact, sans-serif;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-        }
-        .vote-timer-labels {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            color: #ffcc00;
-            font-weight: bold;
-            font-size: 1rem;
-            margin-bottom: 20px;
-        }
-        .vote-header h2 {
-            color: white;
-            font-size: 1.25rem;
-            margin: 0 0 5px 0;
-            font-weight: 900;
-        }
-        .vote-header p {
-            color: #8e99a2;
-            font-size: 0.9rem;
-            margin: 0;
-            font-weight: bold;
-        }
-        .vote-options {
-            padding: 20px 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .vote-bar {
-            position: relative;
-            background: #2b254d;
-            border-radius: 12px;
-            height: 65px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s;
-        }
+        .vote-section { background: #191c35; min-height: 100vh; }
+        .vote-timer-container { text-align: center; padding: 15px 0; }
+        .vote-timer-nums { font-size: 3.2rem; font-weight: 900; color: #ffcc00; font-family: 'Arial Black', Impact, sans-serif; letter-spacing: 2px; margin-bottom: 5px; }
+        .vote-timer-labels { display: flex; justify-content: center; align-items: center; gap: 12px; color: #ffcc00; font-weight: bold; font-size: 1rem; margin-bottom: 20px; }
+        .vote-header h2 { color: white; font-size: 1.25rem; margin: 0 0 5px 0; font-weight: 900; }
+        .vote-header p { color: #8e99a2; font-size: 0.9rem; margin: 0; font-weight: bold; }
+        .vote-options { padding: 20px 15px; display: flex; flex-direction: column; gap: 15px; }
+        .vote-bar { position: relative; background: #2b254d; border-radius: 12px; height: 65px; overflow: hidden; display: flex; align-items: center; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s; }
         .vote-bar:active { transform: scale(0.98); }
-        .vote-bar.leading { border-color: #ffcc00; } /* إطار أصفر للمتصدر كما في الصورة */
+        .vote-bar.leading { border-color: #ffcc00; } 
+        .vote-fill { position: absolute; right: 0; top: 0; bottom: 0; background: #9d5bff; z-index: 1; transition: width 0.5s ease-out; border-radius: 10px; }
+        .vote-content-wrapper { position: relative; z-index: 2; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
+        .vote-pct { font-size: 1.8rem; font-weight: 900; color: white; font-family: 'Arial Black', sans-serif; }
+        .vote-candidate { display: flex; align-items: center; gap: 15px; }
+        .vote-candidate-name { font-size: 1.1rem; font-weight: bold; color: white; }
+        .vote-candidate-img { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid transparent; background: white; }
+
+        /* --- تنسيقات مساحة الزوار الجديدة --- */
+        .visitors-header-title { text-align: right; margin-bottom: 15px; color: var(--nav-inactive); font-weight: bold; font-size: 0.9rem; }
+        .pred-gradient-box {
+            background: linear-gradient(135deg, #7452e8, #4278ed);
+            border-radius: 15px; padding: 20px; color: white; margin-bottom: 25px;
+        }
+        .pred-title { text-align: center; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem; }
+        .pred-buttons { display: flex; justify-content: space-between; gap: 12px; }
+        .pred-btn {
+            flex: 1; background: #0b1116; color: white; border: none; padding: 12px 10px; 
+            border-radius: 25px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .pred-btn:active { transform: scale(0.95); }
+        .pred-btn.draw-btn { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
         
-        .vote-fill {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            background: #9d5bff;
-            z-index: 1;
-            transition: width 0.5s ease-out;
-            border-radius: 10px;
+        .pred-result-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 1rem; }
+        .pred-result-bars { display: flex; height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; margin-top: 5px; margin-bottom: 10px; }
+        .pred-res-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0px; transition: width 0.5s ease-in-out; }
+        .res-home { background: #8e54e9; } .res-draw { background: #f1c40f; } .res-away { background: #00cec9; }
+
+        .comment-input-container {
+            background: var(--card); border: 1px solid var(--border); border-radius: 25px;
+            padding: 5px 5px 5px 15px; display: flex; align-items: center; margin-bottom: 25px;
         }
-        .vote-content-wrapper {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 15px;
+        .comment-input-container input {
+            flex: 1; background: transparent; border: none; color: var(--text);
+            padding: 10px; outline: none; font-size: 0.95rem;
         }
-        .vote-pct {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: white;
-            font-family: 'Arial Black', sans-serif;
+        .comment-send-btn {
+            background: #00d2b5; border: none; width: 38px; height: 38px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .vote-candidate {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        .comment-send-btn svg { fill: #0b1116; width: 20px; height: 20px; transform: rotate(180deg); margin-left: -2px; }
+        
+        .v-comment-item { display: flex; gap: 15px; margin-bottom: 25px; }
+        .v-comment-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        
+        /* كلاس الأفاتار الجديد الذي يظهر أول حرفين */
+        .v-comment-avatar-text { 
+            width: 45px; height: 45px; border-radius: 50%; 
+            background: #24313d; color: #fff; border: 1px solid var(--accent);
+            display: flex; align-items: center; justify-content: center; 
+            font-weight: bold; font-size: 1.1rem; flex-shrink: 0; text-transform: uppercase;
         }
-        .vote-candidate-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: white;
-        }
-        .vote-candidate-img {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid transparent;
-            background: white;
-        }
+
+        .v-comment-content { flex: 1; }
+        .v-comment-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .v-comment-author { font-weight: bold; font-size: 0.95rem; color: var(--text); }
+        .v-comment-time { color: var(--nav-inactive); font-size: 0.8rem; }
+        .v-comment-text { font-size: 0.95rem; line-height: 1.5; margin-bottom: 10px; color: var(--text); }
+        .v-comment-actions { display: flex; justify-content: space-between; align-items: center; }
+        .v-comment-reply { color: #00d2b5; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+        .v-comment-likes { display: flex; gap: 15px; color: var(--nav-inactive); font-weight: bold; font-size: 0.9rem; }
+        .v-action-btn { display: flex; align-items: center; gap: 5px; cursor: pointer; transition: 0.2s; }
+        .v-action-btn svg { fill: currentColor; width: 18px; height: 18px; }
+        .v-action-btn.active-like { color: #00d2b5; }
+        .v-action-btn.active-dislike { color: #ff4d4d; }
+        
+        .v-replies-text { color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-top: 10px; cursor: pointer; display: inline-block; }
     </style>
 </head>
 <body>
@@ -526,8 +500,7 @@
             </div>
         </div>
         
-        <div id="voting-options" class="vote-options">
-            </div>
+        <div id="voting-options" class="vote-options"></div>
     </div>
 
     <div id="sec-boom" class="section" style="padding:0; height: 100%;">
@@ -620,11 +593,12 @@
         <b id="m-title">التفاصيل</b>
         <div style="width:40px;"></div>
     </div>
-    <div style="display: flex; background: var(--card); border-bottom: 1px solid var(--border);">
+    <div style="display: flex; background: var(--card); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; white-space: nowrap;">
         <div id="tab-lineup" class="m-tab active" onclick="switchMatchTab('lineup')">التشكيلة</div>
         <div id="tab-squad" class="m-tab" onclick="switchMatchTab('squad')">القائمة</div>
         <div id="tab-events" class="m-tab" onclick="switchMatchTab('events')">الأحداث</div>
         <div id="tab-details" class="m-tab" onclick="switchMatchTab('details')">التفاصيل</div>
+        <div id="tab-visitors" class="m-tab" onclick="switchMatchTab('visitors')">مساحة الزوار</div>
     </div>
     <div id="match-content" style="flex:1; overflow-y:auto;">
         <div id="lineup-view">
@@ -660,6 +634,7 @@
         </div>
         <div id="events-view" style="display:none; padding-bottom: 30px;"><div id="events-list"></div></div>
         <div id="details-view" style="display:none; padding: 15px;"><div id="details-list"></div></div>
+        <div id="visitors-view" style="display:none; padding: 20px;"></div>
     </div>
 </div>
 
@@ -1122,14 +1097,203 @@
 
     function switchMatchTab(tab) {
         document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
-        ['lineup-view', 'squad-view', 'events-view', 'details-view'].forEach(v => document.getElementById(v).style.display = 'none');
+        ['lineup-view', 'squad-view', 'events-view', 'details-view', 'visitors-view'].forEach(v => document.getElementById(v).style.display = 'none');
         document.getElementById('tab-' + tab).classList.add('active');
         document.getElementById(tab + '-view').style.display = 'block';
         if(tab === 'lineup') loadLineup(homeTeam); 
         else if(tab === 'squad') loadFullSquad(selectedSquadTeam || homeTeam);
         else if(tab === 'events') loadEvents(); 
+        else if(tab === 'visitors') loadVisitorsArea();
         else loadMatchDetails();
     }
+
+    // --- مساحة الزوار (توقع الفائز والتعليقات بالربط مع قاعدة البيانات) ---
+    async function loadVisitorsArea() {
+        const view = document.getElementById('visitors-view');
+        view.innerHTML = '<div style="text-align:center; padding:20px; color:var(--nav-inactive);">جاري التحميل...</div>';
+        
+        let hVotes = 0, dVotes = 0, aVotes = 0;
+        
+        try {
+            const { data: matchData } = await _supabase.from('matches').select('home_votes, draw_votes, away_votes').eq('id', activeMatchId).single();
+            if(matchData) {
+                hVotes = matchData.home_votes || 0;
+                dVotes = matchData.draw_votes || 0;
+                aVotes = matchData.away_votes || 0;
+            }
+        } catch(e) { console.log('الأعمدة الخاصة بالتصويت غير متوفرة في جدول matches حالياً.'); }
+
+        let total = hVotes + dVotes + aVotes;
+        let hp = total > 0 ? Math.round((hVotes / total) * 100) : 0;
+        let dp = total > 0 ? Math.round((dVotes / total) * 100) : 0;
+        let ap = total > 0 ? Math.round((aVotes / total) * 100) : 0;
+
+        let userVoted = currentUser ? localStorage.getItem('voted_match_' + activeMatchId + '_' + currentUser.id) : false;
+
+        let predHTML = '';
+        if (isMatchStarted || userVoted) {
+            predHTML = `
+                <div class="visitors-header-title" style="text-align: right;">توقع الفائز</div>
+                <div class="pred-gradient-box" style="background: linear-gradient(135deg, #7452e8, #4278ed); padding: 20px 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="text-align: right;">
+                            <div style="font-weight: bold; font-size: 1.05rem; color: white; margin-bottom: 5px;">${homeTeam}</div>
+                            <div style="font-weight: 900; font-size: 1.25rem; color: white;">${hp}%</div>
+                        </div>
+                        <div style="text-align: left;">
+                            <div style="font-weight: bold; font-size: 1.05rem; color: white; margin-bottom: 5px;">${awayTeam}</div>
+                            <div style="font-weight: 900; font-size: 1.25rem; color: white;">${ap}%</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-bottom: 12px;">
+                        <div style="width: ${hp}%; background: #00cec9; transition: width 0.5s ease-in-out;"></div>
+                        <div style="width: ${dp}%; background: #4a3b8c; transition: width 0.5s ease-in-out;"></div>
+                        <div style="width: ${ap}%; background: #f1c40f; transition: width 0.5s ease-in-out;"></div>
+                    </div>
+                    
+                    <div style="text-align: center; font-weight: 900; font-size: 1.1rem; color: white;">
+                        ${dp}%
+                    </div>
+                </div>
+            `;
+        } else {
+            predHTML = `
+                <div class="visitors-header-title">توقع الفائز</div>
+                <div class="pred-gradient-box">
+                    <div class="pred-title">توقع نتيجة المباراة</div>
+                    <div class="pred-buttons">
+                        <button class="pred-btn" onclick="submitMatchPrediction('home')">فوز <img src="${hLogoUrl}" width="22"></button>
+                        <button class="pred-btn draw-btn" onclick="submitMatchPrediction('draw')">تعادل</button>
+                        <button class="pred-btn" onclick="submitMatchPrediction('away')">فوز <img src="${aLogoUrl}" width="22"></button>
+                    </div>
+                </div>
+            `;
+        }
+
+        let commentsHTML = `
+            <div class="comment-input-container">
+                <button class="comment-send-btn" onclick="sendVisitorComment()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg></button>
+                <input type="text" id="visitor-msg" placeholder="اكتب تعليقك هنا...">
+            </div>
+            
+            <div id="visitors-comments-list"></div>
+        `;
+
+        view.innerHTML = predHTML + commentsHTML;
+        loadComments();
+    }
+
+    async function submitMatchPrediction(type) {
+        if (!currentUser) { openAuthModal(); return; }
+        const storageKey = 'voted_match_' + activeMatchId + '_' + currentUser.id;
+        if (localStorage.getItem(storageKey)) return;
+
+        try {
+            const { data } = await _supabase.from('matches').select('home_votes, draw_votes, away_votes').eq('id', activeMatchId).single();
+            if (data) {
+                let updates = {};
+                if (type === 'home') updates.home_votes = (data.home_votes || 0) + 1;
+                if (type === 'draw') updates.draw_votes = (data.draw_votes || 0) + 1;
+                if (type === 'away') updates.away_votes = (data.away_votes || 0) + 1;
+                
+                await _supabase.from('matches').update(updates).eq('id', activeMatchId);
+                localStorage.setItem(storageKey, 'true');
+                loadVisitorsArea(); // إعادة تحميل المساحة لعرض النسب المئوية
+            }
+        } catch (e) {
+            alert('يرجى التأكد من إضافة أعمدة (home_votes, draw_votes, away_votes) في جدول matches');
+        }
+    }
+
+    async function loadComments() {
+        const list = document.getElementById('visitors-comments-list');
+        try {
+            const { data, error } = await _supabase.from('match_comments').select('*').eq('match_id', activeMatchId).order('created_at', { ascending: false });
+            
+            if (error || !data || data.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:var(--nav-inactive); margin-top:20px;">لا توجد تعليقات بعد. كن أول من يعلق!</div>';
+                return;
+            }
+
+            list.innerHTML = data.map(c => {
+                const uName = c.user_name || 'ضيف';
+                const initials = uName.substring(0, 2);
+                
+                // حساب الوقت التقريبي للتعليق
+                const cDate = new Date(c.created_at);
+                const timeDiff = Math.floor((new Date() - cDate) / 1000);
+                let timeStr = 'الآن';
+                if(timeDiff > 86400) timeStr = `منذ ${Math.floor(timeDiff/86400)} أيام`;
+                else if(timeDiff > 3600) timeStr = `منذ ${Math.floor(timeDiff/3600)} ساعة`;
+                else if(timeDiff > 60) timeStr = `منذ ${Math.floor(timeDiff/60)} دقيقة`;
+
+                return `
+                <div class="v-comment-item">
+                    <div class="v-comment-avatar-text">${initials}</div>
+                    <div class="v-comment-content">
+                        <div class="v-comment-header">
+                            <span class="v-comment-author">${uName}</span>
+                            <span class="v-comment-time">${timeStr}</span>
+                        </div>
+                        <div class="v-comment-text">${c.comment}</div>
+                        <div class="v-comment-actions">
+                            <span class="v-comment-reply">رد</span>
+                            <div class="v-comment-likes">
+                                <span class="v-action-btn" onclick="toggleCommentLike('${c.id}', this, 'likes')"><svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"></path></svg> <span>${c.likes || 0}</span></span>
+                                <span class="v-action-btn" onclick="toggleCommentLike('${c.id}', this, 'dislikes')"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"></path></svg> <span>${c.dislikes || 0}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        } catch (e) {
+            list.innerHTML = '<div style="text-align:center; color:#ff4d4d; margin-top:20px;">يرجى إنشاء جدول match_comments في Supabase</div>';
+        }
+    }
+
+    async function sendVisitorComment() {
+        if (!currentUser) { openAuthModal(); return; }
+        const input = document.getElementById('visitor-msg');
+        const text = input.value.trim();
+        if(!text) return;
+
+        const userName = localStorage.getItem('profile_name_' + currentUser.id) || currentUser.email.split('@')[0];
+        
+        try {
+            await _supabase.from('match_comments').insert([
+                { match_id: activeMatchId, user_id: currentUser.id, user_name: userName, comment: text, likes: 0, dislikes: 0 }
+            ]);
+            input.value = '';
+            loadComments(); // إعادة تحميل التعليقات لإظهار التعليق الجديد
+        } catch (e) {
+            alert('حدث خطأ أثناء الإرسال. تأكد من إعداد جدول التعليقات بشكل صحيح.');
+        }
+    }
+
+    async function toggleCommentLike(commentId, btn, type) {
+        if (!currentUser) { openAuthModal(); return; }
+        const storageKey = `v_${type}_${commentId}_${currentUser.id}`;
+        if(localStorage.getItem(storageKey)) return; 
+        
+        if(type === 'likes') btn.classList.add('active-like');
+        else btn.classList.add('active-dislike');
+        
+        const span = btn.querySelector('span');
+        let currentVal = parseInt(span.innerText) || 0;
+        span.innerText = currentVal + 1;
+        localStorage.setItem(storageKey, 'true');
+
+        try {
+            const { data } = await _supabase.from('match_comments').select(type).eq('id', commentId).single();
+            if (data) {
+                let updates = {};
+                updates[type] = (data[type] || 0) + 1;
+                await _supabase.from('match_comments').update(updates).eq('id', commentId);
+            }
+        } catch(e) {}
+    }
+    // ---------------------------------------------
 
     async function loadFullSquad(teamName) {
         const { data } = await _supabase.from('players').select('*').eq('team_name', teamName);
