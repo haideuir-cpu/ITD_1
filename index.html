@@ -427,7 +427,7 @@
         .pred-btn.draw-btn { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
         
         .pred-result-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 1rem; }
-        .pred-result-bars { display: flex; height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden; margin-top: 5px; margin-bottom: 10px; }
+        .pred-result-bars { display: flex; height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: margin-top: 5px; margin-bottom: 10px; }
         .pred-res-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0px; transition: width 0.5s ease-in-out; }
         .res-home { background: #8e54e9; } .res-draw { background: #f1c40f; } .res-away { background: #00cec9; }
 
@@ -445,7 +445,7 @@
         }
         .comment-send-btn svg { fill: #0b1116; width: 20px; height: 20px; transform: rotate(180deg); margin-left: -2px; }
         
-        .v-comment-item { display: flex; gap: 15px; margin-bottom: 25px; }
+        .v-comment-item { display: flex; gap: 15px; margin-bottom: 25px; transition: background 0.2s; }
         .v-comment-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
         
         /* كلاس الأفاتار الجديد الذي يظهر أول حرفين */
@@ -544,7 +544,7 @@
 
 <nav class="nav">
     <div id="nav-m" class="nav-item active" onclick="showTab('m')">
-        <svg viewBox="0 0 24 24"><path d="M7 5h2v2H7V5m4 0h2v2h-2V5m4 0h2v2-2V5M7 9h2v2H7V9m4 0h2v2h-2V9m4 0h2v2h-2V9m-8 4h2v2H7v-2m4 0h2v2h-2v-2m4 0h2v2h-2v-2m-8 4h2v2H7v-2m4 0h2v2h-2v-2m4 0h2v2h-2v-2M3 3h18v18H3V3m2 2v14h14V5H5z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M7 5h2v2H7V5m4 0h2v2h-2V5m4 0h2v2h-2V5M7 9h2v2H7V9m4 0h2v2h-2V9m4 0h2v2h-2V9m-8 4h2v2H7v-2m4 0h2v2h-2v-2m4 0h2v2h-2v-2m-8 4h2v2H7v-2m4 0h2v2h-2v-2m4 0h2v2h-2v-2M3 3h18v18H3V3m2 2v14h14V5H5z"/></svg>
         <div>نتائج</div>
     </div>
     <div id="nav-n" class="nav-item" onclick="showTab('n')">
@@ -1199,56 +1199,148 @@
                 
                 await _supabase.from('matches').update(updates).eq('id', activeMatchId);
                 localStorage.setItem(storageKey, 'true');
-                loadVisitorsArea(); // إعادة تحميل المساحة لعرض النسب المئوية
+                loadVisitorsArea(); 
             }
         } catch (e) {
             alert('يرجى التأكد من إضافة أعمدة (home_votes, draw_votes, away_votes) في جدول matches');
         }
     }
 
+    // دالة مساعدة لبناء الـ HTML الخاص بالتعليق أو الرد
+    function buildCommentHTML(c, isReply = false) {
+        const uName = c.user_name || 'ضيف';
+        const initials = uName.substring(0, 2);
+        
+        const cDate = new Date(c.created_at);
+        const timeDiff = Math.floor((new Date() - cDate) / 1000);
+        let timeStr = 'الآن';
+        if(timeDiff > 86400) timeStr = `منذ ${Math.floor(timeDiff/86400)} أيام`;
+        else if(timeDiff > 3600) timeStr = `منذ ${Math.floor(timeDiff/3600)} ساعة`;
+        else if(timeDiff > 60) timeStr = `منذ ${Math.floor(timeDiff/60)} دقيقة`;
+
+        let likeClass = '';
+        let dislikeClass = '';
+        if (currentUser) {
+            if (localStorage.getItem(`v_likes_${c.id}_${currentUser.id}`)) likeClass = 'active-like';
+            if (localStorage.getItem(`v_dislikes_${c.id}_${currentUser.id}`)) dislikeClass = 'active-dislike';
+        }
+
+        const replyAction = !isReply ? `<span class="v-comment-reply" onclick="toggleReplyBox(event, '${c.id}')">رد</span>` : `<span></span>`;
+        
+        const replyInputBox = !isReply ? `
+            <div id="reply-box-${c.id}" style="display:none; margin-top:15px; margin-bottom: 10px;">
+                <div class="comment-input-container" style="margin-bottom:0; padding: 5px;">
+                    <button class="comment-send-btn" style="width:32px; height:32px;" onclick="sendReply(event, '${c.id}')">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px; transform: rotate(180deg); fill: #0b1116; margin-left:-2px;"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                    </button>
+                    <input type="text" id="reply-input-${c.id}" placeholder="اكتب ردك هنا..." style="font-size:0.85rem; padding:8px; border:none; background:transparent; color:var(--text); flex:1; outline:none;">
+                </div>
+            </div>
+        ` : '';
+
+        const authorIdSafe = c.user_id || '';
+
+        return `
+        <div class="v-comment-item" id="comment-${c.id}"
+             ontouchstart="startCommentLongPress(event, '${c.id}', '${authorIdSafe}')" 
+             ontouchend="cancelCommentLongPress()" 
+             ontouchmove="cancelCommentLongPress()"
+             onmousedown="startCommentLongPress(event, '${c.id}', '${authorIdSafe}')"
+             onmouseup="cancelCommentLongPress()"
+             onmouseleave="cancelCommentLongPress()"
+             style="${isReply ? 'margin-bottom: 15px; margin-right: 10px;' : 'margin-bottom: 25px;'}">
+            <div class="v-comment-avatar-text" style="${isReply ? 'width: 35px; height: 35px; font-size: 0.9rem;' : ''}">${initials}</div>
+            <div class="v-comment-content">
+                <div class="v-comment-header">
+                    <span class="v-comment-author" style="${isReply ? 'font-size: 0.85rem;' : ''}">${uName}</span>
+                    <span class="v-comment-time">${timeStr}</span>
+                </div>
+                <div class="v-comment-text" style="${isReply ? 'font-size: 0.85rem;' : ''}">${c.comment}</div>
+                <div class="v-comment-actions">
+                    ${replyAction}
+                    <div class="v-comment-likes">
+                        <span class="v-action-btn ${likeClass}" onclick="toggleCommentLike(event, '${c.id}', this, 'likes')"><svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"></path></svg> <span>${c.likes || 0}</span></span>
+                        <span class="v-action-btn ${dislikeClass}" onclick="toggleCommentLike(event, '${c.id}', this, 'dislikes')"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"></path></svg> <span>${c.dislikes || 0}</span></span>
+                    </div>
+                </div>
+                ${replyInputBox}
+                <div class="replies-wrapper" id="replies-for-${c.id}"></div>
+            </div>
+        </div>`;
+    }
+
     async function loadComments() {
         const list = document.getElementById('visitors-comments-list');
         try {
-            const { data, error } = await _supabase.from('match_comments').select('*').eq('match_id', activeMatchId).order('created_at', { ascending: false });
+            // جلب التعليقات تصاعدياً لكي تظهر الردود القديمة بالترتيب الصحيح أسفل التعليق
+            const { data, error } = await _supabase.from('match_comments').select('*').eq('match_id', activeMatchId).order('created_at', { ascending: true });
             
             if (error || !data || data.length === 0) {
                 list.innerHTML = '<div style="text-align:center; color:var(--nav-inactive); margin-top:20px;">لا توجد تعليقات بعد. كن أول من يعلق!</div>';
                 return;
             }
 
-            list.innerHTML = data.map(c => {
-                const uName = c.user_name || 'ضيف';
-                const initials = uName.substring(0, 2);
-                
-                // حساب الوقت التقريبي للتعليق
-                const cDate = new Date(c.created_at);
-                const timeDiff = Math.floor((new Date() - cDate) / 1000);
-                let timeStr = 'الآن';
-                if(timeDiff > 86400) timeStr = `منذ ${Math.floor(timeDiff/86400)} أيام`;
-                else if(timeDiff > 3600) timeStr = `منذ ${Math.floor(timeDiff/3600)} ساعة`;
-                else if(timeDiff > 60) timeStr = `منذ ${Math.floor(timeDiff/60)} دقيقة`;
+            const mainComments = data.filter(c => !c.parent_id).reverse(); // أحدث التعليقات الرئيسية في الأعلى
+            const replies = data.filter(c => c.parent_id);
 
-                return `
-                <div class="v-comment-item">
-                    <div class="v-comment-avatar-text">${initials}</div>
-                    <div class="v-comment-content">
-                        <div class="v-comment-header">
-                            <span class="v-comment-author">${uName}</span>
-                            <span class="v-comment-time">${timeStr}</span>
-                        </div>
-                        <div class="v-comment-text">${c.comment}</div>
-                        <div class="v-comment-actions">
-                            <span class="v-comment-reply">رد</span>
-                            <div class="v-comment-likes">
-                                <span class="v-action-btn" onclick="toggleCommentLike('${c.id}', this, 'likes')"><svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"></path></svg> <span>${c.likes || 0}</span></span>
-                                <span class="v-action-btn" onclick="toggleCommentLike('${c.id}', this, 'dislikes')"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"></path></svg> <span>${c.dislikes || 0}</span></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+            let finalHtml = '';
+            mainComments.forEach(c => {
+                let html = buildCommentHTML(c, false);
+                
+                const commentReplies = replies.filter(r => r.parent_id == c.id);
+                if (commentReplies.length > 0) {
+                    let repliesHtml = `<div style="border-right: 2px solid var(--border); padding-right: 15px; margin-top: 10px;">`;
+                    commentReplies.forEach(r => {
+                        repliesHtml += buildCommentHTML(r, true);
+                    });
+                    repliesHtml += `</div>`;
+                    html = html.replace(`<div class="replies-wrapper" id="replies-for-${c.id}"></div>`, repliesHtml);
+                }
+                finalHtml += html;
+            });
+
+            list.innerHTML = finalHtml;
         } catch (e) {
-            list.innerHTML = '<div style="text-align:center; color:#ff4d4d; margin-top:20px;">يرجى إنشاء جدول match_comments في Supabase</div>';
+            list.innerHTML = '<div style="text-align:center; color:#ff4d4d; margin-top:20px;">تأكد من إضافة عمود parent_id في جدول التعليقات</div>';
+        }
+    }
+
+    function toggleReplyBox(e, id) {
+        if(e) e.stopPropagation();
+        const box = document.getElementById('reply-box-' + id);
+        if(box) {
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    async function sendReply(e, parentId) {
+        if(e) e.stopPropagation();
+        if (!currentUser) { openAuthModal(); return; }
+        const input = document.getElementById('reply-input-' + parentId);
+        if(!input) return;
+        const text = input.value.trim();
+        if(!text) return;
+
+        const userName = localStorage.getItem('profile_name_' + currentUser.id) || currentUser.email.split('@')[0];
+        
+        try {
+            const { error } = await _supabase.from('match_comments').insert([
+                { match_id: activeMatchId, user_id: currentUser.id, user_name: userName, comment: text, likes: 0, dislikes: 0, parent_id: parentId }
+            ]);
+            
+            if (error) {
+                if(error.message.includes('parent_id')) {
+                    alert('لتعمل ميزة الردود، يرجى الذهاب إلى Supabase وإضافة عمود باسم parent_id (من نوع Text او UUID) في جدول match_comments.');
+                } else {
+                    alert('حدث خطأ أثناء إرسال الرد.');
+                }
+                return;
+            }
+            
+            input.value = '';
+            loadComments(); 
+        } catch (e) {
+            alert('حدث خطأ أثناء إرسال الرد.');
         }
     }
 
@@ -1265,34 +1357,83 @@
                 { match_id: activeMatchId, user_id: currentUser.id, user_name: userName, comment: text, likes: 0, dislikes: 0 }
             ]);
             input.value = '';
-            loadComments(); // إعادة تحميل التعليقات لإظهار التعليق الجديد
+            loadComments();
         } catch (e) {
             alert('حدث خطأ أثناء الإرسال. تأكد من إعداد جدول التعليقات بشكل صحيح.');
         }
     }
 
-    async function toggleCommentLike(commentId, btn, type) {
+    async function toggleCommentLike(e, commentId, btn, type) {
+        if (e) e.stopPropagation(); // منع تفعيل الضغط المطول بالخطأ
         if (!currentUser) { openAuthModal(); return; }
-        const storageKey = `v_${type}_${commentId}_${currentUser.id}`;
-        if(localStorage.getItem(storageKey)) return; 
         
-        if(type === 'likes') btn.classList.add('active-like');
-        else btn.classList.add('active-dislike');
+        const storageKey = `v_${type}_${commentId}_${currentUser.id}`;
+        const isLiked = localStorage.getItem(storageKey);
         
         const span = btn.querySelector('span');
-        let currentVal = parseInt(span.innerText) || 0;
-        span.innerText = currentVal + 1;
-        localStorage.setItem(storageKey, 'true');
+        let currentVal = parseInt(span.textContent) || 0;
+        let newVal;
+
+        if (isLiked) {
+            // إزالة الإعجاب إذا تم الضغط مسبقاً
+            newVal = Math.max(0, currentVal - 1);
+            if(type === 'likes') btn.classList.remove('active-like');
+            else btn.classList.remove('active-dislike');
+            localStorage.removeItem(storageKey);
+        } else {
+            // إضافة إعجاب
+            newVal = currentVal + 1;
+            if(type === 'likes') btn.classList.add('active-like');
+            else btn.classList.add('active-dislike');
+            localStorage.setItem(storageKey, 'true');
+        }
+
+        // تحديث الرقم لحظيا في الواجهة باستخدام textContent لضمان تغييره المرئي
+        span.textContent = newVal;
 
         try {
-            const { data } = await _supabase.from('match_comments').select(type).eq('id', commentId).single();
-            if (data) {
-                let updates = {};
-                updates[type] = (data[type] || 0) + 1;
-                await _supabase.from('match_comments').update(updates).eq('id', commentId);
-            }
-        } catch(e) {}
+            // تحديث مباشر للرقم في السيرفر بعد الضغط
+            let updates = {};
+            updates[type] = newVal;
+            await _supabase.from('match_comments').update(updates).eq('id', commentId);
+        } catch(err) {
+            console.error(err);
+        }
     }
+
+    // --- منطق الضغط المطول لحذف التعليق ---
+    let longPressTimer;
+    
+    window.startCommentLongPress = function(e, commentId, authorId) {
+        if (!currentUser || currentUser.id !== authorId) return; // يُسمح فقط لكاتب التعليق
+        longPressTimer = setTimeout(() => {
+            if(confirm('هل أنت متأكد من حذف هذا التعليق؟')) {
+                deleteCommentDB(commentId);
+            }
+        }, 700); // 700 ملي ثانية لتفعيل الضغطة المطولة
+    };
+
+    window.cancelCommentLongPress = function() {
+        if (longPressTimer) clearTimeout(longPressTimer);
+    };
+
+    window.deleteCommentDB = async function(commentId) {
+        try {
+            // إخفاء فوري للتعليق
+            const commentEl = document.getElementById('comment-' + commentId);
+            if(commentEl) commentEl.style.display = 'none';
+
+            const { error } = await _supabase.from('match_comments').delete().eq('id', commentId);
+            if(!error) {
+                loadComments(); // إعادة تحميل للتأكد
+            } else {
+                if(commentEl) commentEl.style.display = 'flex';
+                alert('حدث خطأ أثناء الحذف');
+            }
+        } catch(err) {
+            console.error(err);
+        }
+    };
     // ---------------------------------------------
 
     async function loadFullSquad(teamName) {
