@@ -470,6 +470,17 @@
         .v-action-btn.active-dislike { color: #ff4d4d; }
         
         .v-replies-text { color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-top: 10px; cursor: pointer; display: inline-block; }
+
+        /* --- تنسيقات السوق الجديدة --- */
+        .market-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px; }
+        .market-item { background: var(--card); border: 1px solid var(--border); border-radius: 15px; padding: 15px; text-align: center; display: flex; flex-direction: column; align-items: center; position: relative; overflow: hidden; }
+        .market-item.locked::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.6); z-index: 1; }
+        .market-icon-wrap { font-size: 3rem; margin-bottom: 10px; position: relative; z-index: 2; }
+        .market-item h4 { margin: 0 0 5px 0; color: var(--text); font-size: 1rem; position: relative; z-index: 2; }
+        .market-item p { font-size: 0.75rem; color: var(--nav-inactive); margin: 0 0 15px 0; flex-grow: 1; position: relative; z-index: 2; line-height: 1.4; }
+        .buy-btn { background: #f1c40f; color: #000; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9rem; }
+        .buy-btn:active { transform: scale(0.95); }
+        .buy-btn:disabled { background: var(--border); color: var(--nav-inactive); cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -508,6 +519,51 @@
             <div class="boom-tab active">!BOOM</div>
         </div>
         <div id="boom-list" class="boom-container"></div>
+    </div>
+
+    <div id="sec-market" class="section" style="padding: 0;">
+        <div style="background: linear-gradient(135deg, #1e90ff, #8e54e9); padding: 30px 20px; text-align: center; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; margin-bottom: 20px; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -20px; right: -20px; font-size: 8rem; opacity: 0.1;">🛒</div>
+            <h2 style="margin:0; color:white; font-size: 1.5rem;">سوق النقاط</h2>
+            <p style="color:rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 0.95rem;">استبدل نقاطك بميزات حصرية وهدايا</p>
+            <div style="background: rgba(0,0,0,0.2); display: inline-block; padding: 8px 20px; border-radius: 20px; margin-top: 15px; border: 1px solid rgba(255,255,255,0.3);">
+                <span style="color: #f1c40f; font-weight: bold; font-size: 1.2rem;">⭐ <span id="market-balance">0</span></span>
+            </div>
+        </div>
+        
+        <div class="market-grid">
+            <div class="market-item">
+                <div class="market-icon-wrap">🖼️</div>
+                <h4>إطار ذهبي</h4>
+                <p>إطار مميز يظهر حول اسمك وصورتك في التعليقات</p>
+                <button onclick="buyFrame(100)" class="buy-btn" id="btn-buy-frame">
+                    <span>100 نقطة</span>
+                </button>
+            </div>
+            
+            <div class="market-item">
+                <div class="market-icon-wrap">🎁</div>
+                <h4>صندوق هدية</h4>
+                <p>أرسل هدية لصديق تحتوي على نقاط عشوائية (2 - 50)</p>
+                <button onclick="openGiftModal(50)" class="buy-btn">
+                    <span>50 نقطة</span>
+                </button>
+            </div>
+            
+            <div class="market-item">
+                <div class="market-icon-wrap" style="filter: grayscale(1);">👑</div>
+                <h4>عضوية VIP</h4>
+                <p>ميزات حصرية وإشارات خاصة بجانب اسمك (قريباً)</p>
+                <button class="buy-btn" disabled>قريباً</button>
+            </div>
+            
+            <div class="market-item">
+                <div class="market-icon-wrap" style="filter: grayscale(1);">🎟️</div>
+                <h4>تذكرة توقع</h4>
+                <p>مضاعفة نقاط التوقع الصحيح في مباراة القمة</p>
+                <button class="buy-btn" disabled>قريباً</button>
+            </div>
+        </div>
     </div>
 
     <div id="sec-more" class="section">
@@ -559,6 +615,10 @@
         <svg viewBox="0 0 24 24"><path d="M17,10.5V7A1,1 0 0,0 16,6H4A1,1 0 0,0 3,7V17A1,1 0 0,0 4,18H16A1,1 0 0,0 17,17V13.5L21,17.5V6.5L17,10.5Z"/></svg>
         <div>!BOOM</div>
     </div>
+    <div id="nav-market" class="nav-item" onclick="showTab('market')">
+        <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0 0 20 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        <div>السوق</div>
+    </div>
     <div id="nav-more" class="nav-item" onclick="showTab('more')">
         <div class="notif-badge" id="more-badge"></div>
         <svg viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"/></svg>
@@ -579,6 +639,21 @@
             
             <div style="margin-top: 20px; color: var(--nav-inactive); font-size: 0.95rem; cursor: pointer; text-decoration: underline;" onclick="toggleAuthMode()" id="auth-toggle-text">لا تملك حساب؟ إنشاء حساب جديد</div>
             <div id="auth-msg" style="margin-top: 15px; font-size: 0.9rem; font-weight: bold;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="gift-modal" class="modal" onclick="if(event.target == this) closeModal('gift-modal')">
+    <div style="display: flex; height: 100%; align-items: center; justify-content: center;">
+        <div class="p-profile-card" style="padding: 30px 20px; text-align: center; max-width: 340px;">
+            <button class="p-close" onclick="closeModal('gift-modal')">✕</button>
+            <div style="font-size: 4rem; margin-top: 10px;">🎁</div>
+            <h2 style="margin-top: 10px; color: var(--gold); font-size: 1.3rem;">إرسال هدية</h2>
+            <p style="color: var(--nav-inactive); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">قم بإدخال اسم المستخدم لصديقك. سيتم خصم <b style="color:white;">50 نقطة</b> من رصيدك.</p>
+            
+            <input type="text" id="gift-receiver" class="auth-input" placeholder="اسم المستخدم المستلم" style="text-align: center;">
+            
+            <button onclick="processGift()" style="width: 100%; padding: 14px; margin-top: 25px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s;">إرسال الآن</button>
         </div>
     </div>
 </div>
@@ -703,6 +778,7 @@
     
     // متغيرات الجلسة للمستخدم
     let currentUser = null;
+    let currentUserPoints = 0; // متغير النقاط الجديد
     let isLoginMode = true;
     let isProfileEditMode = false; 
     
@@ -747,10 +823,12 @@
             const { data, error } = await _supabase.auth.getSession();
             if (error) console.error(error);
             currentUser = data?.session?.user || null;
+            if (currentUser) await fetchUserPoints();
             updateAuthUI();
             
-            _supabase.auth.onAuthStateChange((_event, session) => {
+            _supabase.auth.onAuthStateChange(async (_event, session) => {
                 currentUser = session?.user || null;
+                if (currentUser) await fetchUserPoints();
                 updateAuthUI();
                 if(document.getElementById('sec-n').classList.contains('active')) {
                     loadNews(); 
@@ -761,6 +839,57 @@
         }
     }
 
+    async function fetchUserPoints() {
+        if(!currentUser) return;
+        try {
+            const { data } = await _supabase.from('profiles').select('points').eq('id', currentUser.id).single();
+            if(data && data.points) currentUserPoints = data.points;
+            else currentUserPoints = 0;
+            updateAuthUI();
+        } catch(e) { console.log("Profiles points info:", e.message); }
+    }
+
+    async function awardPoints(userId, pointsToAdd, matchId) {
+        try {
+            // استخدام maybeSingle لتفادي الأخطاء إذا لم يكن للمستخدم ملف شخصي مسبق (0 rows)
+            const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
+            let currentPts = (profile && profile.points) ? profile.points : 0;
+            let newPts = currentPts + pointsToAdd;
+            
+            if (profile) {
+                await _supabase.from('profiles').update({ points: newPts }).eq('id', userId);
+            } else {
+                await _supabase.from('profiles').insert({ id: userId, points: newPts });
+            }
+            
+            // تسجيل المكافأة بعد نجاح التحديث في الداتا بيس، وتغيير المفتاح لتحديث الحالة عندك
+            localStorage.setItem('rewarded_prediction_' + matchId + '_' + userId, 'true');
+            currentUserPoints = newPts;
+            updateAuthUI();
+            alert('🎉 مبروك! توقعك لنتيجة المباراة كان صحيحاً. ربحت 10 نقاط!');
+        } catch (e) { console.log(e); }
+    }
+
+    function checkPredictionReward(matchId, hScore, aScore) {
+        if (!currentUser || hScore === null || hScore === undefined) return;
+        
+        let userPred = localStorage.getItem('voted_match_' + matchId + '_' + currentUser.id);
+        // مفتاح جديد يتجاوز الحالة القديمة المعلقة
+        let isRewarded = localStorage.getItem('rewarded_prediction_' + matchId + '_' + currentUser.id);
+        
+        if (userPred && userPred !== 'true' && !isRewarded) {
+            let actualResult = 'draw';
+            // التحويل لأرقام لتفادي أخطاء المقارنة بين النصوص
+            if (parseInt(hScore) > parseInt(aScore)) actualResult = 'home';
+            else if (parseInt(aScore) > parseInt(hScore)) actualResult = 'away';
+            
+            // تقييم التوقع الصحيح فقط لمنع حظر اللاعب من المكافأة إذا فتح المباراة والنتيجة مؤقتة ولم تنتهي بعد
+            if (userPred === actualResult) {
+                awardPoints(currentUser.id, 10, matchId);
+            }
+        }
+    }
+
     function toggleProfileEditMode() {
         isProfileEditMode = !isProfileEditMode;
         updateAuthUI();
@@ -768,15 +897,22 @@
 
     function updateAuthUI() {
         const accountContainer = document.getElementById('account-container');
+        const mb = document.getElementById('market-balance');
+        if(mb) mb.innerText = currentUserPoints;
+        
         if(!accountContainer) return;
 
         if(currentUser) {
             const defaultName = currentUser.email ? currentUser.email.split('@')[0] : 'حسابي';
             const savedName = localStorage.getItem('profile_name_' + currentUser.id) || defaultName;
             
+            let userInitials = savedName.substring(0, 2).toUpperCase();
+            let frameCSS = localStorage.getItem('has_golden_frame_' + currentUser.id) ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
+
             if (isProfileEditMode) {
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center;">
+                        <div class="v-comment-avatar-text" style="width: 65px; height: 65px; font-size: 1.6rem; transition: 0.3s; ${frameCSS}">${userInitials}</div>
                         <h4 style="margin: 0; color: var(--accent);">تعديل الملف الشخصي</h4>
                         <input type="text" id="profile-name-input" placeholder="أدخل اسمك" class="auth-input" value="${savedName}" style="margin-top: 5px; text-align: center; font-weight: bold; border-color: var(--border);">
                         <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
@@ -787,10 +923,16 @@
                 `;
             } else {
                 accountContainer.innerHTML = `
-                    <div style="background: var(--card); padding: 25px 20px; border-radius: 25px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
-                            <span style="color: #00d2b5; font-size: 1.25rem; font-weight: bold;">${savedName}</span>
-                            <span style="color: #8e99a2; font-size: 0.85rem;">${currentUser.email}</span>
+                    <div style="background: var(--card); padding: 25px 20px; border-radius: 25px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                            <div class="v-comment-avatar-text" style="width: 65px; height: 65px; font-size: 1.6rem; flex-shrink: 0; transition: 0.3s; ${frameCSS}">${userInitials}</div>
+                            <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
+                                <span style="color: #00d2b5; font-size: 1.25rem; font-weight: bold;">${savedName}</span>
+                                <span style="color: #8e99a2; font-size: 0.85rem;">${currentUser.email}</span>
+                                <div style="margin-top: 5px; display: inline-block;">
+                                    <span style="background: rgba(241, 196, 15, 0.15); border: 1px solid var(--gold); padding: 4px 12px; border-radius: 20px; color: var(--gold); font-weight: bold; font-size: 0.9rem;">⭐ ${currentUserPoints} نقطة</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -899,6 +1041,7 @@
             msg.style.color = '#ff4d4d';
         } else {
             currentUser = result.data.user || (result.data.session && result.data.session.user);
+            await fetchUserPoints();
             updateAuthUI();
             msg.innerText = isLoginMode ? 'تم تسجيل الدخول بنجاح!' : 'تم إنشاء الحساب بنجاح!';
             msg.style.color = '#2ecc71';
@@ -909,6 +1052,7 @@
     async function logout() {
         await _supabase.auth.signOut();
         currentUser = null;
+        currentUserPoints = 0;
         isProfileEditMode = false;
         updateAuthUI();
     }
@@ -928,7 +1072,7 @@
 
     function showTab(t) {
         document.querySelectorAll('.section, .nav-item').forEach(el => el.classList.remove('active'));
-        document.getElementById('main-header').style.display = (t === 'boom' || t === 'vote') ? 'none' : 'flex';
+        document.getElementById('main-header').style.display = (t === 'boom' || t === 'vote' || t === 'market') ? 'none' : 'flex';
         document.getElementById('sec-' + t).classList.add('active');
         document.getElementById('nav-' + t).classList.add('active');
         
@@ -936,9 +1080,80 @@
         else if(t==='n') loadNews(); 
         else if(t==='boom') loadBoomVideos();
         else if(t==='vote') loadVoting(); 
+        else if(t==='market') {
+            const mb = document.getElementById('market-balance');
+            if(mb) mb.innerText = currentUserPoints;
+            if(currentUser && localStorage.getItem('has_golden_frame_' + currentUser.id)) {
+                const btn = document.getElementById('btn-buy-frame');
+                if(btn) { btn.innerHTML = 'مملوك ✔️'; btn.style.background = '#2ecc71'; btn.style.color = 'white'; }
+            }
+        }
     }
 
-    // --- المنطق الخاص بجدول التصويت ---
+    // --- منطق وظائف السوق (الجديد) ---
+    async function buyFrame(cost) {
+        if(!currentUser) { openAuthModal(); return; }
+        if(localStorage.getItem('has_golden_frame_' + currentUser.id)) {
+            alert('لقد قمت بشراء هذا الإطار مسبقاً!');
+            return;
+        }
+        if(currentUserPoints < cost) {
+            alert('عذراً، نقاطك غير كافية لإتمام الشراء.');
+            return;
+        }
+        
+        let newPts = currentUserPoints - cost;
+        try {
+            await _supabase.from('profiles').update({ points: newPts }).eq('id', currentUser.id);
+            currentUserPoints = newPts;
+            localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
+            alert('🎉 مبروك! تم شراء الإطار الذهبي بنجاح، سيظهر الآن حول صورتك واسمك في التعليقات.');
+            updateAuthUI();
+            
+            const btn = document.getElementById('btn-buy-frame');
+            if(btn) {
+                btn.innerHTML = 'مملوك ✔️';
+                btn.style.background = '#2ecc71';
+                btn.style.color = 'white';
+            }
+        } catch (e) {
+            alert('حدث خطأ أثناء إتمام عملية الشراء.');
+        }
+    }
+
+    function openGiftModal(cost) {
+        if(!currentUser) { openAuthModal(); return; }
+        if(currentUserPoints < cost) {
+            alert('عذراً، نقاطك غير كافية لإرسال الهدية.');
+            return;
+        }
+        document.getElementById('gift-receiver').value = '';
+        document.getElementById('gift-modal').style.display = 'flex';
+    }
+
+    async function processGift() {
+        const receiverStr = document.getElementById('gift-receiver').value.trim();
+        if(!receiverStr) {
+            alert('يرجى إدخال اسم المستلم');
+            return;
+        }
+        
+        let newMyPts = currentUserPoints - 50;
+        try {
+            await _supabase.from('profiles').update({ points: newMyPts }).eq('id', currentUser.id);
+            currentUserPoints = newMyPts;
+            
+            let randomPts = Math.floor(Math.random() * 49) + 2; // من 2 إلى 50 عشوائياً
+            alert(`🎁 تم إرسال الهدية بنجاح إلى "${receiverStr}"! احتوت الهدية على ${randomPts} نقطة.`);
+            
+            updateAuthUI();
+            closeModal('gift-modal');
+        } catch (e) {
+            alert('حدث خطأ أثناء إرسال الهدية.');
+        }
+    }
+    // ----------------------------------
+
     function startVoteTimer() {
         if(voteTimerInterval) clearInterval(voteTimerInterval);
         
@@ -963,7 +1178,6 @@
     }
 
     async function loadVoting() {
-        // بيانات افتراضية مطابقة للصورة تماماً في حال لم يتم إعداد الجدول بعد
         let cover = 'https://via.placeholder.com/800x400/162029/1e90ff?text=جاري+التحميل...';
         let endD = new Date().getTime() + (2 * 24 * 60 * 60 * 1000) + (10 * 60 * 60 * 1000) + (16 * 60 * 1000) + (40 * 1000); 
         let candidates = [
@@ -974,7 +1188,6 @@
         ];
 
         try {
-            // الاستدعاء من قاعدة البيانات بجدول (monthly_voting)
             const { data, error } = await _supabase.from('monthly_voting').select('*').limit(1).single();
             if (data && !error) {
                 cover = data.cover_image || cover;
@@ -996,7 +1209,6 @@
         
         candidates.forEach(c => c.pct = getPct(c.votes));
         
-        // لوضع الإطار الأصفر للمرشح المتصدر (النسبة الأعلى) كما في الصورة
         const maxPct = Math.max(...candidates.map(c => c.pct));
         
         const optionsHtml = candidates.map(c => `
@@ -1017,15 +1229,8 @@
     }
 
     async function submitVote(candidateId) {
-        if (!currentUser) {
-            openAuthModal();
-            return;
-        }
-        
-        if(localStorage.getItem('voted_month_' + currentUser.id)) {
-            alert('لقد قمت بالتصويت مسبقاً!');
-            return;
-        }
+        if (!currentUser) { openAuthModal(); return; }
+        if(localStorage.getItem('voted_month_' + currentUser.id)) { alert('لقد قمت بالتصويت مسبقاً!'); return; }
         
         try {
             const { data } = await _supabase.from('monthly_voting').select('*').limit(1).single();
@@ -1039,14 +1244,9 @@
                 await _supabase.from('monthly_voting').update(updatePayload).eq('id', data.id);
                 localStorage.setItem('voted_month_' + currentUser.id, 'true');
                 loadVoting(); 
-            } else {
-                alert("تم استلام التصويت كمثال للمعاينة (اربط الجدول في سوبر بيس للتفعيل الفعلي)");
-            }
-        } catch (e) {
-            alert("تم تسجيل النقر، يرجى إنشاء جدول monthly_voting في السوبر بيس للحفظ.");
-        }
+            } else { alert("تم استلام التصويت كمثال للمعاينة (اربط الجدول في سوبر بيس للتفعيل الفعلي)"); }
+        } catch (e) { alert("تم تسجيل النقر، يرجى إنشاء جدول monthly_voting في السوبر بيس للحفظ."); }
     }
-    // ------------------------------------
 
     async function loadMatches() {
         const { data } = await _supabase.from('matches').select('*').order('created_at', {ascending: false});
@@ -1054,22 +1254,24 @@
             const hasScore = m.home_score !== null;
             return `
                 <div class="match-card">
-                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}', '${m.home_team_logo}', '${m.away_team_logo}')">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
                         <img src="${m.home_team_logo}" width="40"><br><small>${m.home_team_name}</small>
                     </div>
-                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_logo}', '${m.away_team_logo}')">
+                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
                         ${hasScore ? `<div class="score-val">${m.home_score} - ${m.away_score}</div>` : `<div class="time-badge">${m.match_time || 'قريباً'}</div>`}
                         ${(hasScore && m.home_penalty !== null) ? `<span class="pen-text">ركلات: (${m.home_penalty}) - (${m.away_penalty})</span>` : ''}
                     </div>
-                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}', '${m.home_team_logo}', '${m.away_team_logo}')">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
                         <img src="${m.away_team_logo}" width="40"><br><small>${m.away_team_name}</small>
                     </div>
                 </div>`;
         }).join('');
     }
 
-    function openMatch(id, hTeam, aTeam, started, hLogo, aLogo) { 
+    function openMatch(id, hTeam, aTeam, started, hLogo, aLogo, hScore, aScore) { 
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; hLogoUrl = hLogo; aLogoUrl = aLogo;
+        checkPredictionReward(id, hScore, aScore);
+        
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn active" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -1078,8 +1280,10 @@
         switchMatchTab('lineup'); 
     }
 
-    function openMatchToSquad(id, hTeam, aTeam, started, teamName, hLogo, aLogo) {
+    function openMatchToSquad(id, hTeam, aTeam, started, teamName, hLogo, aLogo, hScore, aScore) {
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; selectedSquadTeam = teamName; hLogoUrl = hLogo; aLogoUrl = aLogo;
+        checkPredictionReward(id, hScore, aScore);
+        
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn ${teamName === hTeam ? 'active' : ''}" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn ${teamName === aTeam ? 'active' : ''}" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -1107,7 +1311,6 @@
         else loadMatchDetails();
     }
 
-    // --- مساحة الزوار (توقع الفائز والتعليقات بالربط مع قاعدة البيانات) ---
     async function loadVisitorsArea() {
         const view = document.getElementById('visitors-view');
         view.innerHTML = '<div style="text-align:center; padding:20px; color:var(--nav-inactive);">جاري التحميل...</div>';
@@ -1198,7 +1401,7 @@
                 if (type === 'away') updates.away_votes = (data.away_votes || 0) + 1;
                 
                 await _supabase.from('matches').update(updates).eq('id', activeMatchId);
-                localStorage.setItem(storageKey, 'true');
+                localStorage.setItem(storageKey, type);
                 loadVisitorsArea(); 
             }
         } catch (e) {
@@ -1206,7 +1409,6 @@
         }
     }
 
-    // دالة مساعدة لبناء الـ HTML الخاص بالتعليق أو الرد
     function buildCommentHTML(c, isReply = false) {
         const uName = c.user_name || 'ضيف';
         const initials = uName.substring(0, 2);
@@ -1218,11 +1420,17 @@
         else if(timeDiff > 3600) timeStr = `منذ ${Math.floor(timeDiff/3600)} ساعة`;
         else if(timeDiff > 60) timeStr = `منذ ${Math.floor(timeDiff/60)} دقيقة`;
 
-        let likeClass = '';
-        let dislikeClass = '';
+        let likeClass = ''; let dislikeClass = '';
+        let frameStyle = '';
+        
         if (currentUser) {
             if (localStorage.getItem(`v_likes_${c.id}_${currentUser.id}`)) likeClass = 'active-like';
             if (localStorage.getItem(`v_dislikes_${c.id}_${currentUser.id}`)) dislikeClass = 'active-dislike';
+            
+            // تحقق إذا كان كاتب التعليق هو المستخدم الحالي وكان قد اشترى إطار ذهبي
+            if (c.user_id === currentUser.id && localStorage.getItem('has_golden_frame_' + currentUser.id)) {
+                frameStyle = 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6); color: #f1c40f;';
+            }
         }
 
         const replyAction = !isReply ? `<span class="v-comment-reply" onclick="toggleReplyBox(event, '${c.id}')">رد</span>` : `<span></span>`;
@@ -1249,7 +1457,7 @@
              onmouseup="cancelCommentLongPress()"
              onmouseleave="cancelCommentLongPress()"
              style="${isReply ? 'margin-bottom: 15px; margin-right: 10px;' : 'margin-bottom: 25px;'}">
-            <div class="v-comment-avatar-text" style="${isReply ? 'width: 35px; height: 35px; font-size: 0.9rem;' : ''}">${initials}</div>
+            <div class="v-comment-avatar-text" style="${isReply ? 'width: 35px; height: 35px; font-size: 0.9rem;' : ''} ${frameStyle}">${initials}</div>
             <div class="v-comment-content">
                 <div class="v-comment-header">
                     <span class="v-comment-author" style="${isReply ? 'font-size: 0.85rem;' : ''}">${uName}</span>
@@ -1272,7 +1480,6 @@
     async function loadComments() {
         const list = document.getElementById('visitors-comments-list');
         try {
-            // جلب التعليقات تصاعدياً لكي تظهر الردود القديمة بالترتيب الصحيح أسفل التعليق
             const { data, error } = await _supabase.from('match_comments').select('*').eq('match_id', activeMatchId).order('created_at', { ascending: true });
             
             if (error || !data || data.length === 0) {
@@ -1280,19 +1487,16 @@
                 return;
             }
 
-            const mainComments = data.filter(c => !c.parent_id).reverse(); // أحدث التعليقات الرئيسية في الأعلى
+            const mainComments = data.filter(c => !c.parent_id).reverse(); 
             const replies = data.filter(c => c.parent_id);
 
             let finalHtml = '';
             mainComments.forEach(c => {
                 let html = buildCommentHTML(c, false);
-                
                 const commentReplies = replies.filter(r => r.parent_id == c.id);
                 if (commentReplies.length > 0) {
                     let repliesHtml = `<div style="border-right: 2px solid var(--border); padding-right: 15px; margin-top: 10px;">`;
-                    commentReplies.forEach(r => {
-                        repliesHtml += buildCommentHTML(r, true);
-                    });
+                    commentReplies.forEach(r => { repliesHtml += buildCommentHTML(r, true); });
                     repliesHtml += `</div>`;
                     html = html.replace(`<div class="replies-wrapper" id="replies-for-${c.id}"></div>`, repliesHtml);
                 }
@@ -1308,9 +1512,7 @@
     function toggleReplyBox(e, id) {
         if(e) e.stopPropagation();
         const box = document.getElementById('reply-box-' + id);
-        if(box) {
-            box.style.display = box.style.display === 'none' ? 'block' : 'none';
-        }
+        if(box) box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 
     async function sendReply(e, parentId) {
@@ -1329,19 +1531,14 @@
             ]);
             
             if (error) {
-                if(error.message.includes('parent_id')) {
-                    alert('لتعمل ميزة الردود، يرجى الذهاب إلى Supabase وإضافة عمود باسم parent_id (من نوع Text او UUID) في جدول match_comments.');
-                } else {
-                    alert('حدث خطأ أثناء إرسال الرد.');
-                }
+                if(error.message.includes('parent_id')) alert('لتعمل ميزة الردود، يرجى التأكد من إضافة عمود parent_id.');
+                else alert('حدث خطأ أثناء إرسال الرد.');
                 return;
             }
             
             input.value = '';
             loadComments(); 
-        } catch (e) {
-            alert('حدث خطأ أثناء إرسال الرد.');
-        }
+        } catch (e) { alert('حدث خطأ أثناء إرسال الرد.'); }
     }
 
     async function sendVisitorComment() {
@@ -1358,13 +1555,11 @@
             ]);
             input.value = '';
             loadComments();
-        } catch (e) {
-            alert('حدث خطأ أثناء الإرسال. تأكد من إعداد جدول التعليقات بشكل صحيح.');
-        }
+        } catch (e) { alert('حدث خطأ أثناء الإرسال.'); }
     }
 
     async function toggleCommentLike(e, commentId, btn, type) {
-        if (e) e.stopPropagation(); // منع تفعيل الضغط المطول بالخطأ
+        if (e) e.stopPropagation(); 
         if (!currentUser) { openAuthModal(); return; }
         
         const storageKey = `v_${type}_${commentId}_${currentUser.id}`;
@@ -1375,42 +1570,32 @@
         let newVal;
 
         if (isLiked) {
-            // إزالة الإعجاب إذا تم الضغط مسبقاً
             newVal = Math.max(0, currentVal - 1);
             if(type === 'likes') btn.classList.remove('active-like');
             else btn.classList.remove('active-dislike');
             localStorage.removeItem(storageKey);
         } else {
-            // إضافة إعجاب
             newVal = currentVal + 1;
             if(type === 'likes') btn.classList.add('active-like');
             else btn.classList.add('active-dislike');
             localStorage.setItem(storageKey, 'true');
         }
 
-        // تحديث الرقم لحظيا في الواجهة باستخدام textContent لضمان تغييره المرئي
         span.textContent = newVal;
 
         try {
-            // تحديث مباشر للرقم في السيرفر بعد الضغط
             let updates = {};
             updates[type] = newVal;
             await _supabase.from('match_comments').update(updates).eq('id', commentId);
-        } catch(err) {
-            console.error(err);
-        }
+        } catch(err) { console.error(err); }
     }
 
-    // --- منطق الضغط المطول لحذف التعليق ---
     let longPressTimer;
-    
     window.startCommentLongPress = function(e, commentId, authorId) {
-        if (!currentUser || currentUser.id !== authorId) return; // يُسمح فقط لكاتب التعليق
+        if (!currentUser || currentUser.id !== authorId) return; 
         longPressTimer = setTimeout(() => {
-            if(confirm('هل أنت متأكد من حذف هذا التعليق؟')) {
-                deleteCommentDB(commentId);
-            }
-        }, 700); // 700 ملي ثانية لتفعيل الضغطة المطولة
+            if(confirm('هل أنت متأكد من حذف هذا التعليق؟')) { deleteCommentDB(commentId); }
+        }, 700); 
     };
 
     window.cancelCommentLongPress = function() {
@@ -1419,22 +1604,17 @@
 
     window.deleteCommentDB = async function(commentId) {
         try {
-            // إخفاء فوري للتعليق
             const commentEl = document.getElementById('comment-' + commentId);
             if(commentEl) commentEl.style.display = 'none';
 
             const { error } = await _supabase.from('match_comments').delete().eq('id', commentId);
-            if(!error) {
-                loadComments(); // إعادة تحميل للتأكد
-            } else {
+            if(!error) loadComments(); 
+            else {
                 if(commentEl) commentEl.style.display = 'flex';
                 alert('حدث خطأ أثناء الحذف');
             }
-        } catch(err) {
-            console.error(err);
-        }
+        } catch(err) { console.error(err); }
     };
-    // ---------------------------------------------
 
     async function loadFullSquad(teamName) {
         const { data } = await _supabase.from('players').select('*').eq('team_name', teamName);
@@ -1498,9 +1678,7 @@
             if (item.red_card) statsIcons += `<div class="pl-badge badge-card badge-red"></div>`;
 
             let motmStar = '';
-            if (item['pl-motm'] === true || item['pl-motm'] === 1) {
-                motmStar = `<div class="pl-motm-star">⭐</div>`;
-            }
+            if (item['pl-motm'] === true || item['pl-motm'] === 1) motmStar = `<div class="pl-motm-star">⭐</div>`;
 
             const getHtml = (showRate) => `
                 <div onclick='openDetails(${JSON.stringify(item)})'>
@@ -1560,7 +1738,7 @@
     }
 
     async function openStadiumDetails(matchId) {
-        const { data, error } = await _supabase.from('matches').select('stadium_name, stadium_image, stadium_type, stadium_location').eq('id', matchId).single();
+        const { data } = await _supabase.from('matches').select('stadium_name, stadium_image, stadium_type, stadium_location').eq('id', matchId).single();
         if(data) {
             document.getElementById('s-img').src = data.stadium_image || 'https://via.placeholder.com/400x220/162029/1e90ff?text=STADIUM';
             document.getElementById('s-name').innerText = data.stadium_name || 'غير معروف';
@@ -1571,10 +1749,7 @@
     }
 
     async function toggleLike(newsId, btn) {
-        if (!currentUser) {
-            openAuthModal();
-            return;
-        }
+        if (!currentUser) { openAuthModal(); return; }
 
         const span = btn.querySelector('span');
         let currentLikes = parseInt(span.innerText) || 0;
@@ -1599,9 +1774,7 @@
         const { data } = await _supabase.from('news').select('*').order('created_at', {ascending: false});
         document.getElementById('sec-n').innerHTML = data?.map(n => {
             let isLikedClass = '';
-            if(currentUser) {
-                isLikedClass = localStorage.getItem('liked_news_' + n.id + '_' + currentUser.id) ? 'liked' : '';
-            }
+            if(currentUser) isLikedClass = localStorage.getItem('liked_news_' + n.id + '_' + currentUser.id) ? 'liked' : '';
             return `
             <div style="background:var(--card); margin-bottom:15px; border-radius:12px; overflow:hidden; border: 1px solid var(--border);">
                 <img src="${n.image_url}" style="width:100%; height:200px; object-fit:cover;">
