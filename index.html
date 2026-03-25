@@ -44,7 +44,7 @@
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
 
         header { height: 55px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-weight: bold; border-bottom: 1px solid var(--border); color: var(--accent); }
-        main { flex: 1; overflow-y: auto; padding-bottom: 90px; }
+        main { flex: 1; overflow-y: auto; padding-bottom: 90px; position: relative; }
         .section { display: none; padding: 12px; }
         .section.active { display: block; }
 
@@ -481,6 +481,16 @@
         .buy-btn { background: #f1c40f; color: #000; border: none; padding: 10px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.9rem; }
         .buy-btn:active { transform: scale(0.95); }
         .buy-btn:disabled { background: var(--border); color: var(--nav-inactive); cursor: not-allowed; }
+
+        /* --- تنسيقات السحب للتحديث --- */
+        #ptr-indicator {
+            position: fixed; top: 60px; left: 50%; transform: translate(-50%, -150%);
+            background: var(--card); border: 1px solid var(--accent); color: var(--text);
+            padding: 8px 16px; border-radius: 20px; z-index: 9999; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; pointer-events: none; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        #ptr-indicator.visible { transform: translate(-50%, 10px); }
+        .ptr-spin { animation: spin 1s linear infinite; stroke: var(--accent); }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -492,7 +502,12 @@
 
 <header id="main-header">ITD SPORTS</header>
 
-<main>
+<div id="ptr-indicator">
+    <svg class="ptr-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 11-6.219-8.56"></path></svg>
+    <span>جاري التحديث...</span>
+</div>
+
+<main id="main-area">
     <div id="sec-m" class="section active"></div>
     <div id="sec-n" class="section"></div>
     
@@ -1058,12 +1073,16 @@
         }
     }
 
-    async function logout() {
-        await _supabase.auth.signOut();
+    // تم تحديث الدالة لتسجيل الخروج فورياً بدون تأخير
+    function logout() {
+        // تحديث واجهة المستخدم فوراً وإزالة بيانات الجلسة من المتصفح
         currentUser = null;
         currentUserPoints = 0;
         isProfileEditMode = false;
         updateAuthUI();
+        
+        // إجراء عملية تسجيل الخروج من السيرفر في الخلفية
+        _supabase.auth.signOut().catch(e => console.log(e));
     }
 
     window.addEventListener('load', () => {
@@ -1140,25 +1159,51 @@
         document.getElementById('gift-modal').style.display = 'flex';
     }
 
+    // تم تحديث الدالة لربطها بقاعدة البيانات وخصم النقاط العشوائية من التطبيق
     async function processGift() {
         const receiverStr = document.getElementById('gift-receiver').value.trim();
         if(!receiverStr) {
             alert('يرجى إدخال اسم المستلم');
             return;
         }
+
+        const myName = localStorage.getItem('profile_name_' + currentUser.id) || currentUser.email.split('@')[0];
+        if (receiverStr.toLowerCase() === myName.toLowerCase()) {
+            alert('لا يمكنك إرسال هدية لنفسك!');
+            return;
+        }
         
-        let newMyPts = currentUserPoints - 50;
         try {
+            // البحث عن المستلم في قاعدة البيانات
+            const { data: receiverData, error: receiverError } = await _supabase
+                .from('profiles')
+                .select('*')
+                .eq('full_name', receiverStr)
+                .maybeSingle();
+
+            if (receiverError || !receiverData) {
+                alert('لم يتم العثور على مستخدم بهذا الاسم. تأكد من تطابق الاسم كما يظهر في التطبيق.');
+                return;
+            }
+
+            // خصم 50 نقطة (سعر الهدية) من المشتري فقط
+            let newMyPts = currentUserPoints - 50;
             await _supabase.from('profiles').update({ points: newMyPts }).eq('id', currentUser.id);
             currentUserPoints = newMyPts;
             
+            // توليد نقاط عشوائية تضاف للمستلم (من التطبيق)
             let randomPts = Math.floor(Math.random() * 49) + 2; // من 2 إلى 50 عشوائياً
-            alert(`🎁 تم إرسال الهدية بنجاح إلى "${receiverStr}"! احتوت الهدية على ${randomPts} نقطة.`);
+            let newReceiverPts = (receiverData.points || 0) + randomPts;
+            
+            // تحديث حساب المستلم
+            await _supabase.from('profiles').update({ points: newReceiverPts }).eq('id', receiverData.id);
+
+            alert(`🎁 تم إرسال الهدية بنجاح إلى "${receiverStr}"! ربح صديقك ${randomPts} نقطة (تم خصم 50 نقطة فقط من رصيدك).`);
             
             updateAuthUI();
             closeModal('gift-modal');
         } catch (e) {
-            alert('حدث خطأ أثناء إرسال الهدية.');
+            alert('حدث خطأ أثناء إرسال الهدية. يرجى المحاولة لاحقاً.');
         }
     }
     // ----------------------------------
@@ -1829,6 +1874,60 @@
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     loadMatches();
+
+    // --- منطق وظيفة السحب للتحديث (Pull to Refresh) ---
+    let pStartY = 0;
+    let pCurrentY = 0;
+    let pIsPulling = false;
+    const ptrEl = document.getElementById('ptr-indicator');
+    const mainArea = document.getElementById('main-area');
+
+    mainArea.addEventListener('touchstart', e => {
+        if (mainArea.scrollTop <= 0) {
+            pStartY = e.touches[0].clientY;
+            pIsPulling = true;
+        }
+    }, {passive: true});
+
+    mainArea.addEventListener('touchmove', e => {
+        if (!pIsPulling) return;
+        pCurrentY = e.touches[0].clientY;
+    }, {passive: true});
+
+    mainArea.addEventListener('touchend', e => {
+        if (!pIsPulling) return;
+        pIsPulling = false;
+        if (pCurrentY > pStartY && pCurrentY - pStartY > 80 && mainArea.scrollTop <= 0) {
+            triggerRefresh();
+        }
+        pStartY = 0;
+        pCurrentY = 0;
+    });
+
+    async function triggerRefresh() {
+        ptrEl.classList.add('visible');
+        
+        // التحديث حسب القسم النشط
+        if(document.getElementById('sec-m').classList.contains('active')) await loadMatches();
+        else if(document.getElementById('sec-n').classList.contains('active')) await loadNews();
+        else if(document.getElementById('sec-vote').classList.contains('active')) await loadVoting();
+        else if(document.getElementById('sec-boom').classList.contains('active')) await loadBoomVideos();
+        else if(document.getElementById('sec-market').classList.contains('active')) {
+            if(currentUser) await fetchUserPoints();
+        }
+
+        // التحديث إذا كانت شاشة تفاصيل المباراة مفتوحة
+        if(document.getElementById('m-modal').style.display === 'flex') {
+             if(document.getElementById('tab-lineup').classList.contains('active')) await loadLineup(homeTeam);
+             else if(document.getElementById('tab-squad').classList.contains('active')) await loadFullSquad(selectedSquadTeam || homeTeam);
+             else if(document.getElementById('tab-events').classList.contains('active')) await loadEvents();
+             else if(document.getElementById('tab-visitors').classList.contains('active')) await loadVisitorsArea();
+        }
+
+        setTimeout(() => {
+            ptrEl.classList.remove('visible');
+        }, 500);
+    }
 </script>
 </body>
 </html>
