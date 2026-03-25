@@ -842,9 +842,18 @@
     async function fetchUserPoints() {
         if(!currentUser) return;
         try {
-            const { data } = await _supabase.from('profiles').select('points').eq('id', currentUser.id).single();
-            if(data && data.points) currentUserPoints = data.points;
-            else currentUserPoints = 0;
+            const { data } = await _supabase.from('profiles').select('*').eq('id', currentUser.id).maybeSingle();
+            if(data) {
+                currentUserPoints = data.points || 0;
+                if(data.full_name) {
+                    localStorage.setItem('profile_name_' + currentUser.id, data.full_name);
+                }
+                if(data.has_golden_frame === true) {
+                    localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
+                }
+            } else {
+                currentUserPoints = 0;
+            }
             updateAuthUI();
         } catch(e) { console.log("Profiles points info:", e.message); }
     }
@@ -950,7 +959,7 @@
 
                     <div class="more-item" onclick="logout()">
                         <div>
-                            <svg viewBox="0 0 24 24" style="fill: #ff4d4d;"><path d="M17,17.25V14H10V10H17V6.75L22.25,12L17,17.25M13,2A2,2 0 0,1 15,4V8H13V4H4V20H13V16H15V20A2,2 0 0,1 13,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2H13Z"/></svg>
+                            <svg viewBox="0 0 24 24" style="fill: #ff4d4d;"><path d="M17,17.25V14H10V10H17V6.75L22.25,12L17,17.25M13,2A2,2 0 0,1 15,4V8H13V4H4V20H13V16H15V20A2,2 0 0,1 13,22H4A2,2 0 0,1 4,2H13Z"/></svg>
                             <span style="color: #ff4d4d;">تسجيل الخروج</span>
                         </div>
                     </div>
@@ -1104,7 +1113,7 @@
         
         let newPts = currentUserPoints - cost;
         try {
-            await _supabase.from('profiles').update({ points: newPts }).eq('id', currentUser.id);
+            await _supabase.from('profiles').update({ points: newPts, has_golden_frame: true }).eq('id', currentUser.id);
             currentUserPoints = newPts;
             localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
             alert('🎉 مبروك! تم شراء الإطار الذهبي بنجاح، سيظهر الآن حول صورتك واسمك في التعليقات.');
