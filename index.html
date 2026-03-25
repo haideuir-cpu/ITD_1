@@ -882,6 +882,7 @@
 
     async function awardPoints(userId, pointsToAdd, matchId) {
         try {
+            // استخدام maybeSingle لتفادي الأخطاء إذا لم يكن للمستخدم ملف شخصي مسبق (0 rows)
             const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
             let currentPts = (profile && profile.points) ? profile.points : 0;
             let newPts = currentPts + pointsToAdd;
@@ -892,6 +893,7 @@
                 await _supabase.from('profiles').insert({ id: userId, points: newPts });
             }
             
+            // تسجيل المكافأة بعد نجاح التحديث في الداتا بيس، وتغيير المفتاح لتحديث الحالة عندك
             localStorage.setItem('rewarded_prediction_' + matchId + '_' + userId, 'true');
             currentUserPoints = newPts;
             updateAuthUI();
@@ -903,13 +905,16 @@
         if (!currentUser || hScore === null || hScore === undefined) return;
         
         let userPred = localStorage.getItem('voted_match_' + matchId + '_' + currentUser.id);
+        // مفتاح جديد يتجاوز الحالة القديمة المعلقة
         let isRewarded = localStorage.getItem('rewarded_prediction_' + matchId + '_' + currentUser.id);
         
         if (userPred && userPred !== 'true' && !isRewarded) {
             let actualResult = 'draw';
+            // التحويل لأرقام لتفادي أخطاء المقارنة بين النصوص
             if (parseInt(hScore) > parseInt(aScore)) actualResult = 'home';
             else if (parseInt(aScore) > parseInt(hScore)) actualResult = 'away';
             
+            // تقييم التوقع الصحيح فقط لمنع حظر اللاعب من المكافأة إذا فتح المباراة والنتيجة مؤقتة ولم تنتهي بعد
             if (userPred === actualResult) {
                 awardPoints(currentUser.id, 10, matchId);
             }
@@ -1076,10 +1081,13 @@
     }
 
     function logout() {
+        // تحديث واجهة المستخدم فوراً وإزالة بيانات الجلسة من المتصفح
         currentUser = null;
         currentUserPoints = 0;
         isProfileEditMode = false;
         updateAuthUI();
+        
+        // إجراء عملية تسجيل الخروج من السيرفر في الخلفية
         _supabase.auth.signOut().catch(e => console.log(e));
     }
 
@@ -1294,33 +1302,27 @@
     }
 
     async function loadMatches() {
-        const secM = document.getElementById('sec-m');
-        if(secM.innerHTML.trim() === '') secM.innerHTML = '<div style="text-align:center; padding:50px; color:var(--nav-inactive);">جاري تحميل المباريات...</div>';
-        
-        try {
-            const { data } = await _supabase.from('matches').select('*').order('created_at', {ascending: false});
-            secM.innerHTML = data?.map(m => {
-                const hasScore = m.home_score !== null;
-                return `
-                    <div class="match-card">
-                        <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
-                            <img src="${m.home_team_logo}" width="40"><br><small>${m.home_team_name}</small>
-                        </div>
-                        <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
-                            ${hasScore ? `<div class="score-val">${m.home_score} - ${m.away_score}</div>` : `<div class="time-badge">${m.match_time || 'قريباً'}</div>`}
-                            ${(hasScore && m.home_penalty !== null) ? `<span class="pen-text">ركلات: (${m.home_penalty}) - (${m.away_penalty})</span>` : ''}
-                        </div>
-                        <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
-                            <img src="${m.away_team_logo}" width="40"><br><small>${m.away_team_name}</small>
-                        </div>
-                    </div>`;
-            }).join('');
-        } catch(e) { console.error(e); }
+        const { data } = await _supabase.from('matches').select('*').order('created_at', {ascending: false});
+        document.getElementById('sec-m').innerHTML = data?.map(m => {
+            const hasScore = m.home_score !== null;
+            return `
+                <div class="match-card">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
+                        <img src="${m.home_team_logo}" width="40"><br><small>${m.home_team_name}</small>
+                    </div>
+                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
+                        ${hasScore ? `<div class="score-val">${m.home_score} - ${m.away_score}</div>` : `<div class="time-badge">${m.match_time || 'قريباً'}</div>`}
+                        ${(hasScore && m.home_penalty !== null) ? `<span class="pen-text">ركلات: (${m.home_penalty}) - (${m.away_penalty})</span>` : ''}
+                    </div>
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
+                        <img src="${m.away_team_logo}" width="40"><br><small>${m.away_team_name}</small>
+                    </div>
+                </div>`;
+        }).join('');
     }
 
     function openMatch(id, hTeam, aTeam, started, hLogo, aLogo, hScore, aScore) { 
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; hLogoUrl = hLogo; aLogoUrl = aLogo;
-        selectedSquadTeam = hTeam; // تهيئة لمنع الكراش
         checkPredictionReward(id, hScore, aScore);
         
         document.getElementById('m-modal').style.display = 'flex'; 
@@ -1355,25 +1357,10 @@
         ['lineup-view', 'squad-view', 'events-view', 'details-view', 'visitors-view'].forEach(v => document.getElementById(v).style.display = 'none');
         document.getElementById('tab-' + tab).classList.add('active');
         document.getElementById(tab + '-view').style.display = 'block';
-        
-        // استخدام الفريق المحدد حالياً لمنع الكراش
-        let teamToLoad = selectedSquadTeam || homeTeam;
-
-        if(tab === 'lineup') {
-            document.getElementById('pitch-field').innerHTML = '<div style="color:white;text-align:center;margin-top:50px;">جاري التحميل...</div>';
-            loadLineup(teamToLoad); 
-        }
-        else if(tab === 'squad') {
-            document.getElementById('squad-list').innerHTML = '<div style="color:var(--nav-inactive);text-align:center;padding:20px;">جاري التحميل...</div>';
-            loadFullSquad(teamToLoad);
-        }
-        else if(tab === 'events') {
-            document.getElementById('events-list').innerHTML = '<div style="color:var(--nav-inactive);text-align:center;padding:20px;">جاري التحميل...</div>';
-            loadEvents(); 
-        }
-        else if(tab === 'visitors') {
-            loadVisitorsArea();
-        }
+        if(tab === 'lineup') loadLineup(homeTeam); 
+        else if(tab === 'squad') loadFullSquad(selectedSquadTeam || homeTeam);
+        else if(tab === 'events') loadEvents(); 
+        else if(tab === 'visitors') loadVisitorsArea();
         else loadMatchDetails();
     }
 
@@ -1458,10 +1445,6 @@
         const storageKey = 'voted_match_' + activeMatchId + '_' + currentUser.id;
         if (localStorage.getItem(storageKey)) return;
 
-        // تعطيل الأزرار بصرياً لتجنب التكرار وتأكيد التوقع
-        const btns = document.querySelectorAll('.pred-btn');
-        btns.forEach(b => { b.style.opacity = '0.5'; b.disabled = true; });
-
         try {
             const { data } = await _supabase.from('matches').select('home_votes, draw_votes, away_votes').eq('id', activeMatchId).single();
             if (data) {
@@ -1471,14 +1454,12 @@
                 if (type === 'away') updates.away_votes = (data.away_votes || 0) + 1;
                 
                 await _supabase.from('matches').update(updates).eq('id', activeMatchId);
+                localStorage.setItem(storageKey, type);
+                loadVisitorsArea(); 
             }
         } catch (e) {
-            console.error(e);
+            alert('يرجى التأكد من إضافة أعمدة (home_votes, draw_votes, away_votes) في جدول matches');
         }
-        
-        // تثبيت التوقع بشكل قطعي حتى إن فشل الاتصال لكي لا يعلق
-        localStorage.setItem(storageKey, type);
-        loadVisitorsArea(); 
     }
 
     function buildCommentHTML(c, isReply = false) {
@@ -1500,6 +1481,7 @@
             if (localStorage.getItem(`v_dislikes_${c.id}_${currentUser.id}`)) dislikeClass = 'active-dislike';
         }
 
+        // التحقق من امتلاك المستخدم للإطار الذهبي وعرضه للجميع سواء كان التعليق له أو لغيره
         if (c.has_golden_frame || (currentUser && c.user_id === currentUser.id && localStorage.getItem('has_golden_frame_' + currentUser.id))) {
             frameStyle = 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6); color: #f1c40f;';
         }
@@ -1558,6 +1540,7 @@
                 return;
             }
 
+            // --- التعديل هنا: جلب بيانات الإطار الذهبي للمستخدمين من جدول profiles لتظهر للجميع ---
             const userIds = [...new Set(data.map(c => c.user_id).filter(id => id))];
             if (userIds.length > 0) {
                 const { data: profilesData } = await _supabase.from('profiles').select('id, has_golden_frame').in('id', userIds);
@@ -1570,6 +1553,7 @@
                     });
                 }
             }
+            // ------------------------------------------------------------------------------------
 
             const mainComments = data.filter(c => !c.parent_id).reverse(); 
             const replies = data.filter(c => c.parent_id);
@@ -1701,25 +1685,23 @@
     };
 
     async function loadFullSquad(teamName) {
+        const { data } = await _supabase.from('players').select('*').eq('team_name', teamName);
         const list = document.getElementById('squad-list');
-        try {
-            const { data } = await _supabase.from('players').select('*').eq('team_name', teamName);
-            if (!data || data.length === 0) { list.innerHTML = '<div style="color:var(--nav-inactive); text-align:center;">لا يوجد لاعبين متاحين.</div>'; return; }
-            const getWeight = (pos) => {
-                const p = (pos || "").toUpperCase();
-                if(["LW", "RW", "ST", "CF"].some(f => p.includes(f))) return 10;
-                if(["LM", "CM", "RM", "AM"].some(m => p.includes(m))) return 20;
-                if(["LB", "CB", "RB", "LWB", "RWB"].some(d => p.includes(d))) return 30;
-                if(p.includes("GK")) return 35;
-                return 40;
-            };
-            list.innerHTML = data.sort((a,b)=>getWeight(a.position)-getWeight(b.position)).map(p => `
-                <div class="squad-item" onclick='openPlayerDirect(${JSON.stringify(p)})'>
-                    <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50'">
-                    <div class="squad-info"><b>${p.player_name}</b><small>#${p.player_number || '--'} | ${p.position || '--'}</small></div>
-                    <div class="squad-rating-circ" style="${getRatingStyle(p.rating || '6.0')}">${p.rating || '6.0'}</div>
-                </div>`).join('');
-        } catch(e) { console.error(e); }
+        if (!data) { list.innerHTML = 'لا يوجد لاعبين'; return; }
+        const getWeight = (pos) => {
+            const p = (pos || "").toUpperCase();
+            if(["LW", "RW", "ST", "CF"].some(f => p.includes(f))) return 10;
+            if(["LM", "CM", "RM", "AM"].some(m => p.includes(m))) return 20;
+            if(["LB", "CB", "RB", "LWB", "RWB"].some(d => p.includes(d))) return 30;
+            if(p.includes("GK")) return 35;
+            return 40;
+        };
+        list.innerHTML = data.sort((a,b)=>getWeight(a.position)-getWeight(b.position)).map(p => `
+            <div class="squad-item" onclick='openPlayerDirect(${JSON.stringify(p)})'>
+                <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50'">
+                <div class="squad-info"><b>${p.player_name}</b><small>#${p.player_number || '--'} | ${p.position || '--'}</small></div>
+                <div class="squad-rating-circ" style="${getRatingStyle(p.rating || '6.0')}">${p.rating || '6.0'}</div>
+            </div>`).join('');
     }
 
     function openPlayerDirect(p) {
@@ -1745,53 +1727,49 @@
     }
 
     async function loadLineup(teamFilter) {
+        const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, "pl-motm", players ( * )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
         const field = document.getElementById('pitch-field'), subs = document.getElementById('subs-grid'), coach = document.getElementById('coach-area'), out = document.getElementById('out-grid'), absentGrid = document.getElementById('absent-grid');
         field.innerHTML = `<div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div><div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>`;
         subs.innerHTML = ''; out.innerHTML = ''; coach.innerHTML = ''; absentGrid.innerHTML = '';
         document.getElementById('bench-out-area').style.display = 'none';
         document.getElementById('bench-absent-area').style.display = 'none';
 
-        try {
-            const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, "pl-motm", players ( * )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
-            if (!data) return;
+        let d=0, m=0, f=0;
+        data?.forEach(item => {
+            const p = item.players; if(!p) return;
+            const roles = (item.role || '').toLowerCase();
+            let statsIcons = '';
             
-            let d=0, m=0, f=0;
-            data.forEach(item => {
-                const p = item.players; if(!p) return;
-                const roles = (item.role || '').toLowerCase();
-                let statsIcons = '';
-                
-                if (item.goals > 0) statsIcons += `<div class="pl-badge badge-goal">⚽${item.goals>1?item.goals:''}</div>`;
-                if (item.assists > 0) statsIcons += `<div class="pl-badge badge-assist">👟${item.assists>1?item.assists:''}</div>`;
-                if (item.yellow_cards > 0) statsIcons += `<div class="pl-badge badge-card badge-yellow"></div>`;
-                if (item.red_card) statsIcons += `<div class="pl-badge badge-card badge-red"></div>`;
+            if (item.goals > 0) statsIcons += `<div class="pl-badge badge-goal">⚽${item.goals>1?item.goals:''}</div>`;
+            if (item.assists > 0) statsIcons += `<div class="pl-badge badge-assist">👟${item.assists>1?item.assists:''}</div>`;
+            if (item.yellow_cards > 0) statsIcons += `<div class="pl-badge badge-card badge-yellow"></div>`;
+            if (item.red_card) statsIcons += `<div class="pl-badge badge-card badge-red"></div>`;
 
-                let motmStar = '';
-                if (item['pl-motm'] === true || item['pl-motm'] === 1) motmStar = `<div class="pl-motm-star">⭐</div>`;
+            let motmStar = '';
+            if (item['pl-motm'] === true || item['pl-motm'] === 1) motmStar = `<div class="pl-motm-star">⭐</div>`;
 
-                const getHtml = (showRate) => `
-                    <div onclick='openDetails(${JSON.stringify(item)})'>
-                        <div class="pl-img-w">
-                            <div class="pl-number">${p.player_number || ''}</div>
-                            ${motmStar}
-                            ${statsIcons}
-                            <img src="${p.player_image}">
-                            ${showRate ? `<div class="pl-rate" style="${getRatingStyle(item.rating || '6.0')}">${item.rating || '6.0'}</div>` : ''}
-                        </div>
-                        <span class="pl-name">${p.player_name}</span>
-                    </div>`;
-                
-                if(roles.includes('co')) coach.innerHTML = `<div onclick='openDetails(${JSON.stringify(item)})' style="display:flex; align-items:center; gap:15px; width:100%; cursor:pointer;"><img src="${p.player_image}" width="50" style="border-radius:50%;"><div><small>المدرب</small><br><b>${p.player_name}</b></div></div>`;
-                else if (roles.includes('ev') || roles.includes('inf')) { document.getElementById('bench-absent-area').style.display='block'; absentGrid.innerHTML += getHtml(false); }
-                else if (roles.includes('out')) { document.getElementById('bench-out-area').style.display='block'; out.innerHTML += getHtml(false); }
-                else if(roles.includes('starter')) {
-                    const pos = POSITIONS[item.position] || {t:50, l:50, zone:'M'};
-                    if(item.position !== 'GK') { if(pos.zone==='D') d++; else if(pos.zone==='M') m++; else f++; }
-                    const div = document.createElement('div'); div.className = 'pl-pin'; div.style.top = pos.t+'%'; div.style.left = pos.l+'%'; div.innerHTML = getHtml(true); field.appendChild(div);
-                } else subs.innerHTML += getHtml(true);
-            });
-            document.getElementById('formation-badge').innerText = d+m+f > 0 ? `${d}-${m}-${f}` : "-- : -- : --";
-        } catch(e) { console.error(e); }
+            const getHtml = (showRate) => `
+                <div onclick='openDetails(${JSON.stringify(item)})'>
+                    <div class="pl-img-w">
+                        <div class="pl-number">${p.player_number || ''}</div>
+                        ${motmStar}
+                        ${statsIcons}
+                        <img src="${p.player_image}">
+                        ${showRate ? `<div class="pl-rate" style="${getRatingStyle(item.rating || '6.0')}">${item.rating || '6.0'}</div>` : ''}
+                    </div>
+                    <span class="pl-name">${p.player_name}</span>
+                </div>`;
+            
+            if(roles.includes('co')) coach.innerHTML = `<div onclick='openDetails(${JSON.stringify(item)})' style="display:flex; align-items:center; gap:15px; width:100%; cursor:pointer;"><img src="${p.player_image}" width="50" style="border-radius:50%;"><div><small>المدرب</small><br><b>${p.player_name}</b></div></div>`;
+            else if (roles.includes('ev') || roles.includes('inf')) { document.getElementById('bench-absent-area').style.display='block'; absentGrid.innerHTML += getHtml(false); }
+            else if (roles.includes('out')) { document.getElementById('bench-out-area').style.display='block'; out.innerHTML += getHtml(false); }
+            else if(roles.includes('starter')) {
+                const pos = POSITIONS[item.position] || {t:50, l:50, zone:'M'};
+                if(item.position !== 'GK') { if(pos.zone==='D') d++; else if(pos.zone==='M') m++; else f++; }
+                const div = document.createElement('div'); div.className = 'pl-pin'; div.style.top = pos.t+'%'; div.style.left = pos.l+'%'; div.innerHTML = getHtml(true); field.appendChild(div);
+            } else subs.innerHTML += getHtml(true);
+        });
+        document.getElementById('formation-badge').innerText = d+m+f > 0 ? `${d}-${m}-${f}` : "-- : -- : --";
     }
 
     function openDetails(item) { openPlayerDirect({...item.players, ...item}); }
@@ -1799,37 +1777,32 @@
     async function loadEvents() {
         const list = document.getElementById('events-list'); 
         if (!isMatchStarted) { list.innerHTML = `<div style="text-align:center; padding:60px; color:#8e99a2;">المباراة لم تبدأ بعد.</div>`; return; }
-        
-        try {
-            const { data } = await _supabase.from('events').select('*').eq('match_id', activeMatchId).order('minute', {ascending: false});
-            list.innerHTML = data?.map(ev => {
-                const status = (ev.status || "").toLowerCase().trim();
-                let icon = "•";
-                if (status.includes('goal') || status.includes('هدف')) icon = "⚽";
-                else if (status.includes('assist') || status.includes('صناعة')) icon = "👟";
-                else if (status.includes('yellow') || status.includes('أصفر') || status.includes('صفراء')) icon = "🟨";
-                else if (status.includes('eviction') || status.includes('red') || status.includes('طرد') || status.includes('أحمر') || status.includes('حمراء')) icon = "🟥";
-                else if (status.includes('sub') || status.includes('تبديل')) icon = "🔄";
-                else if (status.includes('var')) icon = "🖥️";
-                else if (status.includes('pen')) icon = "🥅";
-                return `<div style="display:flex; align-items:center; padding:15px; border-bottom:1px solid var(--border); gap:15px;"><div style="background:var(--border); padding:4px 10px; border-radius:6px; font-size:0.85rem; min-width:45px; text-align:center;">${ev.minute}'</div><div style="width:25px; text-align:center;">${icon}</div><div style="flex:1;"><b>${ev.player_name}</b><br><small style="color:#8e99a2">${ev.description || ''}</small></div></div>`;
-            }).join('') || '<div style="color:var(--nav-inactive); text-align:center; padding:20px;">لا توجد أحداث</div>';
-        } catch(e) { console.error(e); }
+        const { data } = await _supabase.from('events').select('*').eq('match_id', activeMatchId).order('minute', {ascending: false});
+        list.innerHTML = data?.map(ev => {
+            const status = (ev.status || "").toLowerCase().trim();
+            let icon = "•";
+            if (status.includes('goal') || status.includes('هدف')) icon = "⚽";
+            else if (status.includes('assist') || status.includes('صناعة')) icon = "👟";
+            else if (status.includes('yellow') || status.includes('أصفر') || status.includes('صفراء')) icon = "🟨";
+            else if (status.includes('eviction') || status.includes('red') || status.includes('طرد') || status.includes('أحمر') || status.includes('حمراء')) icon = "🟥";
+            else if (status.includes('sub') || status.includes('تبديل')) icon = "🔄";
+            else if (status.includes('var')) icon = "🖥️";
+            else if (status.includes('pen')) icon = "🥅";
+            return `<div style="display:flex; align-items:center; padding:15px; border-bottom:1px solid var(--border); gap:15px;"><div style="background:var(--border); padding:4px 10px; border-radius:6px; font-size:0.85rem; min-width:45px; text-align:center;">${ev.minute}'</div><div style="width:25px; text-align:center;">${icon}</div><div style="flex:1;"><b>${ev.player_name}</b><br><small style="color:#8e99a2">${ev.description || ''}</small></div></div>`;
+        }).join('') || 'لا توجد أحداث';
     }
 
     async function loadMatchDetails() {
-        try {
-            const { data } = await _supabase.from('matches').select('*').eq('id', activeMatchId).single();
-            if(data) {
-                document.getElementById('details-list').innerHTML = `
-                    <div class="info-card"><span>${data.league_name || '---'}</span><span>البطولة</span></div>
-                    <div class="info-card clickable" onclick="openStadiumDetails(${activeMatchId})">
-                        <span>${data.stadium_name || '---'}</span>
-                        <span>ملعب المباراة</span>
-                    </div>
-                    <div class="info-card"><span>${data.match_date || '---'}</span><span>تاريخ المباراة</span></div>`;
-            }
-        } catch(e) { console.error(e); }
+        const { data } = await _supabase.from('matches').select('*').eq('id', activeMatchId).single();
+        if(data) {
+            document.getElementById('details-list').innerHTML = `
+                <div class="info-card"><span>${data.league_name || '---'}</span><span>البطولة</span></div>
+                <div class="info-card clickable" onclick="openStadiumDetails(${activeMatchId})">
+                    <span>${data.stadium_name || '---'}</span>
+                    <span>ملعب المباراة</span>
+                </div>
+                <div class="info-card"><span>${data.match_date || '---'}</span><span>تاريخ المباراة</span></div>`;
+        }
     }
 
     async function openStadiumDetails(matchId) {
@@ -1866,66 +1839,57 @@
     }
 
     async function loadNews() {
-        const secN = document.getElementById('sec-n');
-        if(secN.innerHTML.trim() === '') secN.innerHTML = '<div style="text-align:center; padding:50px; color:var(--nav-inactive);">جاري تحميل الأخبار...</div>';
-        
-        try {
-            const { data } = await _supabase.from('news').select('*').order('created_at', {ascending: false});
-            secN.innerHTML = data?.map(n => {
-                let isLikedClass = '';
-                if(currentUser) isLikedClass = localStorage.getItem('liked_news_' + n.id + '_' + currentUser.id) ? 'liked' : '';
-                return `
-                <div style="background:var(--card); margin-bottom:15px; border-radius:12px; overflow:hidden; border: 1px solid var(--border);">
-                    <img src="${n.image_url}" style="width:100%; height:200px; object-fit:cover;">
-                    <div style="padding:15px; line-height: 1.6;"><b>${n.title}</b></div>
-                    <div class="news-footer">
-                        <div class="like-btn ${isLikedClass}" onclick="toggleLike('${n.id}', this)">
-                            <svg viewBox="0 0 24 24"><path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/></svg>
-                            <span>${n.likes_count || 0}</span>
-                        </div>
+        const { data } = await _supabase.from('news').select('*').order('created_at', {ascending: false});
+        document.getElementById('sec-n').innerHTML = data?.map(n => {
+            let isLikedClass = '';
+            if(currentUser) isLikedClass = localStorage.getItem('liked_news_' + n.id + '_' + currentUser.id) ? 'liked' : '';
+            return `
+            <div style="background:var(--card); margin-bottom:15px; border-radius:12px; overflow:hidden; border: 1px solid var(--border);">
+                <img src="${n.image_url}" style="width:100%; height:200px; object-fit:cover;">
+                <div style="padding:15px; line-height: 1.6;"><b>${n.title}</b></div>
+                <div class="news-footer">
+                    <div class="like-btn ${isLikedClass}" onclick="toggleLike('${n.id}', this)">
+                        <svg viewBox="0 0 24 24"><path d="M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z"/></svg>
+                        <span>${n.likes_count || 0}</span>
                     </div>
-                </div>`;
-            }).join('');
-        } catch(e) { console.error(e); }
+                </div>
+            </div>`;
+        }).join('');
     }
 
     async function loadBoomVideos() {
+        const { data, error } = await _supabase.from('boom_videos').select('*').order('created_at', {ascending: false});
         const list = document.getElementById('boom-list');
-        if(list.innerHTML.trim() === '') list.innerHTML = '<div style="color:white;text-align:center;margin-top:50px;">جاري التحميل...</div>';
-        
-        try {
-            const { data, error } = await _supabase.from('boom_videos').select('*').order('created_at', {ascending: false});
-            if (error || !data || data.length === 0) {
-                list.innerHTML = '<div style="color: white; display: flex; align-items: center; justify-content: center; height: 100%;">لا توجد فيديوهات حالياً</div>';
-                return;
-            }
-            list.innerHTML = data.map(v => {
-                let rawUrl = v.video_url || "";
-                let embedHtml = "";
-                if (rawUrl.includes("youtube.com") || rawUrl.includes("youtu.be")) {
-                    let embedUrl = rawUrl;
-                    if (rawUrl.includes("watch?v=")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("watch?v=")[1].split("&")[0];
-                    else if (rawUrl.includes("youtu.be/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("youtu.be/")[1].split("?")[0];
-                    else if (rawUrl.includes("shorts/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("shorts/")[1].split("?")[0];
-                    embedHtml = `<iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                } 
-                else if (rawUrl.includes("tiktok.com")) {
-                    let videoIdMatch = rawUrl.match(/video\/(\d+)/);
-                    if (videoIdMatch) embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${videoIdMatch[1]}" allowfullscreen scrolling="no"></iframe>`;
-                } 
-                else if (rawUrl.includes("instagram.com")) {
-                    embedHtml = `<iframe src="${rawUrl.split("?")[0]}embed/" allowtransparency="true" scrolling="no"></iframe>`;
-                } 
-                else embedHtml = `<iframe src="${rawUrl}" allowfullscreen></iframe>`;
-                return `<div class="boom-item"><div class="boom-video-wrapper">${embedHtml}</div><div class="boom-info"><h3>${v.title || ''}</h3><p>${v.description || ''}</p></div></div>`;
-            }).join('');
-        } catch(e) { console.error(e); }
+        if (error || !data || data.length === 0) {
+            list.innerHTML = '<div style="color: white; display: flex; align-items: center; justify-content: center; height: 100%;">لا توجد فيديوهات حالياً</div>';
+            return;
+        }
+        list.innerHTML = data.map(v => {
+            let rawUrl = v.video_url || "";
+            let embedHtml = "";
+            if (rawUrl.includes("youtube.com") || rawUrl.includes("youtu.be")) {
+                let embedUrl = rawUrl;
+                if (rawUrl.includes("watch?v=")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("watch?v=")[1].split("&")[0];
+                else if (rawUrl.includes("youtu.be/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("youtu.be/")[1].split("?")[0];
+                else if (rawUrl.includes("shorts/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("shorts/")[1].split("?")[0];
+                embedHtml = `<iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            } 
+            else if (rawUrl.includes("tiktok.com")) {
+                let videoIdMatch = rawUrl.match(/video\/(\d+)/);
+                if (videoIdMatch) embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${videoIdMatch[1]}" allowfullscreen scrolling="no"></iframe>`;
+            } 
+            else if (rawUrl.includes("instagram.com")) {
+                embedHtml = `<iframe src="${rawUrl.split("?")[0]}embed/" allowtransparency="true" scrolling="no"></iframe>`;
+            } 
+            else embedHtml = `<iframe src="${rawUrl}" allowfullscreen></iframe>`;
+            return `<div class="boom-item"><div class="boom-video-wrapper">${embedHtml}</div><div class="boom-info"><h3>${v.title || ''}</h3><p>${v.description || ''}</p></div></div>`;
+        }).join('');
     }
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
     loadMatches();
 
-    // --- منطق وظيفة السحب للتحديث (Pull to Refresh) مع التحديث الفعلي للصفحة ---
+    // --- منطق وظيفة السحب للتحديث (Pull to Refresh) ---
     let pStartY = 0;
     let pCurrentY = 0;
     let pIsPulling = false;
@@ -1957,11 +1921,27 @@
     async function triggerRefresh() {
         ptrEl.classList.add('visible');
         
-        // إظهار المؤشر لفترة قصيرة ثم عمل تحديث شامل (Reload) لتصفير الأخطاء وجلب أحدث البيانات
+        // إخفاء المؤشر بعد 1.5 ثانية لكي يظهر قليلاً ويختفي بشكل جميل دون أن يعلق
         setTimeout(() => {
             ptrEl.classList.remove('visible');
-            window.location.reload(); 
-        }, 800);
+        }, 1500);
+        
+        // التحديث حسب القسم النشط
+        if(document.getElementById('sec-m').classList.contains('active')) loadMatches();
+        else if(document.getElementById('sec-n').classList.contains('active')) loadNews();
+        else if(document.getElementById('sec-vote').classList.contains('active')) loadVoting();
+        else if(document.getElementById('sec-boom').classList.contains('active')) loadBoomVideos();
+        else if(document.getElementById('sec-market').classList.contains('active')) {
+            if(currentUser) fetchUserPoints();
+        }
+
+        // التحديث إذا كانت شاشة تفاصيل المباراة مفتوحة
+        if(document.getElementById('m-modal').style.display === 'flex') {
+             if(document.getElementById('tab-lineup').classList.contains('active')) loadLineup(homeTeam);
+             else if(document.getElementById('tab-squad').classList.contains('active')) loadFullSquad(selectedSquadTeam || homeTeam);
+             else if(document.getElementById('tab-events').classList.contains('active')) loadEvents();
+             else if(document.getElementById('tab-visitors').classList.contains('active')) loadVisitorsArea();
+        }
     }
 </script>
 </body>
