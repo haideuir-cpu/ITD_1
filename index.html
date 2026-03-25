@@ -98,7 +98,7 @@
         .arc-top { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); width: 60px; height: 25px; border: 2px solid white; border-top: none; border-radius: 0 0 50px 50px; }
         .spot-top { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: white; border-radius: 50%; }
         .box-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 65%; height: 90px; border: 2px solid white; border-bottom: none; }
-        .goal-bottom { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 35%; height: 35px; border: 2px solid white; border-bottom: none; }
+        .goal-bottom { position: absolute bottom: 0; left: 50%; transform: translateX(-50%); width: 35%; height: 35px; border: 2px solid white; border-bottom: none; }
         .arc-bottom { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: 60px; height: 25px; border: 2px solid white; border-bottom: none; border-radius: 50px 50px 0 0; }
         .spot-bottom { position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; background: white; border-radius: 50%; }
 
@@ -675,7 +675,7 @@
             
             <input type="text" id="gift-receiver" class="auth-input" placeholder="اسم المستخدم المستلم" style="text-align: center;">
             
-            <button onclick="processGift()" style="width: 100%; padding: 14px; margin-top: 25px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s;">إرسال الآن</button>
+            <button id="send-gift-btn" onclick="processGift()" style="width: 100%; padding: 14px; margin-top: 25px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s;">إرسال الآن</button>
         </div>
     </div>
 </div>
@@ -1176,34 +1176,56 @@
             alert('لا يمكنك إرسال هدية لنفسك!');
             return;
         }
+
+        const btn = document.getElementById('send-gift-btn');
+        if (btn) {
+            btn.innerText = 'جاري الإرسال...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+        }
         
         try {
+            // استبدال maybeSingle() بـ limit(1) لتفادي انهيار العملية إذا كان هناك أسماء مكررة
             const { data: receiverData, error: receiverError } = await _supabase
                 .from('profiles')
                 .select('*')
                 .eq('full_name', receiverStr)
-                .maybeSingle();
+                .limit(1);
 
-            if (receiverError || !receiverData) {
+            if (receiverError || !receiverData || receiverData.length === 0) {
                 alert('لم يتم العثور على مستخدم بهذا الاسم. تأكد من تطابق الاسم كما يظهر في التطبيق.');
+                if (btn) {
+                    btn.innerText = 'إرسال الآن';
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
                 return;
             }
+
+            const receiver = receiverData[0];
 
             let newMyPts = currentUserPoints - 50;
             await _supabase.from('profiles').update({ points: newMyPts }).eq('id', currentUser.id);
             currentUserPoints = newMyPts;
             
             let randomPts = Math.floor(Math.random() * 49) + 2; 
-            let newReceiverPts = (receiverData.points || 0) + randomPts;
+            let newReceiverPts = (receiver.points || 0) + randomPts;
             
-            await _supabase.from('profiles').update({ points: newReceiverPts }).eq('id', receiverData.id);
+            await _supabase.from('profiles').update({ points: newReceiverPts }).eq('id', receiver.id);
 
             alert(`🎁 تم إرسال الهدية بنجاح إلى "${receiverStr}"! ربح صديقك ${randomPts} نقطة (تم خصم 50 نقطة فقط من رصيدك).`);
             
             updateAuthUI();
             closeModal('gift-modal');
         } catch (e) {
+            console.error(e);
             alert('حدث خطأ أثناء إرسال الهدية. يرجى المحاولة لاحقاً.');
+        } finally {
+            if (btn) {
+                btn.innerText = 'إرسال الآن';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+            }
         }
     }
 
