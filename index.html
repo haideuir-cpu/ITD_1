@@ -484,11 +484,18 @@
 
         /* --- تنسيقات السحب للتحديث --- */
         #ptr-indicator {
-            position: fixed; top: 60px; left: 50%; transform: translate(-50%, -150%);
+            position: fixed; top: 65px; left: 50%; transform: translate(-50%, -30px) scale(0.9);
             background: var(--card); border: 1px solid var(--accent); color: var(--text);
-            padding: 8px 16px; border-radius: 20px; z-index: 9999; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: bold; pointer-events: none; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            padding: 8px 18px; border-radius: 25px; z-index: 9999; display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: bold; pointer-events: none; 
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            opacity: 0; visibility: hidden;
         }
-        #ptr-indicator.visible { transform: translate(-50%, 10px); }
+        #ptr-indicator.visible { 
+            transform: translate(-50%, 15px) scale(1); 
+            opacity: 1; 
+            visibility: visible;
+        }
         .ptr-spin { animation: spin 1s linear infinite; stroke: var(--accent); }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
@@ -1073,7 +1080,6 @@
         }
     }
 
-    // تم تحديث الدالة لتسجيل الخروج فورياً بدون تأخير
     function logout() {
         // تحديث واجهة المستخدم فوراً وإزالة بيانات الجلسة من المتصفح
         currentUser = null;
@@ -1118,7 +1124,6 @@
         }
     }
 
-    // --- منطق وظائف السوق (الجديد) ---
     async function buyFrame(cost) {
         if(!currentUser) { openAuthModal(); return; }
         if(localStorage.getItem('has_golden_frame_' + currentUser.id)) {
@@ -1159,7 +1164,6 @@
         document.getElementById('gift-modal').style.display = 'flex';
     }
 
-    // تم تحديث الدالة لربطها بقاعدة البيانات وخصم النقاط العشوائية من التطبيق
     async function processGift() {
         const receiverStr = document.getElementById('gift-receiver').value.trim();
         if(!receiverStr) {
@@ -1174,7 +1178,6 @@
         }
         
         try {
-            // البحث عن المستلم في قاعدة البيانات
             const { data: receiverData, error: receiverError } = await _supabase
                 .from('profiles')
                 .select('*')
@@ -1186,16 +1189,13 @@
                 return;
             }
 
-            // خصم 50 نقطة (سعر الهدية) من المشتري فقط
             let newMyPts = currentUserPoints - 50;
             await _supabase.from('profiles').update({ points: newMyPts }).eq('id', currentUser.id);
             currentUserPoints = newMyPts;
             
-            // توليد نقاط عشوائية تضاف للمستلم (من التطبيق)
-            let randomPts = Math.floor(Math.random() * 49) + 2; // من 2 إلى 50 عشوائياً
+            let randomPts = Math.floor(Math.random() * 49) + 2; 
             let newReceiverPts = (receiverData.points || 0) + randomPts;
             
-            // تحديث حساب المستلم
             await _supabase.from('profiles').update({ points: newReceiverPts }).eq('id', receiverData.id);
 
             alert(`🎁 تم إرسال الهدية بنجاح إلى "${receiverStr}"! ربح صديقك ${randomPts} نقطة (تم خصم 50 نقطة فقط من رصيدك).`);
@@ -1206,7 +1206,6 @@
             alert('حدث خطأ أثناء إرسال الهدية. يرجى المحاولة لاحقاً.');
         }
     }
-    // ----------------------------------
 
     function startVoteTimer() {
         if(voteTimerInterval) clearInterval(voteTimerInterval);
@@ -1481,7 +1480,6 @@
             if (localStorage.getItem(`v_likes_${c.id}_${currentUser.id}`)) likeClass = 'active-like';
             if (localStorage.getItem(`v_dislikes_${c.id}_${currentUser.id}`)) dislikeClass = 'active-dislike';
             
-            // تحقق إذا كان كاتب التعليق هو المستخدم الحالي وكان قد اشترى إطار ذهبي
             if (c.user_id === currentUser.id && localStorage.getItem('has_golden_frame_' + currentUser.id)) {
                 frameStyle = 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6); color: #f1c40f;';
             }
@@ -1907,26 +1905,27 @@
     async function triggerRefresh() {
         ptrEl.classList.add('visible');
         
+        // إخفاء المؤشر بعد 1.5 ثانية لكي يظهر قليلاً ويختفي بشكل جميل دون أن يعلق
+        setTimeout(() => {
+            ptrEl.classList.remove('visible');
+        }, 1500);
+        
         // التحديث حسب القسم النشط
-        if(document.getElementById('sec-m').classList.contains('active')) await loadMatches();
-        else if(document.getElementById('sec-n').classList.contains('active')) await loadNews();
-        else if(document.getElementById('sec-vote').classList.contains('active')) await loadVoting();
-        else if(document.getElementById('sec-boom').classList.contains('active')) await loadBoomVideos();
+        if(document.getElementById('sec-m').classList.contains('active')) loadMatches();
+        else if(document.getElementById('sec-n').classList.contains('active')) loadNews();
+        else if(document.getElementById('sec-vote').classList.contains('active')) loadVoting();
+        else if(document.getElementById('sec-boom').classList.contains('active')) loadBoomVideos();
         else if(document.getElementById('sec-market').classList.contains('active')) {
-            if(currentUser) await fetchUserPoints();
+            if(currentUser) fetchUserPoints();
         }
 
         // التحديث إذا كانت شاشة تفاصيل المباراة مفتوحة
         if(document.getElementById('m-modal').style.display === 'flex') {
-             if(document.getElementById('tab-lineup').classList.contains('active')) await loadLineup(homeTeam);
-             else if(document.getElementById('tab-squad').classList.contains('active')) await loadFullSquad(selectedSquadTeam || homeTeam);
-             else if(document.getElementById('tab-events').classList.contains('active')) await loadEvents();
-             else if(document.getElementById('tab-visitors').classList.contains('active')) await loadVisitorsArea();
+             if(document.getElementById('tab-lineup').classList.contains('active')) loadLineup(homeTeam);
+             else if(document.getElementById('tab-squad').classList.contains('active')) loadFullSquad(selectedSquadTeam || homeTeam);
+             else if(document.getElementById('tab-events').classList.contains('active')) loadEvents();
+             else if(document.getElementById('tab-visitors').classList.contains('active')) loadVisitorsArea();
         }
-
-        setTimeout(() => {
-            ptrEl.classList.remove('visible');
-        }, 500);
     }
 </script>
 </body>
