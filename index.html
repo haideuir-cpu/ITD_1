@@ -1479,10 +1479,11 @@
         if (currentUser) {
             if (localStorage.getItem(`v_likes_${c.id}_${currentUser.id}`)) likeClass = 'active-like';
             if (localStorage.getItem(`v_dislikes_${c.id}_${currentUser.id}`)) dislikeClass = 'active-dislike';
-            
-            if (c.user_id === currentUser.id && localStorage.getItem('has_golden_frame_' + currentUser.id)) {
-                frameStyle = 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6); color: #f1c40f;';
-            }
+        }
+
+        // التحقق من امتلاك المستخدم للإطار الذهبي وعرضه للجميع سواء كان التعليق له أو لغيره
+        if (c.has_golden_frame || (currentUser && c.user_id === currentUser.id && localStorage.getItem('has_golden_frame_' + currentUser.id))) {
+            frameStyle = 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6); color: #f1c40f;';
         }
 
         const replyAction = !isReply ? `<span class="v-comment-reply" onclick="toggleReplyBox(event, '${c.id}')">رد</span>` : `<span></span>`;
@@ -1538,6 +1539,21 @@
                 list.innerHTML = '<div style="text-align:center; color:var(--nav-inactive); margin-top:20px;">لا توجد تعليقات بعد. كن أول من يعلق!</div>';
                 return;
             }
+
+            // --- التعديل هنا: جلب بيانات الإطار الذهبي للمستخدمين من جدول profiles لتظهر للجميع ---
+            const userIds = [...new Set(data.map(c => c.user_id).filter(id => id))];
+            if (userIds.length > 0) {
+                const { data: profilesData } = await _supabase.from('profiles').select('id, has_golden_frame').in('id', userIds);
+                if (profilesData) {
+                    data.forEach(c => {
+                        const p = profilesData.find(x => x.id === c.user_id);
+                        if (p && p.has_golden_frame) {
+                            c.has_golden_frame = true;
+                        }
+                    });
+                }
+            }
+            // ------------------------------------------------------------------------------------
 
             const mainComments = data.filter(c => !c.parent_id).reverse(); 
             const replies = data.filter(c => c.parent_id);
