@@ -898,6 +898,9 @@
                 if(data.has_golden_frame === true) {
                     localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
                 }
+                if(data.avatar_url) {
+                    localStorage.setItem('profile_avatar_' + currentUser.id, data.avatar_url);
+                }
             } else {
                 currentUserPoints = 0;
             }
@@ -992,6 +995,62 @@
         updateAuthUI();
     }
 
+    function getAvatarHTML(userId, savedName, hasFrame, width='65px', height='65px', fontSize='1.6rem', extraStyle='') {
+        const savedAvatar = localStorage.getItem('profile_avatar_' + userId);
+        const initials = savedName.substring(0, 2).toUpperCase();
+        const frameImgCSS = hasFrame ? 'border: 3px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8);' : '';
+        const frameTextCSS = hasFrame ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
+        if (savedAvatar) {
+            return `<img src="${savedAvatar}" style="width:${width}; height:${height}; border-radius:50%; object-fit:cover; flex-shrink:0; ${frameImgCSS} ${extraStyle}" />`;
+        }
+        return `<div class="v-comment-avatar-text" style="width:${width}; height:${height}; font-size:${fontSize}; flex-shrink:0; transition:0.3s; ${frameTextCSS} ${extraStyle}">${initials}</div>`;
+    }
+
+    async function handleAvatarChange(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        if (file.size > 3 * 1024 * 1024) {
+            alert('حجم الصورة كبير جداً. الحد الأقصى 3 ميجابايت.');
+            return;
+        }
+
+        const preview = document.getElementById('avatar-preview-edit');
+        if (preview) {
+            preview.innerHTML = `<div style="width:85px;height:85px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:1.5rem;">⏳</div>`;
+        }
+
+        try {
+            const ext = file.name.split('.').pop();
+            const filePath = `${currentUser.id}/avatar.${ext}`;
+
+            const { error: uploadError } = await _supabase.storage
+                .from('avatars')
+                .upload(filePath, file, { upsert: true, contentType: file.type });
+
+            if (uploadError) throw uploadError;
+
+            const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+            const publicUrl = urlData.publicUrl + '?t=' + Date.now();
+
+            await _supabase.from('profiles').upsert({ id: currentUser.id, avatar_url: urlData.publicUrl });
+
+            localStorage.setItem('profile_avatar_' + currentUser.id, publicUrl);
+
+            if (preview) {
+                preview.innerHTML = `
+                    <img src="${publicUrl}" style="width:85px; height:85px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);" />
+                    <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); font-size:14px;">📷</div>
+                `;
+            }
+        } catch (err) {
+            console.error(err);
+            alert('فشل رفع الصورة: ' + (err.message || 'خطأ غير معروف'));
+            if (preview) {
+                preview.innerHTML = `<div style="width:85px;height:85px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;color:red;font-size:1.5rem;">✗</div>`;
+            }
+        }
+    }
+
     function updateAuthUI() {
         const accountContainer = document.getElementById('account-container');
         const mb = document.getElementById('market-balance');
@@ -1002,14 +1061,24 @@
         if(currentUser) {
             const defaultName = currentUser.email ? currentUser.email.split('@')[0] : 'حسابي';
             const savedName = localStorage.getItem('profile_name_' + currentUser.id) || defaultName;
-            
+            const hasFrame = !!localStorage.getItem('has_golden_frame_' + currentUser.id);
+            const savedAvatar = localStorage.getItem('profile_avatar_' + currentUser.id);
             let userInitials = savedName.substring(0, 2).toUpperCase();
-            let frameCSS = localStorage.getItem('has_golden_frame_' + currentUser.id) ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
+            let frameCSS = hasFrame ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
 
             if (isProfileEditMode) {
+                const avatarPreviewHTML = savedAvatar
+                    ? `<img src="${savedAvatar}" style="width:85px; height:85px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);" />`
+                    : `<div class="v-comment-avatar-text" style="width:85px; height:85px; font-size:2rem; ${frameCSS}">${userInitials}</div>`;
+
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center;">
-                        <div class="v-comment-avatar-text" style="width: 65px; height: 65px; font-size: 1.6rem; transition: 0.3s; ${frameCSS}">${userInitials}</div>
+                        <div id="avatar-preview-edit" onclick="document.getElementById('avatar-file-input').click()" style="cursor:pointer; position:relative; width:85px; height:85px; border-radius:50%; display:flex; align-items:center; justify-content:center; overflow:visible;">
+                            ${avatarPreviewHTML}
+                            <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); font-size:14px;">📷</div>
+                        </div>
+                        <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarChange(this)">
+                        <p style="font-size:0.8rem; color:var(--nav-inactive); margin:0; text-align:center;">اضغط على الصورة لتغييرها</p>
                         <h4 style="margin: 0; color: var(--accent);">تعديل الملف الشخصي</h4>
                         <input type="text" id="profile-name-input" placeholder="أدخل اسمك" class="auth-input" value="${savedName}" style="margin-top: 5px; text-align: center; font-weight: bold; border-color: var(--border);">
                         <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
@@ -1022,7 +1091,7 @@
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 25px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                         <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
-                            <div class="v-comment-avatar-text" style="width: 65px; height: 65px; font-size: 1.6rem; flex-shrink: 0; transition: 0.3s; ${frameCSS}">${userInitials}</div>
+                            ${getAvatarHTML(currentUser.id, savedName, hasFrame)}
                             <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
                                 <span style="color: #00d2b5; font-size: 1.25rem; font-weight: bold;">${savedName}</span>
                                 <span style="color: #8e99a2; font-size: 0.85rem;">${currentUser.email}</span>
@@ -1572,15 +1641,29 @@
 
         let likeClass = ''; let dislikeClass = '';
         let frameStyle = '';
+        let hasFrame = false;
         
         if (currentUser) {
             if (localStorage.getItem(`v_likes_${c.id}_${currentUser.id}`)) likeClass = 'active-like';
             if (localStorage.getItem(`v_dislikes_${c.id}_${currentUser.id}`)) dislikeClass = 'active-dislike';
         }
 
-        // التحقق من امتلاك المستخدم للإطار الذهبي وعرضه للجميع سواء كان التعليق له أو لغيره
         if (c.has_golden_frame || (currentUser && c.user_id === currentUser.id && localStorage.getItem('has_golden_frame_' + currentUser.id))) {
             frameStyle = 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6); color: #f1c40f;';
+            hasFrame = true;
+        }
+
+        const isMyComment = currentUser && c.user_id === currentUser.id;
+        const myAvatar = isMyComment ? localStorage.getItem('profile_avatar_' + currentUser.id) : null;
+        
+        let avatarElement;
+        const avatarSize = isReply ? '35px' : '45px';
+        const avatarFontSize = isReply ? '0.9rem' : '1.1rem';
+        if (myAvatar) {
+            const imgFrame = hasFrame ? 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6);' : '';
+            avatarElement = `<img src="${myAvatar}" style="width:${avatarSize}; height:${avatarSize}; border-radius:50%; object-fit:cover; flex-shrink:0; ${imgFrame}" />`;
+        } else {
+            avatarElement = `<div class="v-comment-avatar-text" style="width:${avatarSize}; height:${avatarSize}; font-size:${avatarFontSize}; ${frameStyle}">${initials}</div>`;
         }
 
         const replyAction = !isReply ? `<span class="v-comment-reply" onclick="toggleReplyBox(event, '${c.id}')">رد</span>` : `<span></span>`;
@@ -1607,7 +1690,7 @@
              onmouseup="cancelCommentLongPress()"
              onmouseleave="cancelCommentLongPress()"
              style="${isReply ? 'margin-bottom: 15px; margin-right: 10px;' : 'margin-bottom: 25px;'}">
-            <div class="v-comment-avatar-text" style="${isReply ? 'width: 35px; height: 35px; font-size: 0.9rem;' : ''} ${frameStyle}">${initials}</div>
+            ${avatarElement}
             <div class="v-comment-content">
                 <div class="v-comment-header">
                     <span class="v-comment-author" style="${isReply ? 'font-size: 0.85rem;' : ''}">${uName}</span>
