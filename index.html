@@ -1166,16 +1166,35 @@
         const photoFile = photoInput && photoInput.files[0] ? photoInput.files[0] : null;
         let newPhotoUrl = localStorage.getItem('profile_image_' + currentUser.id) || null;
 
+        const statusEl2 = document.getElementById('photo-status');
+        const showErr = (msg) => {
+            if (statusEl2) { statusEl2.style.color = '#ff4d4d'; statusEl2.innerText = '❌ ' + msg; }
+            btn.innerText = originalText;
+            btn.disabled = false;
+        };
+
         if (photoFile) {
             try {
+                btn.innerText = "جاري ضغط الصورة...";
+                if (statusEl2) { statusEl2.style.color = 'var(--nav-inactive)'; statusEl2.innerText = 'جاري ضغط الصورة...'; }
+                const compressedBlob = await compressImage(photoFile, 400, 0.85);
+
                 btn.innerText = "جاري رفع الصورة...";
-                newPhotoUrl = await uploadProfilePhoto(photoFile, currentUser.id);
+                if (statusEl2) statusEl2.innerText = 'جاري رفع الصورة...';
+
+                const filePath = `${currentUser.id}.jpg`;
+                const { error: upErr } = await _supabase.storage.from('avatars').upload(filePath, compressedBlob, {
+                    contentType: 'image/jpeg',
+                    upsert: true
+                });
+                if (upErr) { showErr('فشل الرفع: ' + upErr.message); return; }
+
+                const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+                newPhotoUrl = urlData.publicUrl + '?t=' + Date.now();
                 localStorage.setItem('profile_image_' + currentUser.id, newPhotoUrl);
+                if (statusEl2) { statusEl2.style.color = '#2ecc71'; statusEl2.innerText = '✅ تم رفع الصورة'; }
             } catch (uploadErr) {
-                console.error("Photo upload error:", uploadErr.message);
-                btn.innerText = originalText;
-                btn.disabled = false;
-                alert('حدث خطأ في رفع الصورة: ' + uploadErr.message);
+                showErr(uploadErr.message || 'خطأ غير معروف');
                 return;
             }
         }
@@ -1188,9 +1207,10 @@
             const updateData = { id: currentUser.id, full_name: nameToSave };
             if (newPhotoUrl) updateData.profile_image = newPhotoUrl;
             const { error: dbError } = await _supabase.from('profiles').upsert(updateData);
-            if (dbError) console.log("DB Update Info:", dbError.message);
+            if (dbError) { showErr('خطأ في قاعدة البيانات: ' + dbError.message); return; }
         } catch (error) {
-            console.error("Update Error:", error.message);
+            showErr(error.message || 'خطأ في الاتصال');
+            return;
         }
 
         btn.innerText = originalText;
