@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
+
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -79,7 +79,7 @@
         .score-clickable { flex: 1; text-align: center; cursor: pointer; }
         .score-val { font-size: 1.8rem; font-weight: bold; letter-spacing: 2px; }
         .time-badge { background: rgba(30,144,255,0.1); color: var(--accent); padding: 5px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; }
-        
+
         .pen-text { color: var(--gold); font-size: 0.85rem; display: block; margin-top: 5px; font-weight: bold; }
 
         .team-toggle { display: flex; justify-content: center; gap: 10px; padding: 10px; background: var(--card); border-bottom: 1px solid var(--border); }
@@ -111,7 +111,7 @@
         .pl-name { font-size: 10px; font-weight: bold; display: block; margin-top: 5px; color: white; text-shadow: 1px 1px 2px #000; }
         .pl-number { position: absolute; top: -5px; left: -5px; background: #202030; color: white; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 5; }
         .pl-rate { position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%); background: var(--gold); color: #000; font-size: 10px; font-weight: 900; padding: 1px 6px; border-radius: 10px; border: 1px solid white; }
-        
+
         .pl-captain { position: absolute; top: -5px; right: -5px; background: var(--gold); color: black; font-size: 9px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid white; z-index: 6; font-weight: 900; }
 
         .pl-motm-star { 
@@ -172,7 +172,7 @@
         }
         .more-item div { display: flex; align-items: center; gap: 12px; font-weight: bold; }
         .more-item svg { width: 22px; height: 22px; fill: var(--accent); }
-        
+
         .switch {
             width: 44px; height: 24px; background: #3c4b58; border-radius: 20px; position: relative; transition: 0.3s;
         }
@@ -195,7 +195,7 @@
             padding-right: 10px;
             margin-bottom: 15px;
         }
-        
+
         .pl-absent-icon {
             position: absolute; top: -5px; right: -5px; 
             width: 18px; height: 18px; border-radius: 4px;
@@ -219,7 +219,7 @@
         }
         .badge-goal { top: -2px; right: -10px; background: #fff; }
         .badge-goal.gold { background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; }
-        
+
         .badge-assist { 
             bottom: -5px; right: -10px; 
             background: #fff; 
@@ -227,11 +227,11 @@
             font-size: 9px;
             border-color: #1e90ff;
         }
-        
+
         .badge-card { top: -2px; left: -10px; width: 14px; height: 19px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.5); }
         .badge-yellow { background: #ffcc00; box-shadow: 0 0 8px rgba(255, 204, 0, 0.4); }
         .badge-red { background: #ff3b30; box-shadow: 0 0 8px rgba(255, 59, 48, 0.4); }
-        
+
         .badge-double-card { 
             top: -2px; left: -10px; width: 22px; height: 20px; background: none; border: none; box-shadow: none;
             display: flex; gap: 2px;
@@ -273,7 +273,7 @@
         .like-btn.liked svg { fill: #ff4d4d; animation: heartBeat 0.3s ease-in-out; }
         .like-btn.liked span { color: #ff4d4d; }
         .like-btn span { font-size: 13px; font-weight: bold; color: #8e99a2; }
-        
+
         @keyframes heartBeat {
             0% { transform: scale(1); }
             50% { transform: scale(1.3); }
@@ -355,33 +355,33 @@
             color: white;
         }
         @keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        
+
         .p-cover, .s-image { width: 100%; height: 180px; object-fit: cover; display: block; }
         .s-image { height: 220px; border-bottom: 2px solid var(--accent); }
-        
+
         .p-main-info { position: relative; padding: 0 20px; margin-top: -55px; display: flex; flex-direction: column; align-items: center; }
         .p-avatar-wrap { position: relative; width: 110px; height: 110px; }
         .p-avatar { width: 100%; height: 100%; border-radius: 20px; border: 4px solid var(--card); object-fit: cover; background: #222; }
         .p-team-badge { position: absolute; top: 0; right: -5px; width: 35px; height: 35px; background: white; border-radius: 50%; padding: 4px; border: 2px solid var(--card); object-fit: contain; z-index: 2; }
         .p-num-circle { position: absolute; bottom: 5px; right: -5px; background: var(--accent); color: white; width: 28px; height: 28px; border-radius: 50%; font-size: 12px; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 2px solid var(--card); z-index: 2; }
-        
+
         .p-title-sec { text-align: center; padding-top: 10px; width: 100%; }
         .p-name-big { font-size: 1.4rem; font-weight: 900; margin: 0; color: white; line-height: 1.2; }
         .p-team-sub { color: var(--nav-inactive); font-size: 0.95rem; margin-top: 4px; }
-        
+
         .p-grid-info { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 15px 20px; }
         .p-box { background: rgba(255,255,255,0.03); padding: 10px 5px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
         .p-box small { display: block; color: var(--nav-inactive); font-size: 10px; margin-bottom: 5px; }
         .p-box b { font-size: 11px; color: var(--accent); }
-        
+
         .p-stats-grid { background: rgba(0,0,0,0.15); padding: 15px 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; border-top: 1px solid var(--border); }
         .stat-v { text-align: center; }
         .stat-v b { display: block; font-size: 1.3rem; color: white; }
         .stat-v small { color: var(--nav-inactive); font-size: 11px; margin-top: 4px; display: block; }
-        
+
         .p-pen-sec { padding: 15px 20px; background: rgba(255,255,255,0.02); display: flex; justify-content: space-around; border-top: 1px solid var(--border); align-items: center; }
         .pen-v p-suc { color: #2ecc71; } .p-mis { color: #e74c3c; }
-        
+
         .p-close { position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 100; display:flex; align-items:center; justify-content:center; font-size: 14px; }
 
         .s-content { padding: 20px; text-align: center; }
@@ -425,7 +425,7 @@
         }
         .pred-btn:active { transform: scale(0.95); }
         .pred-btn.draw-btn { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.2); }
-        
+
         .pred-result-labels { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 8px; font-size: 1rem; }
         .pred-result-bars { display: flex; height: 8px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: margin-top: 5px; margin-bottom: 10px; }
         .pred-res-bar { height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0px; transition: width 0.5s ease-in-out; }
@@ -444,10 +444,10 @@
             display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
         .comment-send-btn svg { fill: #0b1116; width: 20px; height: 20px; transform: rotate(180deg); margin-left: -2px; }
-        
+
         .v-comment-item { display: flex; gap: 15px; margin-bottom: 25px; transition: background 0.2s; }
         .v-comment-avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-        
+
         /* كلاس الأفاتار الجديد الذي يظهر أول حرفين */
         .v-comment-avatar-text { 
             width: 45px; height: 45px; border-radius: 50%; 
@@ -468,7 +468,7 @@
         .v-action-btn svg { fill: currentColor; width: 18px; height: 18px; }
         .v-action-btn.active-like { color: #00d2b5; }
         .v-action-btn.active-dislike { color: #ff4d4d; }
-        
+
         .v-replies-text { color: var(--accent); font-weight: bold; font-size: 0.85rem; margin-top: 10px; cursor: pointer; display: inline-block; }
 
         /* --- تنسيقات السوق الجديدة --- */
@@ -523,22 +523,22 @@
 <main id="main-area">
     <div id="sec-m" class="section active"></div>
     <div id="sec-n" class="section"></div>
-    
+
     <div id="sec-vote" class="section vote-section" style="padding:0;">
         <img id="vote-cover" src="" style="width: 100%; height: auto; display: block; object-fit: cover;">
-        
+
         <div class="vote-timer-container">
             <div id="vote-timer-nums" class="vote-timer-nums">00:00:00:00</div>
             <div class="vote-timer-labels">
                 <span>ثانية</span> <span>:</span> <span>دقيقة</span> <span>:</span> <span>ساعة</span> <span>:</span> <span>يوم</span>
             </div>
-            
+
             <div class="vote-header">
                 <h2>التصويت على جائزة لاعب الشهر</h2>
                 <p>المقدمة من المكتب الأعلامي لفريق الأتحاد</p>
             </div>
         </div>
-        
+
         <div id="voting-options" class="vote-options"></div>
     </div>
 
@@ -558,7 +558,7 @@
                 <span style="color: #f1c40f; font-weight: bold; font-size: 1.2rem;">⭐ <span id="market-balance">0</span></span>
             </div>
         </div>
-        
+
         <div class="market-grid">
             <div class="market-item">
                 <div class="market-icon-wrap">🖼️</div>
@@ -568,7 +568,7 @@
                     <span>100 نقطة</span>
                 </button>
             </div>
-            
+
             <div class="market-item">
                 <div class="market-icon-wrap">🎁</div>
                 <h4>صندوق هدية</h4>
@@ -577,14 +577,14 @@
                     <span>50 نقطة</span>
                 </button>
             </div>
-            
+
             <div class="market-item">
                 <div class="market-icon-wrap" style="filter: grayscale(1);">👑</div>
                 <h4>عضوية VIP</h4>
                 <p>ميزات حصرية وإشارات خاصة بجانب اسمك (قريباً)</p>
                 <button class="buy-btn" disabled>قريباً</button>
             </div>
-            
+
             <div class="market-item">
                 <div class="market-icon-wrap" style="filter: grayscale(1);">🎟️</div>
                 <h4>تذكرة توقع</h4>
@@ -596,7 +596,7 @@
 
     <div id="sec-more" class="section">
         <h3 style="margin-bottom: 20px;">الحساب</h3>
-        
+
         <div id="account-container">
             <div class="more-item" id="auth-menu-btn" onclick="openAuthModal()">
                 <div>
@@ -607,7 +607,7 @@
         </div>
 
         <h3 style="margin-top: 30px; margin-bottom: 20px;">الإعدادات العامة</h3>
-        
+
         <div class="more-item" onclick="toggleTheme()">
             <div>
                 <svg viewBox="0 0 24 24"><path d="M12,18C9.79,18 8,16.21 8,14C8,11.79 9.79,10 12,10C14.21,10 16,11.79 16,14C16,16.21 14.21,18 12,18M12,2A10,10 0 0,1 22,12A10,10 0 0,1 2,12A10,10 0 0,1 12,2Z"/></svg>
@@ -659,12 +659,12 @@
         <div class="p-profile-card" style="padding: 30px 20px; text-align: center;">
             <button class="p-close" onclick="closeModal('auth-modal')">✕</button>
             <h2 id="auth-title" style="margin-top: 10px; color: var(--accent);">تسجيل الدخول</h2>
-            
+
             <input type="email" id="auth-email" class="auth-input" placeholder="البريد الإلكتروني">
             <input type="password" id="auth-pass" class="auth-input" placeholder="الرمز السري">
-            
+
             <button id="auth-submit-btn" onclick="processAuth()" style="width: 100%; padding: 14px; margin-top: 25px; background: var(--accent); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">دخول</button>
-            
+
             <div style="margin-top: 20px; color: var(--nav-inactive); font-size: 0.95rem; cursor: pointer; text-decoration: underline;" onclick="toggleAuthMode()" id="auth-toggle-text">لا تملك حساب؟ إنشاء حساب جديد</div>
             <div id="auth-msg" style="margin-top: 15px; font-size: 0.9rem; font-weight: bold;"></div>
         </div>
@@ -678,9 +678,9 @@
             <div style="font-size: 4rem; margin-top: 10px;">🎁</div>
             <h2 style="margin-top: 10px; color: var(--gold); font-size: 1.3rem;">إرسال هدية</h2>
             <p style="color: var(--nav-inactive); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px;">قم بإدخال اسم المستخدم لصديقك. سيتم خصم <b style="color:white;">50 نقطة</b> من رصيدك.</p>
-            
+
             <input type="text" id="gift-receiver" class="auth-input" placeholder="اسم المستخدم المستلم" style="text-align: center;">
-            
+
             <button id="send-gift-btn" onclick="processGift()" style="width: 100%; padding: 14px; margin-top: 25px; background: var(--gold); color: black; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s;">إرسال الآن</button>
         </div>
     </div>
@@ -727,7 +727,7 @@
                 </div>
             </div>
             <div id="coach-area" style="margin:20px; background:var(--card); border:1px solid var(--gold); border-radius:15px; padding:15px; display:flex; align-items:center; gap:15px;"></div>
-            
+
             <div style="padding:15px;">
                 <h4>دكة البدلاء</h4>
                 <div id="subs-grid" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center;"></div>
@@ -814,15 +814,61 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkaGVhcXRkZHh4c2VubW1scmtwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MjcxNjEsImV4cCI6MjA4OTAwMzE2MX0.nFfL7_e43xY_Avm36dpS7o30OD8V8GWg8L-tLaIoaPM';
     const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+    // =====================================================
+    // وظيفة ضغط الصورة باستخدام Canvas قبل الرفع
+    // =====================================================
+    function compressImage(file, maxSize = 400, quality = 0.85) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > height) {
+                        if (width > maxSize) { height = Math.round(height * maxSize / width); width = maxSize; }
+                    } else {
+                        if (height > maxSize) { width = Math.round(width * maxSize / height); height = maxSize; }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(blob => {
+                        if (blob) resolve(blob);
+                        else reject(new Error('فشل ضغط الصورة'));
+                    }, 'image/jpeg', quality);
+                };
+                img.onerror = () => reject(new Error('فشل تحميل الصورة'));
+                img.src = e.target.result;
+            };
+            reader.onerror = () => reject(new Error('فشل قراءة الملف'));
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function uploadProfilePhoto(file, userId) {
+        const compressedBlob = await compressImage(file, 400, 0.85);
+        const filePath = `${userId}.jpg`;
+        const { error } = await _supabase.storage.from('avatars').upload(filePath, compressedBlob, {
+            contentType: 'image/jpeg',
+            upsert: true
+        });
+        if (error) throw new Error('فشل رفع الصورة: ' + error.message);
+        const { data } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+        return data.publicUrl + '?t=' + Date.now();
+    }
+
     let homeTeam = ""; let awayTeam = ""; let activeMatchId = null; let isMatchStarted = false; 
     let selectedSquadTeam = ""; let hLogoUrl = ""; let aLogoUrl = "";
-    
+
     // متغيرات الجلسة للمستخدم
     let currentUser = null;
     let currentUserPoints = 0; // متغير النقاط الجديد
     let isLoginMode = true;
     let isProfileEditMode = false; 
-    
+
     // متغيرات التصويت
     let voteEndTime = new Date().getTime();
     let voteTimerInterval = null;
@@ -869,7 +915,7 @@
                 fetchNotifications();
             }
             updateAuthUI();
-            
+
             _supabase.auth.onAuthStateChange(async (_event, session) => {
                 currentUser = session?.user || null;
                 if (currentUser) {
@@ -898,8 +944,8 @@
                 if(data.has_golden_frame === true) {
                     localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
                 }
-                if(data.avatar_url) {
-                    localStorage.setItem('profile_avatar_' + currentUser.id, data.avatar_url);
+                if(data.profile_image) {
+                    localStorage.setItem('profile_image_' + currentUser.id, data.profile_image);
                 }
             } else {
                 currentUserPoints = 0;
@@ -918,7 +964,7 @@
                 const unread = data.filter(n => !n.is_read).length;
                 const dot = document.getElementById('notif-dot');
                 if(dot) dot.style.display = unread > 0 ? 'block' : 'none';
-                
+
                 const list = document.getElementById('notif-list');
                 if(data.length === 0) {
                     list.innerHTML = '<div style="text-align:center; padding: 20px; color: var(--nav-inactive);">لا توجد إشعارات حالياً.</div>';
@@ -940,7 +986,7 @@
         if(!currentUser) { openAuthModal(); return; }
         document.getElementById('notif-modal').style.display = 'flex';
         await fetchNotifications();
-        
+
         const dot = document.getElementById('notif-dot');
         if(dot && dot.style.display === 'block') {
             dot.style.display = 'none';
@@ -955,13 +1001,13 @@
             const { data: profile, error } = await _supabase.from('profiles').select('*').eq('id', userId).maybeSingle();
             let currentPts = (profile && profile.points) ? profile.points : 0;
             let newPts = currentPts + pointsToAdd;
-            
+
             if (profile) {
                 await _supabase.from('profiles').update({ points: newPts }).eq('id', userId);
             } else {
                 await _supabase.from('profiles').insert({ id: userId, points: newPts });
             }
-            
+
             // تسجيل المكافأة بعد نجاح التحديث في الداتا بيس، وتغيير المفتاح لتحديث الحالة عندك
             localStorage.setItem('rewarded_prediction_' + matchId + '_' + userId, 'true');
             currentUserPoints = newPts;
@@ -972,17 +1018,17 @@
 
     function checkPredictionReward(matchId, hScore, aScore) {
         if (!currentUser || hScore === null || hScore === undefined) return;
-        
+
         let userPred = localStorage.getItem('voted_match_' + matchId + '_' + currentUser.id);
         // مفتاح جديد يتجاوز الحالة القديمة المعلقة
         let isRewarded = localStorage.getItem('rewarded_prediction_' + matchId + '_' + currentUser.id);
-        
+
         if (userPred && userPred !== 'true' && !isRewarded) {
             let actualResult = 'draw';
             // التحويل لأرقام لتفادي أخطاء المقارنة بين النصوص
             if (parseInt(hScore) > parseInt(aScore)) actualResult = 'home';
             else if (parseInt(aScore) > parseInt(hScore)) actualResult = 'away';
-            
+
             // تقييم التوقع الصحيح فقط لمنع حظر اللاعب من المكافأة إذا فتح المباراة والنتيجة مؤقتة ولم تنتهي بعد
             if (userPred === actualResult) {
                 awardPoints(currentUser.id, 10, matchId);
@@ -995,90 +1041,40 @@
         updateAuthUI();
     }
 
-    function getAvatarHTML(userId, savedName, hasFrame, width='65px', height='65px', fontSize='1.6rem', extraStyle='') {
-        const savedAvatar = localStorage.getItem('profile_avatar_' + userId);
-        const initials = savedName.substring(0, 2).toUpperCase();
-        const frameImgCSS = hasFrame ? 'border: 3px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8);' : '';
-        const frameTextCSS = hasFrame ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
-        if (savedAvatar) {
-            return `<img src="${savedAvatar}" style="width:${width}; height:${height}; border-radius:50%; object-fit:cover; flex-shrink:0; ${frameImgCSS} ${extraStyle}" />`;
-        }
-        return `<div class="v-comment-avatar-text" style="width:${width}; height:${height}; font-size:${fontSize}; flex-shrink:0; transition:0.3s; ${frameTextCSS} ${extraStyle}">${initials}</div>`;
-    }
-
-    async function handleAvatarChange(input) {
-        if (!input.files || !input.files[0]) return;
-        const file = input.files[0];
-        if (file.size > 3 * 1024 * 1024) {
-            alert('حجم الصورة كبير جداً. الحد الأقصى 3 ميجابايت.');
-            return;
-        }
-
-        const preview = document.getElementById('avatar-preview-edit');
-        if (preview) {
-            preview.innerHTML = `<div style="width:85px;height:85px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:1.5rem;">⏳</div>`;
-        }
-
-        try {
-            const ext = file.name.split('.').pop();
-            const filePath = `${currentUser.id}/avatar.${ext}`;
-
-            const { error: uploadError } = await _supabase.storage
-                .from('avatars')
-                .upload(filePath, file, { upsert: true, contentType: file.type });
-
-            if (uploadError) throw uploadError;
-
-            const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
-            const publicUrl = urlData.publicUrl + '?t=' + Date.now();
-
-            await _supabase.from('profiles').upsert({ id: currentUser.id, avatar_url: urlData.publicUrl });
-
-            localStorage.setItem('profile_avatar_' + currentUser.id, publicUrl);
-
-            if (preview) {
-                preview.innerHTML = `
-                    <img src="${publicUrl}" style="width:85px; height:85px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);" />
-                    <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); font-size:14px;">📷</div>
-                `;
-            }
-        } catch (err) {
-            console.error(err);
-            alert('فشل رفع الصورة: ' + (err.message || 'خطأ غير معروف'));
-            if (preview) {
-                preview.innerHTML = `<div style="width:85px;height:85px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;color:red;font-size:1.5rem;">✗</div>`;
-            }
-        }
-    }
-
     function updateAuthUI() {
         const accountContainer = document.getElementById('account-container');
         const mb = document.getElementById('market-balance');
         if(mb) mb.innerText = currentUserPoints;
-        
+
         if(!accountContainer) return;
 
         if(currentUser) {
             const defaultName = currentUser.email ? currentUser.email.split('@')[0] : 'حسابي';
             const savedName = localStorage.getItem('profile_name_' + currentUser.id) || defaultName;
-            const hasFrame = !!localStorage.getItem('has_golden_frame_' + currentUser.id);
-            const savedAvatar = localStorage.getItem('profile_avatar_' + currentUser.id);
+            const savedPhoto = localStorage.getItem('profile_image_' + currentUser.id) || '';
+
             let userInitials = savedName.substring(0, 2).toUpperCase();
-            let frameCSS = hasFrame ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
+            let frameCSS = localStorage.getItem('has_golden_frame_' + currentUser.id) ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
+
+            const avatarHtml = savedPhoto
+                ? `<img src="${savedPhoto}" style="width:65px;height:65px;border-radius:50%;object-fit:cover;flex-shrink:0;${frameCSS}">`
+                : `<div class="v-comment-avatar-text" style="width:65px;height:65px;font-size:1.6rem;flex-shrink:0;transition:0.3s;${frameCSS}">${userInitials}</div>`;
+
+            const editAvatarHtml = savedPhoto
+                ? `<img id="edit-avatar-preview" src="${savedPhoto}" style="width:80px;height:80px;border-radius:50%;object-fit:cover;${frameCSS}">`
+                : `<div id="edit-avatar-preview" class="v-comment-avatar-text" style="width:80px;height:80px;font-size:2rem;cursor:pointer;${frameCSS}">${userInitials}</div>`;
 
             if (isProfileEditMode) {
-                const avatarPreviewHTML = savedAvatar
-                    ? `<img src="${savedAvatar}" style="width:85px; height:85px; border-radius:50%; object-fit:cover; border:3px solid var(--accent);" />`
-                    : `<div class="v-comment-avatar-text" style="width:85px; height:85px; font-size:2rem; ${frameCSS}">${userInitials}</div>`;
-
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 20px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; align-items: center;">
-                        <div id="avatar-preview-edit" onclick="document.getElementById('avatar-file-input').click()" style="cursor:pointer; position:relative; width:85px; height:85px; border-radius:50%; display:flex; align-items:center; justify-content:center; overflow:visible;">
-                            ${avatarPreviewHTML}
-                            <div style="position:absolute; bottom:0; right:0; background:var(--accent); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid var(--bg); font-size:14px;">📷</div>
+                        <div style="position:relative;cursor:pointer;" onclick="document.getElementById('profile-photo-input').click()">
+                            ${editAvatarHtml}
+                            <div style="position:absolute;bottom:0;right:0;background:var(--accent);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border:2px solid var(--card);">
+                                <svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:white;"><path d="M20.71,7.04C21.1,6.65 21.1,6 20.71,5.63L18.37,3.29C18,2.9 17.35,2.9 16.96,3.29L15.12,5.12L18.87,8.87M3,17.25V21H6.75L17.81,9.93L14.06,6.18L3,17.25Z"/></svg>
+                            </div>
                         </div>
-                        <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarChange(this)">
-                        <p style="font-size:0.8rem; color:var(--nav-inactive); margin:0; text-align:center;">اضغط على الصورة لتغييرها</p>
+                        <input type="file" id="profile-photo-input" accept="image/*" style="display:none;" onchange="previewProfilePhoto(event)">
+                        <small id="photo-status" style="color:var(--nav-inactive);font-size:0.8rem;margin-top:-10px;">اضغط على الصورة لتغييرها</small>
                         <h4 style="margin: 0; color: var(--accent);">تعديل الملف الشخصي</h4>
                         <input type="text" id="profile-name-input" placeholder="أدخل اسمك" class="auth-input" value="${savedName}" style="margin-top: 5px; text-align: center; font-weight: bold; border-color: var(--border);">
                         <div style="display: flex; gap: 10px; width: 100%; margin-top: 10px;">
@@ -1091,7 +1087,7 @@
                 accountContainer.innerHTML = `
                     <div style="background: var(--card); padding: 25px 20px; border-radius: 25px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                         <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
-                            ${getAvatarHTML(currentUser.id, savedName, hasFrame)}
+                            ${avatarHtml}
                             <div style="display: flex; flex-direction: column; gap: 8px; flex: 1;">
                                 <span style="color: #00d2b5; font-size: 1.25rem; font-weight: bold;">${savedName}</span>
                                 <span style="color: #8e99a2; font-size: 0.85rem;">${currentUser.email}</span>
@@ -1101,7 +1097,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div style="background: #8e54e9; border-radius: 25px; padding: 16px 25px; display: flex; justify-content: space-between; align-items: center; color: white; font-weight: bold; margin-bottom: 25px; cursor: pointer;" onclick="alert('قسم المفضلة قريباً')">
                         <span style="font-size: 1.1rem;">المفضلة</span>
                         <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
@@ -1135,26 +1131,68 @@
         }
     }
 
+    function previewProfilePhoto(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('photo-status');
+        if (statusEl) statusEl.innerText = '✅ تم اختيار الصورة، اضغط حفظ لرفعها';
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('edit-avatar-preview');
+            if (preview) {
+                if (preview.tagName === 'IMG') {
+                    preview.src = e.target.result;
+                } else {
+                    preview.style.backgroundImage = `url(${e.target.result})`;
+                    preview.style.backgroundSize = 'cover';
+                    preview.style.backgroundRepeat = 'no-repeat';
+                    preview.style.backgroundPosition = 'center';
+                    preview.style.borderRadius = '50%';
+                    preview.innerText = '';
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
     async function saveProfile(event) {
         if(!currentUser) return;
-        
+
         const btn = event.target;
         const originalText = btn.innerText;
-        btn.innerText = "جاري الحفظ...";
         btn.disabled = true;
 
-        const nameInput = document.getElementById('profile-name-input').value;
-        localStorage.setItem('profile_name_' + currentUser.id, nameInput);
-        
+        const photoInput = document.getElementById('profile-photo-input');
+        const photoFile = photoInput && photoInput.files[0] ? photoInput.files[0] : null;
+        let newPhotoUrl = localStorage.getItem('profile_image_' + currentUser.id) || null;
+
+        if (photoFile) {
+            try {
+                btn.innerText = "جاري رفع الصورة...";
+                newPhotoUrl = await uploadProfilePhoto(photoFile, currentUser.id);
+                localStorage.setItem('profile_image_' + currentUser.id, newPhotoUrl);
+            } catch (uploadErr) {
+                console.error("Photo upload error:", uploadErr.message);
+                btn.innerText = originalText;
+                btn.disabled = false;
+                alert('حدث خطأ في رفع الصورة: ' + uploadErr.message);
+                return;
+            }
+        }
+
+        const nameToSave = document.getElementById('profile-name-input').value.trim();
+        if (nameToSave) localStorage.setItem('profile_name_' + currentUser.id, nameToSave);
+
         try {
-            const { error: dbError } = await _supabase
-                .from('profiles')
-                .upsert({ id: currentUser.id, full_name: nameInput });
+            btn.innerText = "جاري الحفظ...";
+            const updateData = { id: currentUser.id, full_name: nameToSave };
+            if (newPhotoUrl) updateData.profile_image = newPhotoUrl;
+            const { error: dbError } = await _supabase.from('profiles').upsert(updateData);
             if (dbError) console.log("DB Update Info:", dbError.message);
         } catch (error) {
             console.error("Update Error:", error.message);
         }
-        
+
         btn.innerText = originalText;
         btn.disabled = false;
         isProfileEditMode = false;
@@ -1188,20 +1226,20 @@
         const msg = document.getElementById('auth-msg');
         msg.innerText = 'جاري المعالجة...';
         msg.style.color = 'var(--accent)';
-        
+
         if(!email || !password) { 
             msg.innerText = 'يرجى إدخال البريد الإلكتروني والرمز السري'; 
             msg.style.color = '#ff4d4d'; 
             return; 
         }
-        
+
         let result;
         if(isLoginMode) {
             result = await _supabase.auth.signInWithPassword({ email, password });
         } else {
             result = await _supabase.auth.signUp({ email, password });
         }
-        
+
         if(result.error) {
             msg.innerText = result.error.message.includes('Invalid login') ? 'البيانات غير صحيحة' : 'حدث خطأ. يرجى المحاولة مرة أخرى.';
             msg.style.color = '#ff4d4d';
@@ -1222,7 +1260,7 @@
         currentUserPoints = 0;
         isProfileEditMode = false;
         updateAuthUI();
-        
+
         // إجراء عملية تسجيل الخروج من السيرفر في الخلفية
         _supabase.auth.signOut().catch(e => console.log(e));
     }
@@ -1236,7 +1274,7 @@
             const splash = document.getElementById('splash-screen');
             if(splash) { splash.style.opacity = '0'; setTimeout(() => splash.style.visibility = 'hidden', 800); }
         }, 3000);
-        
+
         checkUserSession();
     });
 
@@ -1245,7 +1283,7 @@
         document.getElementById('main-header').style.display = (t === 'boom' || t === 'vote' || t === 'market') ? 'none' : 'flex';
         document.getElementById('sec-' + t).classList.add('active');
         document.getElementById('nav-' + t).classList.add('active');
-        
+
         if(t==='m') loadMatches(); 
         else if(t==='n') loadNews(); 
         else if(t==='boom') loadBoomVideos();
@@ -1270,7 +1308,7 @@
             alert('عذراً، نقاطك غير كافية لإتمام الشراء.');
             return;
         }
-        
+
         let newPts = currentUserPoints - cost;
         try {
             await _supabase.from('profiles').update({ points: newPts, has_golden_frame: true }).eq('id', currentUser.id);
@@ -1278,7 +1316,7 @@
             localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
             alert('🎉 مبروك! تم شراء الإطار الذهبي بنجاح، سيظهر الآن حول صورتك واسمك في التعليقات.');
             updateAuthUI();
-            
+
             const btn = document.getElementById('btn-buy-frame');
             if(btn) {
                 btn.innerHTML = 'مملوك ✔️';
@@ -1319,7 +1357,7 @@
             btn.disabled = true;
             btn.style.opacity = '0.7';
         }
-        
+
         try {
             // استبدال maybeSingle() بـ limit(1) لتفادي انهيار العملية إذا كان هناك أسماء مكررة
             const { data: receiverData, error: receiverError } = await _supabase
@@ -1343,10 +1381,10 @@
             let newMyPts = currentUserPoints - 50;
             await _supabase.from('profiles').update({ points: newMyPts }).eq('id', currentUser.id);
             currentUserPoints = newMyPts;
-            
+
             let randomPts = Math.floor(Math.random() * 49) + 2; 
             let newReceiverPts = (receiver.points || 0) + randomPts;
-            
+
             await _supabase.from('profiles').update({ points: newReceiverPts }).eq('id', receiver.id);
 
             // إرسال إشعار للمستلم
@@ -1358,7 +1396,7 @@
             }]);
 
             alert(`🎁 تم إرسال الهدية بنجاح إلى "${receiverStr}"! ربح صديقك ${randomPts} نقطة (تم خصم 50 نقطة فقط من رصيدك).`);
-            
+
             updateAuthUI();
             closeModal('gift-modal');
         } catch (e) {
@@ -1375,22 +1413,22 @@
 
     function startVoteTimer() {
         if(voteTimerInterval) clearInterval(voteTimerInterval);
-        
+
         voteTimerInterval = setInterval(() => {
             const now = new Date().getTime();
             const distance = voteEndTime - now;
-            
+
             if (distance < 0) {
                 clearInterval(voteTimerInterval);
                 document.getElementById('vote-timer-nums').innerText = "00:00:00:00";
                 return;
             }
-            
+
             const days = Math.floor(distance / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            
+
             const pad = (n) => n < 10 ? '0' + n : n;
             document.getElementById('vote-timer-nums').innerText = `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
         }, 1000);
@@ -1422,14 +1460,14 @@
 
         document.getElementById('vote-cover').src = cover;
         voteEndTime = endD;
-        
+
         const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
         const getPct = (v) => totalVotes === 0 ? 0 : Math.round((v / totalVotes) * 100);
-        
+
         candidates.forEach(c => c.pct = getPct(c.votes));
-        
+
         const maxPct = Math.max(...candidates.map(c => c.pct));
-        
+
         const optionsHtml = candidates.map(c => `
             <div class="vote-bar ${c.pct === maxPct && totalVotes > 0 ? 'leading' : ''}" onclick="submitVote(${c.id})">
                 <div class="vote-fill" style="width: ${c.pct}%"></div>
@@ -1442,7 +1480,7 @@
                 </div>
             </div>
         `).join('');
-        
+
         document.getElementById('voting-options').innerHTML = optionsHtml;
         startVoteTimer();
     }
@@ -1450,7 +1488,7 @@
     async function submitVote(candidateId) {
         if (!currentUser) { openAuthModal(); return; }
         if(localStorage.getItem('voted_month_' + currentUser.id)) { alert('لقد قمت بالتصويت مسبقاً!'); return; }
-        
+
         try {
             const { data } = await _supabase.from('monthly_voting').select('*').limit(1).single();
             if(data) {
@@ -1459,7 +1497,7 @@
                 if(candidateId === 2) updatePayload.p2_votes = (data.p2_votes || 0) + 1;
                 if(candidateId === 3) updatePayload.p3_votes = (data.p3_votes || 0) + 1;
                 if(candidateId === 4) updatePayload.p4_votes = (data.p4_votes || 0) + 1;
-                
+
                 await _supabase.from('monthly_voting').update(updatePayload).eq('id', data.id);
                 localStorage.setItem('voted_month_' + currentUser.id, 'true');
                 loadVoting(); 
@@ -1490,7 +1528,7 @@
     function openMatch(id, hTeam, aTeam, started, hLogo, aLogo, hScore, aScore) { 
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; hLogoUrl = hLogo; aLogoUrl = aLogo;
         checkPredictionReward(id, hScore, aScore);
-        
+
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn active" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -1502,7 +1540,7 @@
     function openMatchToSquad(id, hTeam, aTeam, started, teamName, hLogo, aLogo, hScore, aScore) {
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; selectedSquadTeam = teamName; hLogoUrl = hLogo; aLogoUrl = aLogo;
         checkPredictionReward(id, hScore, aScore);
-        
+
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn ${teamName === hTeam ? 'active' : ''}" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn ${teamName === aTeam ? 'active' : ''}" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -1533,9 +1571,9 @@
     async function loadVisitorsArea() {
         const view = document.getElementById('visitors-view');
         view.innerHTML = '<div style="text-align:center; padding:20px; color:var(--nav-inactive);">جاري التحميل...</div>';
-        
+
         let hVotes = 0, dVotes = 0, aVotes = 0;
-        
+
         try {
             const { data: matchData } = await _supabase.from('matches').select('home_votes, draw_votes, away_votes').eq('id', activeMatchId).single();
             if(matchData) {
@@ -1567,13 +1605,13 @@
                             <div style="font-weight: 900; font-size: 1.25rem; color: white;">${ap}%</div>
                         </div>
                     </div>
-                    
+
                     <div style="display: flex; height: 10px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-bottom: 12px;">
                         <div style="width: ${hp}%; background: #00cec9; transition: width 0.5s ease-in-out;"></div>
                         <div style="width: ${dp}%; background: #4a3b8c; transition: width 0.5s ease-in-out;"></div>
                         <div style="width: ${ap}%; background: #f1c40f; transition: width 0.5s ease-in-out;"></div>
                     </div>
-                    
+
                     <div style="text-align: center; font-weight: 900; font-size: 1.1rem; color: white;">
                         ${dp}%
                     </div>
@@ -1598,7 +1636,7 @@
                 <button class="comment-send-btn" onclick="sendVisitorComment()"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg></button>
                 <input type="text" id="visitor-msg" placeholder="اكتب تعليقك هنا...">
             </div>
-            
+
             <div id="visitors-comments-list"></div>
         `;
 
@@ -1618,7 +1656,7 @@
                 if (type === 'home') updates.home_votes = (data.home_votes || 0) + 1;
                 if (type === 'draw') updates.draw_votes = (data.draw_votes || 0) + 1;
                 if (type === 'away') updates.away_votes = (data.away_votes || 0) + 1;
-                
+
                 await _supabase.from('matches').update(updates).eq('id', activeMatchId);
                 localStorage.setItem(storageKey, type);
                 loadVisitorsArea(); 
@@ -1631,7 +1669,7 @@
     function buildCommentHTML(c, isReply = false) {
         const uName = c.user_name || 'ضيف';
         const initials = uName.substring(0, 2);
-        
+
         const cDate = new Date(c.created_at);
         const timeDiff = Math.floor((new Date() - cDate) / 1000);
         let timeStr = 'الآن';
@@ -1641,33 +1679,19 @@
 
         let likeClass = ''; let dislikeClass = '';
         let frameStyle = '';
-        let hasFrame = false;
-        
+
         if (currentUser) {
             if (localStorage.getItem(`v_likes_${c.id}_${currentUser.id}`)) likeClass = 'active-like';
             if (localStorage.getItem(`v_dislikes_${c.id}_${currentUser.id}`)) dislikeClass = 'active-dislike';
         }
 
+        // التحقق من امتلاك المستخدم للإطار الذهبي وعرضه للجميع سواء كان التعليق له أو لغيره
         if (c.has_golden_frame || (currentUser && c.user_id === currentUser.id && localStorage.getItem('has_golden_frame_' + currentUser.id))) {
             frameStyle = 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6); color: #f1c40f;';
-            hasFrame = true;
-        }
-
-        const isMyComment = currentUser && c.user_id === currentUser.id;
-        const myAvatar = isMyComment ? localStorage.getItem('profile_avatar_' + currentUser.id) : null;
-        
-        let avatarElement;
-        const avatarSize = isReply ? '35px' : '45px';
-        const avatarFontSize = isReply ? '0.9rem' : '1.1rem';
-        if (myAvatar) {
-            const imgFrame = hasFrame ? 'border: 2px solid #f1c40f; box-shadow: 0 0 8px rgba(241,196,15,0.6);' : '';
-            avatarElement = `<img src="${myAvatar}" style="width:${avatarSize}; height:${avatarSize}; border-radius:50%; object-fit:cover; flex-shrink:0; ${imgFrame}" />`;
-        } else {
-            avatarElement = `<div class="v-comment-avatar-text" style="width:${avatarSize}; height:${avatarSize}; font-size:${avatarFontSize}; ${frameStyle}">${initials}</div>`;
         }
 
         const replyAction = !isReply ? `<span class="v-comment-reply" onclick="toggleReplyBox(event, '${c.id}')">رد</span>` : `<span></span>`;
-        
+
         const authorIdSafe = c.user_id || '';
 
         const replyInputBox = !isReply ? `
@@ -1690,7 +1714,7 @@
              onmouseup="cancelCommentLongPress()"
              onmouseleave="cancelCommentLongPress()"
              style="${isReply ? 'margin-bottom: 15px; margin-right: 10px;' : 'margin-bottom: 25px;'}">
-            ${avatarElement}
+            <div class="v-comment-avatar-text" style="${isReply ? 'width: 35px; height: 35px; font-size: 0.9rem;' : ''} ${frameStyle}">${initials}</div>
             <div class="v-comment-content">
                 <div class="v-comment-header">
                     <span class="v-comment-author" style="${isReply ? 'font-size: 0.85rem;' : ''}">${uName}</span>
@@ -1714,7 +1738,7 @@
         const list = document.getElementById('visitors-comments-list');
         try {
             const { data, error } = await _supabase.from('match_comments').select('*').eq('match_id', activeMatchId).order('created_at', { ascending: true });
-            
+
             if (error || !data || data.length === 0) {
                 list.innerHTML = '<div style="text-align:center; color:var(--nav-inactive); margin-top:20px;">لا توجد تعليقات بعد. كن أول من يعلق!</div>';
                 return;
@@ -1772,18 +1796,18 @@
         if(!text) return;
 
         const userName = localStorage.getItem('profile_name_' + currentUser.id) || currentUser.email.split('@')[0];
-        
+
         try {
             const { error } = await _supabase.from('match_comments').insert([
                 { match_id: activeMatchId, user_id: currentUser.id, user_name: userName, comment: text, likes: 0, dislikes: 0, parent_id: parentId }
             ]);
-            
+
             if (error) {
                 if(error.message.includes('parent_id')) alert('لتعمل ميزة الردود، يرجى التأكد من إضافة عمود parent_id.');
                 else alert('حدث خطأ أثناء إرسال الرد.');
                 return;
             }
-            
+
             input.value = '';
             loadComments(); 
         } catch (e) { alert('حدث خطأ أثناء إرسال الرد.'); }
@@ -1796,7 +1820,7 @@
         if(!text) return;
 
         const userName = localStorage.getItem('profile_name_' + currentUser.id) || currentUser.email.split('@')[0];
-        
+
         try {
             await _supabase.from('match_comments').insert([
                 { match_id: activeMatchId, user_id: currentUser.id, user_name: userName, comment: text, likes: 0, dislikes: 0 }
@@ -1809,10 +1833,10 @@
     async function toggleCommentLike(e, commentId, btn, type) {
         if (e) e.stopPropagation(); 
         if (!currentUser) { openAuthModal(); return; }
-        
+
         const storageKey = `v_${type}_${commentId}_${currentUser.id}`;
         const isLiked = localStorage.getItem(storageKey);
-        
+
         const span = btn.querySelector('span');
         let currentVal = parseInt(span.textContent) || 0;
         let newVal;
@@ -1919,7 +1943,7 @@
             const p = item.players; if(!p) return;
             const roles = (item.role || '').toLowerCase();
             let statsIcons = '';
-            
+
             if (item.goals > 0) statsIcons += `<div class="pl-badge badge-goal">⚽${item.goals>1?item.goals:''}</div>`;
             if (item.assists > 0) statsIcons += `<div class="pl-badge badge-assist">👟${item.assists>1?item.assists:''}</div>`;
             if (item.yellow_cards > 0) statsIcons += `<div class="pl-badge badge-card badge-yellow"></div>`;
@@ -1939,7 +1963,7 @@
                     </div>
                     <span class="pl-name">${p.player_name}</span>
                 </div>`;
-            
+
             if(roles.includes('co')) coach.innerHTML = `<div onclick='openDetails(${JSON.stringify(item)})' style="display:flex; align-items:center; gap:15px; width:100%; cursor:pointer;"><img src="${p.player_image}" width="50" style="border-radius:50%;"><div><small>المدرب</small><br><b>${p.player_name}</b></div></div>`;
             else if (roles.includes('ev') || roles.includes('inf')) { document.getElementById('bench-absent-area').style.display='block'; absentGrid.innerHTML += getHtml(false); }
             else if (roles.includes('out')) { document.getElementById('bench-out-area').style.display='block'; out.innerHTML += getHtml(false); }
@@ -2001,10 +2025,10 @@
 
         const span = btn.querySelector('span');
         let currentLikes = parseInt(span.innerText) || 0;
-        
+
         const storageKey = 'liked_news_' + newsId + '_' + currentUser.id;
         const isLiked = localStorage.getItem(storageKey);
-        
+
         if (isLiked) {
             currentLikes = Math.max(0, currentLikes - 1);
             btn.classList.remove('liked');
@@ -2100,12 +2124,12 @@
 
     async function triggerRefresh() {
         ptrEl.classList.add('visible');
-        
+
         // إخفاء المؤشر بعد 1.5 ثانية لكي يظهر قليلاً ويختفي بشكل جميل دون أن يعلق
         setTimeout(() => {
             ptrEl.classList.remove('visible');
         }, 1500);
-        
+
         // التحديث حسب القسم النشط
         if(document.getElementById('sec-m').classList.contains('active')) loadMatches();
         else if(document.getElementById('sec-n').classList.contains('active')) loadNews();
