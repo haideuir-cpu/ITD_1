@@ -511,6 +511,36 @@
         }
         .ptr-spin { animation: spin 1s linear infinite; stroke: var(--accent); }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- Skeleton Loader --- */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .skeleton-line {
+            height: 14px; border-radius: 8px; margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--card) 25%, var(--border) 50%, var(--card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .skeleton-circle {
+            border-radius: 50%;
+            background: linear-gradient(90deg, var(--card) 25%, var(--border) 50%, var(--card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            flex-shrink: 0;
+        }
+        .skeleton-rect {
+            border-radius: 8px;
+            background: linear-gradient(90deg, var(--card) 25%, var(--border) 50%, var(--card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .skeleton-card {
+            background: var(--card); margin-bottom: 12px; padding: 15px;
+            border-radius: 12px; border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 15px;
+        }
     </style>
 </head>
 <body>
@@ -949,6 +979,7 @@
     // دالة فتح نافذة الإشعارات
     async function openNotifications() {
         if(!currentUser) { openAuthModal(); return; }
+        history.pushState({modal: 'notif-modal'}, '');
         document.getElementById('notif-modal').style.display = 'flex';
         await fetchNotifications();
 
@@ -1175,6 +1206,7 @@
         document.getElementById('auth-msg').innerText = '';
         isLoginMode = true;
         updateAuthFormUI();
+        history.pushState({modal: 'auth-modal'}, '');
         document.getElementById('auth-modal').style.display = 'flex';
     }
 
@@ -1264,7 +1296,21 @@
     async function loadTransfers() {
         const container = document.getElementById('transfers-list-container');
         if (!container) return;
-        container.innerHTML = `<div class="transfers-empty"><div style="font-size:1.5rem; margin-bottom:10px;">⏳</div><div>جاري التحميل...</div></div>`;
+        container.innerHTML = Array(3).fill(0).map(() => `
+            <div class="skeleton-card" style="border-radius:14px; padding:14px 10px; justify-content:space-between;">
+                <div style="width:30%; display:flex; flex-direction:column; align-items:center; gap:8px;">
+                    <div class="skeleton-circle" style="width:50px;height:50px;"></div>
+                    <div class="skeleton-line" style="width:70%;height:10px;margin:0;"></div>
+                </div>
+                <div style="width:36%; display:flex; flex-direction:column; align-items:center; gap:8px;">
+                    <div class="skeleton-circle" style="width:62px;height:62px;"></div>
+                    <div class="skeleton-line" style="width:80%;height:10px;margin:0;"></div>
+                </div>
+                <div style="width:30%; display:flex; flex-direction:column; align-items:center; gap:8px;">
+                    <div class="skeleton-circle" style="width:50px;height:50px;"></div>
+                    <div class="skeleton-line" style="width:70%;height:10px;margin:0;"></div>
+                </div>
+            </div>`).join('');
 
         try {
             const { data, error } = await _supabase
@@ -1352,6 +1398,7 @@
             return;
         }
         document.getElementById('gift-receiver').value = '';
+        history.pushState({modal: 'gift-modal'}, '');
         document.getElementById('gift-modal').style.display = 'flex';
     }
 
@@ -1523,6 +1570,14 @@
     }
 
     async function loadMatches() {
+        document.getElementById('sec-m').innerHTML = Array(4).fill(0).map(() => `
+            <div class="skeleton-card">
+                <div class="skeleton-circle" style="width:50px;height:50px;"></div>
+                <div style="flex:1;"><div class="skeleton-line" style="width:55%;"></div><div class="skeleton-line" style="width:35%;height:10px;"></div></div>
+                <div class="skeleton-rect" style="width:80px;height:42px;border-radius:10px;margin:0 8px;"></div>
+                <div style="flex:1;text-align:left;"><div class="skeleton-line" style="width:55%;margin-right:auto;"></div><div class="skeleton-line" style="width:35%;height:10px;margin-right:auto;"></div></div>
+                <div class="skeleton-circle" style="width:50px;height:50px;"></div>
+            </div>`).join('');
         const { data } = await _supabase.from('matches').select('*').order('created_at', {ascending: false});
         document.getElementById('sec-m').innerHTML = data?.map(m => {
             const hasScore = m.home_score !== null;
@@ -1546,6 +1601,7 @@
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; hLogoUrl = hLogo; aLogoUrl = aLogo;
         checkPredictionReward(id, hScore, aScore);
 
+        history.pushState({modal: 'm-modal'}, '');
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn active" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -1558,6 +1614,7 @@
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; selectedSquadTeam = teamName; hLogoUrl = hLogo; aLogoUrl = aLogo;
         checkPredictionReward(id, hScore, aScore);
 
+        history.pushState({modal: 'm-modal'}, '');
         document.getElementById('m-modal').style.display = 'flex'; 
         document.getElementById('m-title').innerText = `${hTeam} vs ${aTeam}`;
         const selectors = `<div class="t-btn ${teamName === hTeam ? 'active' : ''}" onclick="loadDataForTeam('${hTeam}')">${hTeam}</div><div class="t-btn ${teamName === aTeam ? 'active' : ''}" onclick="loadDataForTeam('${aTeam}')">${aTeam}</div>`;
@@ -1587,7 +1644,13 @@
 
     async function loadVisitorsArea() {
         const view = document.getElementById('visitors-view');
-        view.innerHTML = '<div style="text-align:center; padding:20px; color:var(--nav-inactive);">جاري التحميل...</div>';
+        view.innerHTML = `<div style="padding:15px;">
+                <div class="skeleton-line" style="width:40%;height:12px;margin-bottom:15px;"></div>
+                <div class="skeleton-rect" style="height:120px;margin-bottom:25px;border-radius:15px;"></div>
+                <div class="skeleton-line" style="width:100%;"></div>
+                <div class="skeleton-line" style="width:100%;"></div>
+                <div class="skeleton-line" style="width:70%;"></div>
+            </div>`;
 
         let hVotes = 0, dVotes = 0, aVotes = 0;
 
@@ -1944,6 +2007,7 @@
         document.getElementById('p-motm').innerText = p.motm_count || 0;
         document.getElementById('p-pen-scored').innerText = p.penalties_scored || 0;
         document.getElementById('p-pen-missed').innerText = p.penalties_missed || 0;
+        history.pushState({modal: 'p-modal'}, '');
         document.getElementById('p-modal').style.display = 'flex';
     }
 
@@ -2033,6 +2097,7 @@
             document.getElementById('s-name').innerText = data.stadium_name || 'غير معروف';
             document.getElementById('s-type').innerText = data.stadium_type || 'طبيعي';
             document.getElementById('s-loc').innerText = data.stadium_location || '---';
+            history.pushState({modal: 's-modal'}, '');
             document.getElementById('s-modal').style.display = 'flex';
         }
     }
@@ -2060,6 +2125,14 @@
     }
 
     async function loadNews() {
+        document.getElementById('sec-n').innerHTML = Array(3).fill(0).map(() => `
+            <div style="background:var(--card); margin-bottom:15px; border-radius:12px; overflow:hidden; border: 1px solid var(--border);">
+                <div class="skeleton-rect" style="width:100%;height:200px;border-radius:0;"></div>
+                <div style="padding:15px;">
+                    <div class="skeleton-line" style="width:80%;"></div>
+                    <div class="skeleton-line" style="width:50%;height:10px;"></div>
+                </div>
+            </div>`).join('');
         const { data } = await _supabase.from('news').select('*').order('created_at', {ascending: false});
         document.getElementById('sec-n').innerHTML = data?.map(n => {
             let isLikedClass = '';
@@ -2087,27 +2160,57 @@
         }
         list.innerHTML = data.map(v => {
             let rawUrl = v.video_url || "";
-            let embedHtml = "";
+            let embedUrl = rawUrl;
+            let extraAttrs = 'allowfullscreen';
             if (rawUrl.includes("youtube.com") || rawUrl.includes("youtu.be")) {
-                let embedUrl = rawUrl;
                 if (rawUrl.includes("watch?v=")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("watch?v=")[1].split("&")[0];
                 else if (rawUrl.includes("youtu.be/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("youtu.be/")[1].split("?")[0];
                 else if (rawUrl.includes("shorts/")) embedUrl = "https://www.youtube.com/embed/" + rawUrl.split("shorts/")[1].split("?")[0];
-                embedHtml = `<iframe src="${embedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-            } 
-            else if (rawUrl.includes("tiktok.com")) {
-                let videoIdMatch = rawUrl.match(/video\/(\d+)/);
-                if (videoIdMatch) embedHtml = `<iframe src="https://www.tiktok.com/embed/v2/${videoIdMatch[1]}" allowfullscreen scrolling="no"></iframe>`;
-            } 
-            else if (rawUrl.includes("instagram.com")) {
-                embedHtml = `<iframe src="${rawUrl.split("?")[0]}embed/" allowtransparency="true" scrolling="no"></iframe>`;
-            } 
-            else embedHtml = `<iframe src="${rawUrl}" allowfullscreen></iframe>`;
-            return `<div class="boom-item"><div class="boom-video-wrapper">${embedHtml}</div><div class="boom-info"><h3>${v.title || ''}</h3><p>${v.description || ''}</p></div></div>`;
+                extraAttrs = 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen';
+            } else if (rawUrl.includes("tiktok.com")) {
+                const m = rawUrl.match(/video\/(\d+)/);
+                embedUrl = m ? `https://www.tiktok.com/embed/v2/${m[1]}` : '';
+                extraAttrs = 'allowfullscreen scrolling="no"';
+            } else if (rawUrl.includes("instagram.com")) {
+                embedUrl = rawUrl.split("?")[0] + "embed/";
+                extraAttrs = 'allowtransparency="true" scrolling="no"';
+            }
+            if (!embedUrl) return '';
+            return `<div class="boom-item"><div class="boom-video-wrapper"><iframe data-src="${embedUrl}" ${extraAttrs} style="width:100%;height:100%;border:none;position:absolute;top:0;left:0;"></iframe></div><div class="boom-info"><h3>${v.title || ''}</h3><p>${v.description || ''}</p></div></div>`;
         }).join('');
+
+        const boomObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const iframe = entry.target.querySelector('iframe[data-src]');
+                    if (iframe) {
+                        iframe.src = iframe.dataset.src;
+                        iframe.removeAttribute('data-src');
+                    }
+                    boomObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.25 });
+
+        list.querySelectorAll('.boom-item').forEach(item => boomObserver.observe(item));
     }
 
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+    function closeModal(id, fromPopState) {
+        document.getElementById(id).style.display = 'none';
+        if (!fromPopState && history.state && history.state.modal === id) history.back();
+    }
+
+    window.addEventListener('popstate', function() {
+        const modals = ['m-modal', 'p-modal', 's-modal', 'auth-modal', 'gift-modal', 'notif-modal'];
+        for (const id of modals) {
+            const el = document.getElementById(id);
+            if (el && el.style.display === 'flex') {
+                closeModal(id, true);
+                break;
+            }
+        }
+    });
+
     loadMatches();
 
     // --- منطق وظيفة السحب للتحديث (Pull to Refresh) ---
