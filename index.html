@@ -994,7 +994,9 @@
                 if(data.has_golden_frame === true) {
                     localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
                 }
-                if(data.profile_image) {
+                if(data.avatars_url) {
+                    localStorage.setItem('profile_image_' + currentUser.id, data.avatars_url);
+                } else if(data.profile_image) {
                     localStorage.setItem('profile_image_' + currentUser.id, data.profile_image);
                 }
             } else {
@@ -1226,14 +1228,20 @@
 
         if (photoFile) {
             try {
-                btn.innerText = "جاري ضغط الصورة...";
-                showStatus('جاري ضغط الصورة...');
-                const base64 = await compressImageToBase64(photoFile, 400, 0.82);
-                newPhotoUrl = base64;
-                localStorage.setItem('profile_image_' + currentUser.id, base64);
-                showStatus('✅ تم ضغط الصورة، جاري الحفظ...', '#2ecc71');
-            } catch (compErr) {
-                showErr('فشل ضغط الصورة: ' + (compErr.message || ''));
+                btn.innerText = "جاري رفع الصورة...";
+                showStatus('جاري رفع الصورة...');
+                const fileExt = photoFile.name.split('.').pop() || 'jpg';
+                const filePath = `${currentUser.id}/avatar.${fileExt}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('avatars')
+                    .upload(filePath, photoFile, { upsert: true, contentType: photoFile.type });
+                if (uploadError) { showErr('فشل رفع الصورة: ' + uploadError.message); return; }
+                const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+                newPhotoUrl = urlData.publicUrl + '?t=' + Date.now();
+                localStorage.setItem('profile_image_' + currentUser.id, newPhotoUrl);
+                showStatus('✅ تم رفع الصورة، جاري الحفظ...', '#2ecc71');
+            } catch (uploadErr) {
+                showErr('خطأ في الرفع: ' + (uploadErr.message || ''));
                 return;
             }
         }
@@ -1241,7 +1249,7 @@
         try {
             btn.innerText = "جاري الحفظ...";
             const updateData = { id: currentUser.id, full_name: nameToSave };
-            if (newPhotoUrl) updateData.profile_image = newPhotoUrl;
+            if (newPhotoUrl) updateData.avatars_url = newPhotoUrl;
             const { error: dbError } = await _supabase.from('profiles').upsert(updateData);
             if (dbError) { showErr('خطأ في الحفظ: ' + dbError.message); return; }
         } catch (error) {
