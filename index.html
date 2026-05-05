@@ -595,6 +595,87 @@
             border-radius: 12px; border: 1px solid var(--border);
             display: flex; align-items: center; gap: 15px;
         }
+
+        /* --- تنسيقات التشكيلة المتوقعة --- */
+        .predicted-banner {
+            background: linear-gradient(135deg, #0d1b35, #162029);
+            border: 1px solid var(--accent);
+            border-radius: 14px;
+            margin: 12px 12px 0 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .predicted-banner h4 {
+            color: var(--accent);
+            margin: 0 0 6px 0;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+        .predicted-banner p {
+            color: var(--nav-inactive);
+            font-size: 0.78rem;
+            margin: 0 0 14px 0;
+            line-height: 1.5;
+        }
+        .pred-format-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .pred-format-btn {
+            flex: 1;
+            max-width: 140px;
+            padding: 10px 8px;
+            border-radius: 25px;
+            border: 2px solid var(--accent);
+            background: transparent;
+            color: var(--accent);
+            font-weight: bold;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .pred-format-btn:active { transform: scale(0.95); }
+        .pred-format-btn.active-format {
+            background: var(--accent);
+            color: white;
+        }
+        .pred-stat-badge {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30,144,255,0.9);
+            color: white;
+            font-size: 8px;
+            padding: 2px 5px;
+            border-radius: 8px;
+            white-space: nowrap;
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 20;
+        }
+        .predicted-label {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            background: rgba(0,0,0,0.75);
+            color: #f1c40f;
+            border: 1px solid #f1c40f;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 100;
+            animation: pulse 2s infinite ease-in-out;
+        }
+        .pred-loading-msg {
+            color: var(--nav-inactive);
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 12px;
+            grid-column: 1 / -1;
+        }
     </style>
 </head>
 <body>
@@ -958,6 +1039,7 @@
 
     let homeTeam = ""; let awayTeam = ""; let activeMatchId = null; let isMatchStarted = false; 
     let selectedSquadTeam = ""; let hLogoUrl = ""; let aLogoUrl = "";
+    let activeMatchType = '11';
 
     // متغيرات الجلسة للمستخدم
     let currentUser = null;
@@ -1118,19 +1200,18 @@
     }
 
     function checkPredictionReward(matchId, hScore, aScore) {
+        // لا نكافئ إذا لم تبدأ المباراة (القيمة null أو "A")
         if (!currentUser || hScore === null || hScore === undefined) return;
+        if (String(hScore).toUpperCase() === 'A' || String(aScore).toUpperCase() === 'A') return;
 
         let userPred = localStorage.getItem('voted_match_' + matchId + '_' + currentUser.id);
-        // مفتاح جديد يتجاوز الحالة القديمة المعلقة
         let isRewarded = localStorage.getItem('rewarded_prediction_' + matchId + '_' + currentUser.id);
 
         if (userPred && userPred !== 'true' && !isRewarded) {
             let actualResult = 'draw';
-            // التحويل لأرقام لتفادي أخطاء المقارنة بين النصوص
             if (parseInt(hScore) > parseInt(aScore)) actualResult = 'home';
             else if (parseInt(aScore) > parseInt(hScore)) actualResult = 'away';
 
-            // تقييم التوقع الصحيح فقط لمنع حظر اللاعب من المكافأة إذا فتح المباراة والنتيجة مؤقتة ولم تنتهي بعد
             if (userPred === actualResult) {
                 awardPoints(currentUser.id, 10, matchId);
             }
@@ -1805,25 +1886,31 @@
             </div>`).join('');
         const { data } = await _supabase.from('matches').select('*').order('created_at', {ascending: false});
         document.getElementById('sec-m').innerHTML = data?.map(m => {
-            const hasScore = m.home_score !== null;
+            // المباراة تعتبر لم تبدأ إذا كان home_score فارغاً أو يساوي "A"
+            const hasScore = m.home_score !== null && String(m.home_score).toUpperCase() !== 'A';
+            const mType = m.match_type || '11';
+            const hS = m.home_score ?? '';
+            const aS = m.away_score ?? '';
             return `
                 <div class="match-card">
-                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', '${hS}', '${aS}', '${mType}')">
                         <img src="${m.home_team_logo}" width="40"><br><small>${m.home_team_name}</small>
                     </div>
-                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
-                        ${hasScore ? `<div class="score-val">${m.home_score} - ${m.away_score}</div>` : `<div class="time-badge">${m.match_time || 'قريباً'}</div>`}
+                    <div class="score-clickable" onclick="openMatch(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.home_team_logo}', '${m.away_team_logo}', '${hS}', '${aS}', '${mType}')">
+                        ${hasScore ? `<div class="score-val">${hS} - ${aS}</div>` : `<div class="time-badge">${m.match_time || 'قريباً'}</div>`}
                         ${(hasScore && m.home_penalty !== null) ? `<span class="pen-text">ركلات: (${m.home_penalty}) - (${m.away_penalty})</span>` : ''}
                     </div>
-                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', ${m.home_score}, ${m.away_score})">
+                    <div class="team-clickable" onclick="openMatchToSquad(${m.id}, '${m.home_team_name}', '${m.away_team_name}', ${hasScore}, '${m.away_team_name}', '${m.home_team_logo}', '${m.away_team_logo}', '${hS}', '${aS}', '${mType}')">
                         <img src="${m.away_team_logo}" width="40"><br><small>${m.away_team_name}</small>
                     </div>
                 </div>`;
         }).join('');
     }
 
-    function openMatch(id, hTeam, aTeam, started, hLogo, aLogo, hScore, aScore) { 
+    function openMatch(id, hTeam, aTeam, started, hLogo, aLogo, hScore, aScore, matchType) { 
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; hLogoUrl = hLogo; aLogoUrl = aLogo;
+        activeMatchType = matchType || '11';
+        predictedLineupFormat = parseInt(activeMatchType) === 7 ? 7 : 11;
         checkPredictionReward(id, hScore, aScore);
 
         history.pushState({modal: 'm-modal'}, '');
@@ -1835,8 +1922,10 @@
         switchMatchTab('lineup'); 
     }
 
-    function openMatchToSquad(id, hTeam, aTeam, started, teamName, hLogo, aLogo, hScore, aScore) {
+    function openMatchToSquad(id, hTeam, aTeam, started, teamName, hLogo, aLogo, hScore, aScore, matchType) {
         activeMatchId = id; homeTeam = hTeam; awayTeam = aTeam; isMatchStarted = started; selectedSquadTeam = teamName; hLogoUrl = hLogo; aLogoUrl = aLogo;
+        activeMatchType = matchType || '11';
+        predictedLineupFormat = parseInt(activeMatchType) === 7 ? 7 : 11;
         checkPredictionReward(id, hScore, aScore);
 
         history.pushState({modal: 'm-modal'}, '');
@@ -2236,6 +2325,220 @@
         document.getElementById('p-modal').style.display = 'flex';
     }
 
+    // ====================================================
+    // خوارزمية التشكيلة المتوقعة
+    // ====================================================
+    let predictedLineupFormat = 11;
+    let _currentPredictedTeam = '';
+
+    function _getPredictedZone(posKey, playerNaturalPos) {
+        if (!posKey) {
+            const np = (playerNaturalPos || '').toUpperCase();
+            if (np.includes('GK') || np.includes('حارس')) return 'GK';
+            if (np.includes('CB') || np.includes('LB') || np.includes('RB') || np.includes('WB') || np.includes('مدافع') || np.includes('ظهير')) return 'D';
+            if (np.includes('CM') || np.includes('LM') || np.includes('RM') || np.includes('AM') || np.includes('وسط')) return 'M';
+            if (np.includes('LW') || np.includes('RW') || np.includes('ST') || np.includes('CF') || np.includes('جناح') || np.includes('مهاجم')) return 'F';
+            return 'M';
+        }
+        const pk = posKey.toUpperCase();
+        if (pk === 'GK') return 'GK';
+        const pd = POSITIONS[posKey];
+        if (pd) {
+            if (pd.t >= 82 && pk !== 'GK') return 'D';
+            return pd.zone;
+        }
+        return 'M';
+    }
+
+    async function buildPredictedLineup(teamFilter, format) {
+        predictedLineupFormat = format;
+        _currentPredictedTeam = teamFilter;
+
+        // نحفظ معرف المباراة الحالية لنتأكد أن النتيجة لا تكتب على مباراة أخرى
+        const capturedMatchId = activeMatchId;
+
+        const field = document.getElementById('pitch-field');
+        const badge = document.getElementById('formation-badge');
+        const subs = document.getElementById('subs-grid');
+
+        const pitchBase = `<div class="box-top"></div><div class="goal-top"></div><div class="arc-top"></div><div class="spot-top"></div><div class="box-bottom"></div><div class="goal-bottom"></div><div class="arc-bottom"></div><div class="spot-bottom"></div>`;
+        field.innerHTML = pitchBase;
+        subs.innerHTML = '<div class="pred-loading-msg">جاري تحليل بيانات المباريات السابقة...</div>';
+        badge.innerText = '...';
+
+        const existingLabel = document.querySelector('.predicted-label');
+        if (existingLabel) existingLabel.remove();
+
+        try {
+            const { data: completedMatches } = await _supabase
+                .from('matches')
+                .select('id')
+                .not('home_score', 'is', null);
+
+            if (!completedMatches || completedMatches.length === 0) {
+                subs.innerHTML = '<div class="pred-loading-msg">لا توجد مباريات سابقة لتحليل البيانات</div>';
+                badge.innerText = '-- : -- : --';
+                return;
+            }
+
+            const matchIds = completedMatches.map(m => m.id);
+
+            const { data: history } = await _supabase
+                .from('match_lineups')
+                .select('player_id, position, players(*)')
+                .in('match_id', matchIds)
+                .eq('team_name', teamFilter)
+                .ilike('role', '%starter%');
+
+            if (!history || history.length === 0) {
+                subs.innerHTML = '<div class="pred-loading-msg">لا توجد بيانات كافية عن تشكيلات هذا الفريق</div>';
+                badge.innerText = '-- : -- : --';
+                return;
+            }
+
+            const playerStats = {};
+            history.forEach(entry => {
+                if (!entry.player_id || !entry.players) return;
+                const pid = entry.player_id;
+                if (!playerStats[pid]) {
+                    playerStats[pid] = { player: entry.players, appearances: 0, positions: {} };
+                }
+                playerStats[pid].appearances++;
+                const slotKey = entry.position || '';
+                if (slotKey) playerStats[pid].positions[slotKey] = (playerStats[pid].positions[slotKey] || 0) + 1;
+            });
+
+            Object.values(playerStats).forEach(ps => {
+                const entries = Object.entries(ps.positions);
+                ps.mostCommonSlot = entries.length ? entries.sort((a, b) => b[1] - a[1])[0][0] : null;
+                ps.zone = _getPredictedZone(ps.mostCommonSlot, ps.player.position);
+            });
+
+            const classified = { GK: [], D: [], M: [], F: [] };
+            Object.values(playerStats).forEach(ps => {
+                (classified[ps.zone] = classified[ps.zone] || []).push(ps);
+            });
+            Object.keys(classified).forEach(z => classified[z].sort((a, b) => b.appearances - a.appearances));
+
+            let formationSlots, formationLabel;
+            if (format === 7) {
+                formationSlots = [
+                    { slot: 'GK',  zone: 'GK' },
+                    { slot: 'CB1', zone: 'D'  },
+                    { slot: 'CB2', zone: 'D'  },
+                    { slot: 'LM',  zone: 'M'  },
+                    { slot: 'CM3', zone: 'M'  },
+                    { slot: 'RM',  zone: 'M'  },
+                    { slot: 'ST',  zone: 'F'  },
+                ];
+                formationLabel = '2-3-1';
+            } else {
+                formationSlots = [
+                    { slot: 'GK',  zone: 'GK' },
+                    { slot: 'LB',  zone: 'D'  },
+                    { slot: 'CB1', zone: 'D'  },
+                    { slot: 'CB2', zone: 'D'  },
+                    { slot: 'RB',  zone: 'D'  },
+                    { slot: 'LM',  zone: 'M'  },
+                    { slot: 'CM3', zone: 'M'  },
+                    { slot: 'RM',  zone: 'M'  },
+                    { slot: 'LW',  zone: 'F'  },
+                    { slot: 'ST',  zone: 'F'  },
+                    { slot: 'RW',  zone: 'F'  },
+                ];
+                formationLabel = '4-3-3';
+            }
+
+            const usedIds = new Set();
+            const zoneIdx = { GK: 0, D: 0, M: 0, F: 0 };
+            const assigned = [];
+            const allSorted = Object.values(playerStats).sort((a, b) => b.appearances - a.appearances);
+
+            formationSlots.forEach(fp => {
+                const pool = classified[fp.zone] || [];
+                let picked = null;
+                for (let i = zoneIdx[fp.zone]; i < pool.length; i++) {
+                    if (!usedIds.has(pool[i].player.id)) {
+                        picked = pool[i];
+                        zoneIdx[fp.zone] = i + 1;
+                        break;
+                    }
+                }
+                if (!picked) {
+                    for (const ps of allSorted) {
+                        if (!usedIds.has(ps.player.id)) { picked = ps; break; }
+                    }
+                }
+                if (picked) { usedIds.add(picked.player.id); assigned.push({ slot: fp.slot, ps: picked }); }
+            });
+
+            // إذا غيّر المستخدم المباراة أثناء التحميل، لا نكتب على التشكيلة الجديدة
+            if (activeMatchId !== capturedMatchId) return;
+
+            field.innerHTML = pitchBase;
+
+            const pitchContainer = document.querySelector('.pitch-container');
+            if (pitchContainer) {
+                const lbl = document.createElement('div');
+                lbl.className = 'predicted-label';
+                lbl.innerText = 'تشكيلة متوقعة';
+                pitchContainer.appendChild(lbl);
+            }
+
+            let d = 0, m = 0, f = 0;
+            assigned.forEach(({ slot, ps }) => {
+                const posData = POSITIONS[slot] || { t: 50, l: 50, zone: 'M' };
+                const p = ps.player;
+                if (slot !== 'GK') {
+                    if (posData.zone === 'D') d++;
+                    else if (posData.zone === 'M') m++;
+                    else f++;
+                }
+                const safeP = JSON.stringify(p).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                const div = document.createElement('div');
+                div.className = 'pl-pin';
+                div.style.top = posData.t + '%';
+                div.style.left = posData.l + '%';
+                div.innerHTML = `
+                    <div onclick='openPlayerDirect(${safeP})'>
+                        <div class="pl-img-w" style="position:relative;">
+                            <div class="pl-number">${p.player_number || ''}</div>
+                            <img src="${p.player_image}" onerror="this.src='https://via.placeholder.com/50/162029/1e90ff?text=؟'">
+                            <div class="pred-stat-badge">${ps.appearances} مباراة</div>
+                        </div>
+                        <span class="pl-name">${p.player_name}</span>
+                    </div>`;
+                field.appendChild(div);
+            });
+
+            badge.innerText = `${d}-${m}-${f}`;
+
+            const remaining = allSorted.filter(ps => !usedIds.has(ps.player.id)).slice(0, 8);
+            if (remaining.length > 0) {
+                subs.innerHTML = remaining.map(ps => {
+                    const safeP = JSON.stringify(ps.player).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                    return `<div onclick='openPlayerDirect(${safeP})' style="text-align:center;">
+                        <div class="pl-img-w">
+                            <div class="pl-number">${ps.player.player_number || ''}</div>
+                            <img src="${ps.player.player_image}" onerror="this.src='https://via.placeholder.com/50'" style="width:100%;height:100%;border-radius:50%;border:2px solid white;object-fit:cover;">
+                        </div>
+                        <span class="pl-name" style="font-size:9px;color:white;">${ps.player.player_name}</span>
+                    </div>`;
+                }).join('');
+            } else {
+                subs.innerHTML = '';
+            }
+
+        } catch (err) {
+            console.error('Predicted lineup error:', err);
+            subs.innerHTML = '<div class="pred-loading-msg" style="color:#ff4d4d;">حدث خطأ أثناء تحليل البيانات</div>';
+            badge.innerText = '-- : -- : --';
+        }
+    }
+
+    // ====================================================
+    // تحميل تشكيلة المباراة
+    // ====================================================
     async function loadLineup(teamFilter) {
         const { data } = await _supabase.from('match_lineups').select(`position, role, rating, goals, assists, yellow_cards, red_card, is_injured, "pl-motm", players ( * )`).eq('match_id', activeMatchId).eq('team_name', teamFilter);
         const field = document.getElementById('pitch-field'), subs = document.getElementById('subs-grid'), coach = document.getElementById('coach-area'), out = document.getElementById('out-grid'), absentGrid = document.getElementById('absent-grid');
@@ -2243,6 +2546,35 @@
         subs.innerHTML = ''; out.innerHTML = ''; coach.innerHTML = ''; absentGrid.innerHTML = '';
         document.getElementById('bench-out-area').style.display = 'none';
         document.getElementById('bench-absent-area').style.display = 'none';
+
+        const existingLabel = document.querySelector('.predicted-label');
+        if (existingLabel) existingLabel.remove();
+        const existingBanner = document.getElementById('predicted-lineup-banner');
+        if (existingBanner) existingBanner.remove();
+
+        const starters = (data || []).filter(item => (item.role || '').toLowerCase().includes('starter'));
+
+        if (!isMatchStarted && starters.length === 0) {
+            const lineupView = document.getElementById('lineup-view');
+            const teamToggle = lineupView.querySelector('.team-toggle');
+
+            const banner = document.createElement('div');
+            banner.id = 'predicted-lineup-banner';
+            banner.className = 'predicted-banner';
+            banner.innerHTML = `
+                <h4>🔮 التشكيلة المتوقعة</h4>
+                <p>تم توليد هذه التشكيلة تلقائياً بناءً على أكثر اللاعبين مشاركةً في المباريات السابقة لهذا الفريق</p>
+                <p style="font-size:12px;opacity:0.7;margin-top:4px;">نوع المباراة: <strong>${predictedLineupFormat} لاعب</strong></p>`;
+
+            if (teamToggle && teamToggle.parentNode) {
+                teamToggle.insertAdjacentElement('afterend', banner);
+            } else {
+                lineupView.insertBefore(banner, lineupView.firstChild);
+            }
+
+            await buildPredictedLineup(teamFilter, predictedLineupFormat);
+            return;
+        }
 
         let d=0, m=0, f=0;
         data?.forEach(item => {
@@ -2425,16 +2757,25 @@
         if (!fromPopState && history.state && history.state.modal === id) history.back();
     }
 
-    window.addEventListener('popstate', function() {
-        const modals = ['m-modal', 'p-modal', 's-modal', 'auth-modal', 'gift-modal', 'notif-modal'];
+    window.addEventListener('popstate', function(e) {
+        // نعرف أي مودال هو الهدف بعد الرجوع
+        const targetModal = e.state && e.state.modal;
+
+        // نغلق فقط المودالات المفتوحة التي ليست الهدف
+        // الترتيب من الأعمق للأسطح حتى لا نغلق المباراة عند إغلاق اللاعب
+        const modals = ['p-modal', 's-modal', 'auth-modal', 'gift-modal', 'notif-modal', 'm-modal'];
         for (const id of modals) {
+            if (id === targetModal) continue; // هذا المودال يجب أن يبقى مفتوحاً
             const el = document.getElementById(id);
             if (el && el.style.display === 'flex') {
-                closeModal(id, true);
-                break;
+                el.style.display = 'none';
+                return; // نغلق واحداً فقط في كل مرة
             }
         }
     });
+
+    // نضع حالة رئيسية حتى لا يخرج زر الرجوع من التطبيق
+    history.replaceState({page: 'home'}, '');
 
     loadMatches();
 
