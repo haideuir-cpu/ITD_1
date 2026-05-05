@@ -1041,7 +1041,9 @@
                     localStorage.setItem('has_golden_frame_' + currentUser.id, 'true');
                 }
                 if(data.avatars_url) {
-                    localStorage.setItem('profile_image_' + currentUser.id, data.avatars_url);
+                    const rawUrl = data.avatars_url;
+                    const busted = rawUrl.startsWith('http') ? rawUrl.split('?')[0] + '?t=' + Date.now() : rawUrl;
+                    localStorage.setItem('profile_image_' + currentUser.id, busted);
                 } else if(data.profile_image) {
                     localStorage.setItem('profile_image_' + currentUser.id, data.profile_image);
                 }
@@ -1150,7 +1152,8 @@
         if(currentUser) {
             const defaultName = currentUser.email ? currentUser.email.split('@')[0] : 'حسابي';
             const savedName = localStorage.getItem('profile_name_' + currentUser.id) || defaultName;
-            const savedPhoto = localStorage.getItem('profile_image_' + currentUser.id) || '';
+            const rawPhoto = localStorage.getItem('profile_image_' + currentUser.id) || '';
+            const savedPhoto = rawPhoto.startsWith('http') ? rawPhoto.split('?')[0] + '?t=' + Date.now() : rawPhoto;
 
             let userInitials = savedName.substring(0, 2).toUpperCase();
             let frameCSS = localStorage.getItem('has_golden_frame_' + currentUser.id) ? 'border: 2px solid #f1c40f; box-shadow: 0 0 10px rgba(241,196,15,0.8); color: #f1c40f;' : '';
@@ -1277,19 +1280,36 @@
                 btn.innerText = "جاري ضغط الصورة...";
                 showStatus('جاري ضغط الصورة...');
                 const compressedBlob = await compressImageToBlob(photoFile, 280, 0.72);
-                const filePath = `${currentUser.id}/avatar.jpg`;
+                const compressedBase64 = await compressImageToBase64(photoFile, 280, 0.72);
+
                 btn.innerText = "جاري رفع الصورة...";
                 showStatus('جاري الرفع...');
-                const { error: uploadError } = await _supabase.storage
-                    .from('avatars')
-                    .upload(filePath, compressedBlob, { upsert: true, contentType: 'image/jpeg' });
-                if (uploadError) { showErr('فشل رفع الصورة: ' + uploadError.message); return; }
-                const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
-                newPhotoUrl = urlData.publicUrl + '?t=' + Date.now();
+
+                let uploadedViaStorage = false;
+                try {
+                    const filePath = `${currentUser.id}/avatar.jpg`;
+                    const uploadPromise = _supabase.storage
+                        .from('avatars')
+                        .upload(filePath, compressedBlob, { upsert: true, contentType: 'image/jpeg' });
+                    const timeoutPromise = new Promise((_, rej) =>
+                        setTimeout(() => rej(new Error('timeout')), 10000)
+                    );
+                    const { error: uploadError } = await Promise.race([uploadPromise, timeoutPromise]);
+                    if (!uploadError) {
+                        const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+                        newPhotoUrl = urlData.publicUrl + '?t=' + Date.now();
+                        uploadedViaStorage = true;
+                    }
+                } catch (_) {}
+
+                if (!uploadedViaStorage) {
+                    newPhotoUrl = compressedBase64;
+                }
+
                 localStorage.setItem('profile_image_' + currentUser.id, newPhotoUrl);
-                showStatus('✅ تم الرفع، جاري الحفظ...', '#2ecc71');
+                showStatus('✅ تم، جاري الحفظ...', '#2ecc71');
             } catch (uploadErr) {
-                showErr('خطأ في الرفع: ' + (uploadErr.message || ''));
+                showErr('خطأ: ' + (uploadErr.message || ''));
                 return;
             }
         }
