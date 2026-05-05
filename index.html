@@ -1266,7 +1266,7 @@
 
         const photoInput = document.getElementById('profile-photo-input');
         const photoFile = photoInput && photoInput.files[0] ? photoInput.files[0] : null;
-        let newPhotoUrl = localStorage.getItem('profile_image_' + currentUser.id) || null;
+        let newPhotoUrl = null; // يُضبط فقط عند رفع صورة جديدة — لا نقرأ base64 قديم من localStorage
 
         const statusEl2 = document.getElementById('photo-status');
         const showStatus = (msg, color) => { if (statusEl2) { statusEl2.style.color = color || 'var(--nav-inactive)'; statusEl2.innerText = msg; } };
@@ -1279,35 +1279,41 @@
             try {
                 btn.innerText = "جاري ضغط الصورة...";
                 showStatus('جاري ضغط الصورة...');
-                const compressedBase64 = await compressImageToBase64(photoFile, 280, 0.72);
-                const compressedBlob = dataURLtoBlob(compressedBase64);
+                const compressedBlob = dataURLtoBlob(await compressImageToBase64(photoFile, 280, 0.72));
 
                 btn.innerText = "جاري رفع الصورة...";
-                showStatus('جاري الرفع...');
+                showStatus('جاري رفع الصورة...');
 
-                let uploadedViaStorage = false;
-                try {
-                    const filePath = `${currentUser.id}/avatar.jpg`;
-                    const uploadPromise = _supabase.storage
-                        .from('avatars')
-                        .upload(filePath, compressedBlob, { upsert: true, contentType: 'image/jpeg' });
-                    const timeoutPromise = new Promise((_, rej) =>
-                        setTimeout(() => rej(new Error('timeout')), 10000)
-                    );
-                    const { error: uploadError } = await Promise.race([uploadPromise, timeoutPromise]);
-                    if (!uploadError) {
-                        const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
-                        newPhotoUrl = urlData.publicUrl + '?t=' + Date.now();
-                        uploadedViaStorage = true;
+                const filePath = `${currentUser.id}/avatar.jpg`;
+                let uploadError = null;
+
+                // حاول الرفع مرتين بمهلة 30 ثانية لكل محاولة
+                for (let attempt = 1; attempt <= 2; attempt++) {
+                    if (attempt === 2) {
+                        btn.innerText = "إعادة المحاولة...";
+                        showStatus('جاري إعادة المحاولة...');
                     }
-                } catch (_) {}
-
-                if (!uploadedViaStorage) {
-                    newPhotoUrl = compressedBase64;
+                    try {
+                        const { error: err } = await Promise.race([
+                            _supabase.storage.from('avatars').upload(filePath, compressedBlob, { upsert: true, contentType: 'image/jpeg' }),
+                            new Promise((_, rej) => setTimeout(() => rej(new Error('انتهت مهلة الرفع، تحقق من اتصالك')), 30000))
+                        ]);
+                        uploadError = err || null;
+                        if (!uploadError) break;
+                    } catch (e) {
+                        uploadError = e;
+                    }
                 }
 
+                if (uploadError) {
+                    showErr('فشل رفع الصورة: ' + (uploadError.message || 'تحقق من اتصالك بالإنترنت'));
+                    return;
+                }
+
+                const { data: urlData } = _supabase.storage.from('avatars').getPublicUrl(filePath);
+                newPhotoUrl = urlData.publicUrl + '?t=' + Date.now();
                 localStorage.setItem('profile_image_' + currentUser.id, newPhotoUrl);
-                showStatus('✅ تم، جاري الحفظ...', '#2ecc71');
+                showStatus('✅ تم رفع الصورة بنجاح', '#2ecc71');
             } catch (uploadErr) {
                 showErr('خطأ: ' + (uploadErr.message || ''));
                 return;
@@ -1319,10 +1325,18 @@
             const updateData = { id: currentUser.id, full_name: nameToSave };
             if (newPhotoUrl) updateData.avatars_url = newPhotoUrl;
             const upsertPromise = _supabase.from('profiles').upsert(updateData);
-            const upsertTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 12000));
+            const upsertTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000));
             const { error: dbError } = await Promise.race([upsertPromise, upsertTimeout]);
             if (dbError) { showErr('خطأ في الحفظ: ' + dbError.message); return; }
         } catch (error) {
+            // إذا كان timeout فقط، تم الحفظ محلياً بالفعل — اعتبره نجاحاً جزئياً
+            if ((error.message || '') === 'timeout') {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                showStatus('✅ تم الحفظ محلياً', '#f1c40f');
+                setTimeout(() => { isProfileEditMode = false; updateAuthUI(); }, 800);
+                return;
+            }
             showErr('خطأ في الاتصال: ' + (error.message || ''));
             return;
         }
