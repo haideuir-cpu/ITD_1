@@ -2617,21 +2617,72 @@
     function openDetails(item) { openPlayerDirect({...item.players, ...item}); }
 
     async function loadEvents() {
-        const list = document.getElementById('events-list'); 
-        if (!isMatchStarted) { list.innerHTML = `<div style="text-align:center; padding:60px; color:#8e99a2;">المباراة لم تبدأ بعد.</div>`; return; }
-        const { data } = await _supabase.from('events').select('*').eq('match_id', activeMatchId).order('minute', {ascending: false});
-        list.innerHTML = data?.map(ev => {
-            const status = (ev.status || "").toLowerCase().trim();
-            let icon = "•";
-            if (status.includes('goal') || status.includes('هدف')) icon = "⚽";
-            else if (status.includes('assist') || status.includes('صناعة')) icon = "👟";
-            else if (status.includes('yellow') || status.includes('أصفر') || status.includes('صفراء')) icon = "🟨";
-            else if (status.includes('eviction') || status.includes('red') || status.includes('طرد') || status.includes('أحمر') || status.includes('حمراء')) icon = "🟥";
-            else if (status.includes('sub') || status.includes('تبديل')) icon = "🔄";
-            else if (status.includes('var')) icon = "🖥️";
-            else if (status.includes('pen')) icon = "🥅";
-            return `<div style="display:flex; align-items:center; padding:15px; border-bottom:1px solid var(--border); gap:15px;"><div style="background:var(--border); padding:4px 10px; border-radius:6px; font-size:0.85rem; min-width:45px; text-align:center;">${ev.minute}'</div><div style="width:25px; text-align:center;">${icon}</div><div style="flex:1;"><b>${ev.player_name}</b><br><small style="color:#8e99a2">${ev.description || ''}</small></div></div>`;
-        }).join('') || 'لا توجد أحداث';
+        const list = document.getElementById('events-list');
+        if (!isMatchStarted) {
+            list.innerHTML = `<div style="text-align:center; padding:60px; color:#8e99a2;">المباراة لم تبدأ بعد.</div>`;
+            return;
+        }
+
+        list.innerHTML = `<div style="text-align:center;padding:30px;color:#8e99a2;">جاري تحميل الأحداث...</div>`;
+
+        const { data } = await _supabase
+            .from('match_lineups')
+            .select(`team_name, goals, assists, yellow_cards, red_card, is_injured, "pl-motm", players ( player_name, player_image, player_number )`)
+            .eq('match_id', activeMatchId);
+
+        if (!data || data.length === 0) {
+            list.innerHTML = `<div style="text-align:center;padding:60px;color:#8e99a2;">لا توجد أحداث مسجّلة.</div>`;
+            return;
+        }
+
+        // بناء قائمة الأحداث من الحقول
+        const events = [];
+        data.forEach(item => {
+            const name = item.players?.player_name || '---';
+            const img  = item.players?.player_image || '';
+            const num  = item.players?.player_number || '';
+            const team = item.team_name || '';
+
+            const push = (icon, label, count) => {
+                for (let i = 0; i < (count || 1); i++) {
+                    events.push({ icon, label, name, img, num, team });
+                }
+            };
+
+            if (item['pl-motm'] === true || item['pl-motm'] === 1)
+                push('⭐', 'رجل المباراة', 1);
+            if ((item.goals || 0) > 0)
+                push('⚽', 'هدف', item.goals);
+            if ((item.assists || 0) > 0)
+                push('👟', 'صناعة هدف', item.assists);
+            if ((item.yellow_cards || 0) > 0)
+                push('🟨', 'بطاقة صفراء', item.yellow_cards);
+            if (item.red_card)
+                push('🟥', 'بطاقة حمراء', 1);
+            if (item.is_injured)
+                push('🤕', 'إصابة', 1);
+        });
+
+        if (events.length === 0) {
+            list.innerHTML = `<div style="text-align:center;padding:60px;color:#8e99a2;">لا توجد أحداث مسجّلة.</div>`;
+            return;
+        }
+
+        // ترتيب: نجم المباراة أولاً ثم الأهداف ثم الصناعات ...
+        const order = ['⭐','⚽','👟','🟨','🟥','🤕'];
+        events.sort((a, b) => order.indexOf(a.icon) - order.indexOf(b.icon));
+
+        list.innerHTML = events.map(ev => `
+            <div style="display:flex; align-items:center; padding:12px 15px; border-bottom:1px solid var(--border); gap:12px;">
+                <div style="width:36px;height:36px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid var(--accent);">
+                    <img src="${ev.img}" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='https://via.placeholder.com/36/162029/1e90ff?text=${ev.num}'">
+                </div>
+                <div style="font-size:1.4rem; flex-shrink:0;">${ev.icon}</div>
+                <div style="flex:1;">
+                    <b style="font-size:0.95rem;">${ev.name}</b>
+                    <br><small style="color:#8e99a2;">${ev.label} · ${ev.team}</small>
+                </div>
+            </div>`).join('');
     }
 
     async function loadMatchDetails() {
