@@ -1319,24 +1319,31 @@
             }
         }
 
-        try {
-            btn.innerText = "جاري الحفظ...";
-            const updateData = { id: currentUser.id, full_name: nameToSave };
-            if (newPhotoUrl) updateData.avatars_url = newPhotoUrl;
-            const upsertPromise = _supabase.from('profiles').upsert(updateData);
-            const upsertTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000));
-            const { error: dbError } = await Promise.race([upsertPromise, upsertTimeout]);
-            if (dbError) { showErr('خطأ في الحفظ: ' + dbError.message); return; }
-        } catch (error) {
-            // إذا كان timeout فقط، تم الحفظ محلياً بالفعل — اعتبره نجاحاً جزئياً
-            if ((error.message || '') === 'timeout') {
-                btn.innerText = originalText;
-                btn.disabled = false;
-                showStatus('✅ تم الحفظ محلياً', '#f1c40f');
-                setTimeout(() => { isProfileEditMode = false; updateAuthUI(); }, 800);
-                return;
+        btn.innerText = "جاري الحفظ...";
+        showStatus('جاري حفظ البيانات...');
+
+        // حاول الحفظ في Supabase 3 مرات بمهلة 15 ثانية لكل محاولة
+        let saveError = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                if (attempt > 1) showStatus(`إعادة محاولة الحفظ (${attempt}/3)...`);
+                const upsertData = { id: currentUser.id };
+                if (nameToSave) upsertData.full_name = nameToSave;
+                if (newPhotoUrl) upsertData.avatars_url = newPhotoUrl;
+                const savePromise = _supabase.from('profiles').upsert(upsertData);
+                const { error: dbError } = await Promise.race([
+                    savePromise,
+                    new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000))
+                ]);
+                if (!dbError) { saveError = null; break; }
+                saveError = dbError;
+            } catch (e) {
+                saveError = e;
             }
-            showErr('خطأ في الاتصال: ' + (error.message || ''));
+        }
+
+        if (saveError) {
+            showErr('فشل الحفظ في قاعدة البيانات: ' + (saveError.message || 'تحقق من اتصالك'));
             return;
         }
 
