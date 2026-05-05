@@ -1279,8 +1279,8 @@
             try {
                 btn.innerText = "جاري ضغط الصورة...";
                 showStatus('جاري ضغط الصورة...');
-                const compressedBlob = await compressImageToBlob(photoFile, 280, 0.72);
                 const compressedBase64 = await compressImageToBase64(photoFile, 280, 0.72);
+                const compressedBlob = dataURLtoBlob(compressedBase64);
 
                 btn.innerText = "جاري رفع الصورة...";
                 showStatus('جاري الرفع...');
@@ -1318,7 +1318,9 @@
             btn.innerText = "جاري الحفظ...";
             const updateData = { id: currentUser.id, full_name: nameToSave };
             if (newPhotoUrl) updateData.avatars_url = newPhotoUrl;
-            const { error: dbError } = await _supabase.from('profiles').upsert(updateData);
+            const upsertPromise = _supabase.from('profiles').upsert(updateData);
+            const upsertTimeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 12000));
+            const { error: dbError } = await Promise.race([upsertPromise, upsertTimeout]);
             if (dbError) { showErr('خطأ في الحفظ: ' + dbError.message); return; }
         } catch (error) {
             showErr('خطأ في الاتصال: ' + (error.message || ''));
