@@ -2744,42 +2744,117 @@
                 <span style="color:#8eb8d8;font-size:0.85rem;margin-right:8px;">جاري تحميل حالة الطقس...</span>
             </div></div>`;
 
-        // جلب الطقس من wttr.in بناءً على موقع الملعب أو اسمه
-        const location = (data.stadium_location || data.stadium_name || '').trim();
+        // طقس العمارة - محافظة ميسان - العراق (إحداثيات ثابتة)
+        const AMARAH_LAT = 31.8333;
+        const AMARAH_LON = 47.1500;
         const slot = document.getElementById('weather-card-slot');
 
-        if (!location) {
-            slot.innerHTML = `<div class="info-card"><span>---</span><span>حالة الطقس</span></div>`;
-            return;
+        // تحليل تاريخ المباراة إلى صيغة YYYY-MM-DD
+        function parseMatchDate(dateStr) {
+            if (!dateStr) return null;
+            if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) return dateStr.substring(0, 10);
+            const dmy = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (dmy) return `${dmy[3]}-${dmy[2].padStart(2,'0')}-${dmy[1].padStart(2,'0')}`;
+            const dmy2 = dateStr.match(/^(\d{1,2})-(\d{1,2})-(\d{4})/);
+            if (dmy2) return `${dmy2[3]}-${dmy2[2].padStart(2,'0')}-${dmy2[1].padStart(2,'0')}`;
+            return null;
         }
 
-        try {
-            const res = await fetch(`https://wttr.in/${encodeURIComponent(location)}?format=j1`, { signal: AbortSignal.timeout(6000) });
-            if (!res.ok) throw new Error('fetch failed');
-            const json = await res.json();
-            const cur  = json.current_condition?.[0];
-            if (!cur) throw new Error('no data');
+        // رمز WMO → أيقونة + وصف عربي
+        function wmoToDesc(code) {
+            if (code === 0)  return { icon: '☀️',  ar: 'مشمس وصافٍ' };
+            if (code <= 2)   return { icon: '🌤️',  ar: 'غائم جزئياً' };
+            if (code === 3)  return { icon: '☁️',  ar: 'غائم' };
+            if (code <= 49)  return { icon: '🌫️',  ar: 'ضبابي' };
+            if (code <= 57)  return { icon: '🌦️',  ar: 'مطر خفيف' };
+            if (code <= 67)  return { icon: '🌧️',  ar: 'ممطر' };
+            if (code <= 77)  return { icon: '🌨️',  ar: 'ثلوج' };
+            if (code <= 82)  return { icon: '🌧️',  ar: 'زخات مطر' };
+            if (code <= 86)  return { icon: '🌨️',  ar: 'زخات ثلج' };
+            if (code <= 99)  return { icon: '⛈️',  ar: 'عاصفة رعدية' };
+            return { icon: '🌡️', ar: 'غير معروف' };
+        }
 
-            const tempC    = cur.temp_C || '--';
-            const tempF    = cur.temp_F || '--';
-            const humidity = cur.humidity || '--';
-            const wind     = cur.windspeedKmph || '--';
-            const rawDesc  = cur.weatherDesc?.[0]?.value || '';
-            const icon     = _weatherIcon(rawDesc);
-            const arabicD  = _weatherArabic(rawDesc);
+        const matchDateStr = parseMatchDate(data.created_at);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+
+        try {
+            let weatherUrl, label;
+
+            if (!matchDateStr) {
+                // لا يوجد تاريخ → اعرض الطقس الحالي
+                weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${AMARAH_LAT}&longitude=${AMARAH_LON}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia/Baghdad`;
+                const res = await fetch(weatherUrl, { signal: AbortSignal.timeout(8000) });
+                if (!res.ok) throw new Error('failed');
+                const json = await res.json();
+                const cur = json.current;
+                const desc = wmoToDesc(cur.weather_code || 0);
+                const tempC = Math.round(cur.temperature_2m);
+                const tempF = Math.round(tempC * 9/5 + 32);
+                slot.innerHTML = `
+                    <div class="weather-card">
+                        <div class="weather-icon">${desc.icon}</div>
+                        <div class="weather-info">
+                            <div class="weather-temp">${tempC}°C <span style="font-size:0.9rem;color:#8eb8d8;">/ ${tempF}°F</span></div>
+                            <div class="weather-desc">${desc.ar}</div>
+                            <div class="weather-meta">💧 الرطوبة: ${cur.relative_humidity_2m}% &nbsp;·&nbsp; 💨 الرياح: ${Math.round(cur.wind_speed_10m)} كم/س</div>
+                        </div>
+                        <div class="weather-label">طقس العمارة الآن</div>
+                    </div>`;
+                return;
+            }
+
+            const matchDate = new Date(matchDateStr); matchDate.setHours(0, 0, 0, 0);
+            const diffDays = Math.round((matchDate - today) / (1000 * 60 * 60 * 24));
+
+            if (diffDays > 16) {
+                slot.innerHTML = `<div class="info-card"><span>الطقس سيكون متاحاً قريباً من موعد المباراة</span><span>طقس العمارة يوم المباراة</span></div>`;
+                return;
+            }
+
+            if (diffDays >= 0) {
+                // مباراة اليوم أو المستقبل → توقعات
+                weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${AMARAH_LAT}&longitude=${AMARAH_LON}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_mean,windspeed_10m_max&start_date=${matchDateStr}&end_date=${matchDateStr}&timezone=Asia/Baghdad`;
+                label = diffDays === 0 ? 'طقس العمارة اليوم' : 'توقعات طقس المباراة';
+            } else {
+                // مباراة ماضية → أرشيف
+                weatherUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${AMARAH_LAT}&longitude=${AMARAH_LON}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max&start_date=${matchDateStr}&end_date=${matchDateStr}&timezone=Asia/Baghdad`;
+                label = 'طقس العمارة يوم المباراة';
+            }
+
+            const res = await fetch(weatherUrl, { signal: AbortSignal.timeout(9000) });
+            if (!res.ok) throw new Error('weather-failed');
+            const json = await res.json();
+            const daily = json.daily;
+            if (!daily || daily.temperature_2m_max?.[0] == null) throw new Error('no-data');
+
+            const maxC = Math.round(daily.temperature_2m_max[0]);
+            const minC = Math.round(daily.temperature_2m_min[0]);
+            const maxF = Math.round(maxC * 9/5 + 32);
+            const minF = Math.round(minC * 9/5 + 32);
+            const wind = Math.round(daily.windspeed_10m_max?.[0] || 0);
+            const desc = wmoToDesc(daily.weather_code?.[0] || 0);
+
+            let extraMeta = '';
+            if (diffDays >= 0 && daily.precipitation_probability_mean?.[0] != null) {
+                extraMeta = `🌧️ احتمال مطر: ${Math.round(daily.precipitation_probability_mean[0])}%`;
+            } else if (diffDays < 0 && daily.precipitation_sum?.[0] != null) {
+                extraMeta = `🌧️ تساقط: ${daily.precipitation_sum[0]} مم`;
+            }
 
             slot.innerHTML = `
                 <div class="weather-card">
-                    <div class="weather-icon">${icon}</div>
+                    <div class="weather-icon">${desc.icon}</div>
                     <div class="weather-info">
-                        <div class="weather-temp">${tempC}°C <span style="font-size:0.9rem;color:#8eb8d8;">/ ${tempF}°F</span></div>
-                        <div class="weather-desc">${arabicD}</div>
-                        <div class="weather-meta">💧 الرطوبة: ${humidity}% &nbsp;·&nbsp; 💨 الرياح: ${wind} كم/س</div>
+                        <div class="weather-temp">${maxC}°C <span style="font-size:0.9rem;color:#8eb8d8;">/ ${maxF}°F</span></div>
+                        <div class="weather-desc">${desc.ar} · الأدنى ${minC}°C / ${minF}°F</div>
+                        <div class="weather-meta">💨 الرياح: ${wind} كم/س${extraMeta ? ' &nbsp;·&nbsp; ' + extraMeta : ''}</div>
                     </div>
-                    <div class="weather-label">الطقس الآن</div>
+                    <div class="weather-label">${label}</div>
                 </div>`;
-        } catch(e) {
-            slot.innerHTML = `<div class="info-card"><span>تعذّر تحميل الطقس</span><span>حالة الطقس</span></div>`;
+
+        } catch(err) {
+            slot.innerHTML = `<div class="info-card"><span>تعذّر تحميل الطقس</span><span>طقس العمارة يوم المباراة</span></div>`;
         }
     }
 
