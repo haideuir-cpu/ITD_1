@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ex; flex-directi<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -157,6 +157,13 @@
         .info-card.clickable:active { transform: scale(0.98); background: var(--border); }
         .info-card span:first-child { color: var(--text); font-weight: bold; font-size: 0.95rem; }
         .info-card span:last-child { color: var(--nav-inactive); font-size: 0.85rem; }
+        .weather-card { background: linear-gradient(135deg, #1a3a5c, #0f2233); border: 1px solid #1e90ff44; border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; }
+        .weather-icon { font-size: 2.4rem; flex-shrink: 0; }
+        .weather-info { flex: 1; }
+        .weather-temp { font-size: 1.5rem; font-weight: bold; color: #fff; }
+        .weather-desc { font-size: 0.85rem; color: #8eb8d8; margin-top: 2px; }
+        .weather-meta { font-size: 0.78rem; color: #5a8aac; margin-top: 4px; }
+        .weather-label { font-size: 0.8rem; color: #1e90ff; font-weight: bold; text-align: left; }
         .back-btn { cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
 
         .more-item {
@@ -2685,16 +2692,94 @@
             </div>`).join('');
     }
 
+    function _weatherIcon(desc) {
+        const d = (desc || '').toLowerCase();
+        if (d.includes('sunny') || d.includes('clear'))          return '☀️';
+        if (d.includes('partly cloudy') || d.includes('partly')) return '🌤️';
+        if (d.includes('overcast') || d.includes('cloudy'))      return '☁️';
+        if (d.includes('fog') || d.includes('mist'))             return '🌫️';
+        if (d.includes('blizzard'))                              return '🌨️';
+        if (d.includes('thunder') || d.includes('storm'))        return '⛈️';
+        if (d.includes('heavy rain') || d.includes('torrential'))return '🌧️';
+        if (d.includes('drizzle') || d.includes('light rain'))   return '🌦️';
+        if (d.includes('rain') || d.includes('shower'))          return '🌧️';
+        if (d.includes('snow') || d.includes('sleet'))           return '🌨️';
+        if (d.includes('wind') || d.includes('breez'))           return '💨';
+        return '🌡️';
+    }
+
+    function _weatherArabic(desc) {
+        const d = (desc || '').toLowerCase();
+        if (d.includes('sunny') || d.includes('clear'))          return 'مشمس وصافٍ';
+        if (d.includes('partly cloudy') || d.includes('partly')) return 'غائم جزئياً';
+        if (d.includes('overcast'))                              return 'ملبّد بالغيوم';
+        if (d.includes('cloudy'))                                return 'غائم';
+        if (d.includes('fog') || d.includes('mist'))             return 'ضبابي';
+        if (d.includes('blizzard'))                              return 'عاصفة ثلجية';
+        if (d.includes('thunder') || d.includes('storm'))        return 'عاصفة رعدية';
+        if (d.includes('heavy rain') || d.includes('torrential'))return 'مطر غزير';
+        if (d.includes('drizzle') || d.includes('light rain'))   return 'مطر خفيف';
+        if (d.includes('rain') || d.includes('shower'))          return 'ممطر';
+        if (d.includes('snow') || d.includes('sleet'))           return 'ثلوج';
+        if (d.includes('wind') || d.includes('breez'))           return 'رياح';
+        return desc || 'غير معروف';
+    }
+
     async function loadMatchDetails() {
         const { data } = await _supabase.from('matches').select('*').eq('id', activeMatchId).single();
-        if(data) {
-            document.getElementById('details-list').innerHTML = `
-                <div class="info-card"><span>${data.league_name || '---'}</span><span>البطولة</span></div>
-                <div class="info-card clickable" onclick="openStadiumDetails(${activeMatchId})">
-                    <span>${data.stadium_name || '---'}</span>
-                    <span>ملعب المباراة</span>
-                </div>
-                <div class="info-card"><span>${data.match_date || '---'}</span><span>تاريخ المباراة</span></div>`;
+        if (!data) return;
+
+        const detailsList = document.getElementById('details-list');
+
+        // عرض التفاصيل الأساسية فوراً
+        detailsList.innerHTML = `
+            <div class="info-card"><span>${data.league_name || '---'}</span><span>البطولة</span></div>
+            <div class="info-card clickable" onclick="openStadiumDetails(${activeMatchId})">
+                <span>${data.stadium_name || '---'}</span>
+                <span>ملعب المباراة</span>
+            </div>
+            <div class="info-card"><span>${data.match_date || '---'}</span><span>تاريخ المباراة</span></div>
+            <div id="weather-card-slot"><div class="weather-card" style="justify-content:center;opacity:0.6;">
+                <span style="font-size:1.2rem;">🌐</span>
+                <span style="color:#8eb8d8;font-size:0.85rem;margin-right:8px;">جاري تحميل حالة الطقس...</span>
+            </div></div>`;
+
+        // جلب الطقس من wttr.in بناءً على موقع الملعب أو اسمه
+        const location = (data.stadium_location || data.stadium_name || '').trim();
+        const slot = document.getElementById('weather-card-slot');
+
+        if (!location) {
+            slot.innerHTML = `<div class="info-card"><span>---</span><span>حالة الطقس</span></div>`;
+            return;
+        }
+
+        try {
+            const res = await fetch(`https://wttr.in/${encodeURIComponent(location)}?format=j1`, { signal: AbortSignal.timeout(6000) });
+            if (!res.ok) throw new Error('fetch failed');
+            const json = await res.json();
+            const cur  = json.current_condition?.[0];
+            if (!cur) throw new Error('no data');
+
+            const tempC    = cur.temp_C || '--';
+            const tempF    = cur.temp_F || '--';
+            const humidity = cur.humidity || '--';
+            const wind     = cur.windspeedKmph || '--';
+            const rawDesc  = cur.weatherDesc?.[0]?.value || '';
+            const icon     = _weatherIcon(rawDesc);
+            const arabicD  = _weatherArabic(rawDesc);
+
+            slot.innerHTML = `
+                <div class="weather-card">
+                    <div class="weather-icon">${icon}</div>
+                    <div class="weather-info">
+                        <div class="weather-temp">${tempC}°C <span style="font-size:0.9rem;color:#8eb8d8;">/ ${tempF}°F</span></div>
+                        <div class="weather-desc">${arabicD}</div>
+                        <div class="weather-meta">💧 الرطوبة: ${humidity}% &nbsp;·&nbsp; 💨 الرياح: ${wind} كم/س</div>
+                    </div>
+                    <div class="weather-label">الطقس الآن</div>
+                </div>`;
+        } catch(e) {
+            slot.innerHTML = `<div class="info-card"><span>تعذّر تحميل الطقس</span><span>حالة الطقس</span></div>`;
         }
     }
 
